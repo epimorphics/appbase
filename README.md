@@ -1,7 +1,7 @@
 # Application Base
 
-Reusable foundation for java-based RDF applications that include a basic UI element. 
-Not a replacement to Ruby or client side applications for serious UIs but suited 
+Reusable foundation for java RDF applications that provide a web UI or web API or both.
+Not a replacement to Ruby or client side JavaScript for serious UIs but suited 
 to applications with management UIs (e.g. data converters) or with straightforward
 requirements (e.g. UKGovLD registry).
 

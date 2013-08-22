@@ -19,7 +19,7 @@
  *
  *****************************************************************/
 
-package com.epimorphics.server.webapi;
+package com.epimorphics.appbase.webapi;
 
 import static com.epimorphics.webapi.marshalling.RDFXMLMarshaller.MIME_RDFXML;
 

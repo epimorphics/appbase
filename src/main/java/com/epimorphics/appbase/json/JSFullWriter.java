@@ -7,7 +7,7 @@
  *
  *****************************************************************/
 
-package com.epimorphics.server.webapi.marshalling;
+package com.epimorphics.appbase.json;
 
 import java.io.OutputStream;
 import java.util.ArrayDeque;

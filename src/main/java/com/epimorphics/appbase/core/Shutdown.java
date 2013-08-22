@@ -1,9 +1,9 @@
 /******************************************************************
- * File:        Temp.java
+ * File:        Shutdown.java
  * Created by:  Dave Reynolds
- * Created on:  27 Nov 2012
+ * Created on:  9 Apr 2013
  *
- * (c) Copyright 2012, Epimorphics Limited
+ * (c) Copyright 2013, Epimorphics Limited
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,29 +19,15 @@
  *
  *****************************************************************/
 
-package com.epimorphics.server.core;
+package com.epimorphics.appbase.core;
 
-import java.util.Map;
+/**
+ * Interface that signals a service which can be shutdown as
+ * part of context exit.
+ *
+ * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
+ */
+public interface Shutdown {
 
-import javax.servlet.ServletContext;
-
-public class TestService implements Service {
-
-    @Override
-    public void init(Map<String, String> config, ServletContext context) {
-        System.out.println("Test service init called");
-        for (String conf : config.keySet()) {
-            System.out.println(" " + conf + " = " + config.get(conf));
-        }
-    }
-
-    @Override
-    public void postInit() {
-        System.out.println("Post init called");
-    }
-
-    @Override
-    public void postPostInit() {
-    }
-
+    public void shutdown();
 }

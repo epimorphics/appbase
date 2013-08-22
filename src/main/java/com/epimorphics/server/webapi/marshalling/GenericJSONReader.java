@@ -25,7 +25,7 @@ import javax.ws.rs.ext.Provider;
 import org.apache.jena.atlas.json.JSON;
 import org.apache.jena.atlas.json.JsonObject;
 
-import com.epimorphics.server.webapi.WebApiException;
+import com.epimorphics.appbase.webapi.WebApiException;
 
 @Provider
 @Consumes("application/json")

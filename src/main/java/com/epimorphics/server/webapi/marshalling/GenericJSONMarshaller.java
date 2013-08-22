@@ -32,6 +32,9 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
+import com.epimorphics.appbase.json.JSFullWriter;
+import com.epimorphics.appbase.json.JSONWritable;
+
 /**
  * Support serialization to JSON for JSONRepresentations.
  * 

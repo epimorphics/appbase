@@ -19,7 +19,7 @@
  *
  *****************************************************************/
 
-package com.epimorphics.server.webapi;
+package com.epimorphics.appbase.webapi;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;

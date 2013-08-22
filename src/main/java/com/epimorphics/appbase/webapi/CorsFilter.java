@@ -19,7 +19,7 @@
  * This is a hacked version of the Tomcat 7 CorsFilter. Modified to allow
  * "null" as an original so that it will allow requests from static files. 
  */
-package com.epimorphics.server.webapi;
+package com.epimorphics.appbase.webapi;
 
 import java.io.IOException;
 import java.net.URI;
