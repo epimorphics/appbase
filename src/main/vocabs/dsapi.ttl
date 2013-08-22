@@ -1,0 +1,29 @@
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos:       <http://www.w3.org/2004/02/skos/core#> .
+
+@prefix dsapi:    <http://www.epimorphics.com/public/vocabulary/dsapi#> .
+@prefix :    <http://www.epimorphics.com/public/vocabulary/dsapi#> .
+
+
+# Simple vocabulary to enable datasets and dsds to be annotated for improved API access
+
+:lowerBound a owl:DatatypeProperty;
+    rdfs:label "lower bound"@en;
+    rdfs:comment "Lowest value expected for a measure or other cube component"@en;
+    .
+    
+:upperBound a owl:DatatypeProperty;
+    rdfs:label "upper bound"@en;
+    rdfs:comment "Highest value expected for a measure or other cube component"@en;
+    .
+    
+:collection a owl:ObjectProperty;
+    rdfs:label "collection"@en;
+    rdfs:comment "Indicates a meaningful collection of terms from a concept scheme"@en;
+    rdfs:domain skos:ConceptScheme;
+    rdfs:range skos:Collection;
+    .
+        

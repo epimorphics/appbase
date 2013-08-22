@@ -1,0 +1,63 @@
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+@prefix li:    <http://www.epimorphics.com/public/vocabulary/lucene-index#> .
+@prefix :      <http://www.epimorphics.com/public/vocabulary/lucene-index#> .
+
+:Config a owl:Class;
+    rdfs:label "Config"@en;
+    rdfs:comment "A configuration specification for a lucene based entity index"@en;
+    .
+
+:labelProp a owl:ObjectProperty;
+    rdfs:label "label prop"@en;
+    rdfs:comment "Indicates a property whose values should be parsed as free text and indexed and stored."@en;
+    rdfs:domain :Config;
+    rdfs:range  rdf:property;
+    .
+
+:labelOnlyProp a owl:ObjectProperty;
+    rdfs:label "label only prop"@en;
+    rdfs:comment "Indicates a property whose values should be parsed as free text and indexed, but not stored."@en;
+    rdfs:domain :Config;
+    rdfs:range  rdf:property;
+    .
+
+:valueProp a owl:ObjectProperty;
+    rdfs:label "value prop"@en;
+    rdfs:comment "Indicates a property whose values should be indexed as a simple value node and stored."@en;
+    rdfs:domain :Config;
+    rdfs:range  rdf:property;
+    .
+
+:ignoreProp a owl:ObjectProperty;
+    rdfs:label "ignore prop"@en;
+    rdfs:comment "Indicates a property whose values should be ignored for indexing."@en;
+    rdfs:domain :Config;
+    rdfs:range  rdf:property;
+    .
+
+:categoryProp a owl:ObjectProperty;
+    rdfs:label "category prop"@en;
+    rdfs:comment "Indicates a property whose value should be added to a faceted browse taxonomy index."@en;
+    rdfs:domain :Config;
+    rdfs:range  rdf:property;
+    .
+
+:conceptScheme a owl:ObjectProperty;
+    rdfs:label "concept scheme"@en;
+    rdfs:comment "Indicates a skos:ConceptScheme which provides a hiearchical structure for category prop indexing."@en;
+    rdfs:domain :Config;
+    rdfs:range  rdf:property;
+    .
+
+:indexAll a owl:ObjectProperty;
+    rdfs:label "label prop"@en;
+    rdfs:comment "If true then all properties on the entity which aren't explicitly ingored or already indexed should be indexed as simple values."@en;
+    rdfs:domain :Config;
+    rdfs:range  xsd:boolean;
+    .
+
+    

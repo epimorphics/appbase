@@ -1,0 +1,23 @@
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+@prefix : <http://localhost/test/ontology#> .
+
+:A a owl:Class ;
+    rdfs:subClassOf :B .
+    
+:B a owl:Class ;
+    rdfs:subClassOf :C .
+    
+:C a owl:Class .
+
+:p a owl:ObjectProperty;
+    rdfs:subPropertyOf :sp .
+
+:sp a owl:ObjectProperty ;
+    rdfs:subPropertyOf :spp .
+
+:spp a owl:ObjectProperty .
+    
