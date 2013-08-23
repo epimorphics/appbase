@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.epimorphics.util.EpiException;
+import com.hp.hpl.jena.shared.PrefixMapping;
 
 /**
  * An App is a set of configured components and global configuration parameters. 
@@ -73,6 +74,8 @@ public class App {
     protected String name;
     protected Map<String, Object> config = new HashMap<>();
     protected Map<String, Object> components = new HashMap<String, Object>();
+    
+    protected PrefixService prefixService;
 
     public App(String name, File config) throws IOException {
         this.name = name;
@@ -126,6 +129,19 @@ public class App {
             }
         }
         return null;
+    }
+    
+    /**
+     * Return the configured prefixes
+     */
+    public PrefixMapping getPrefixs() {
+        if (prefixService == null) {
+            prefixService = getA(PrefixService.class);
+            if (prefixService == null) {
+                prefixService = new PrefixService();
+            }
+        }
+        return prefixService.getPrefixes();
     }
     
     /**
