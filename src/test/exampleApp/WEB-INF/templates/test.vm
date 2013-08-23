@@ -1,0 +1,7 @@
+#parse("header.vm")
+<p>Hello there from $app.name (parameter = $app.getParam("stringParam"))</p>
+<p>Query param arg = $arg</p>
+<p>Component1.prop1 = $component1.prop1</p>
+<p>Library plugin: $lib.myplugin.run()
+
+#parse("footer.vm")

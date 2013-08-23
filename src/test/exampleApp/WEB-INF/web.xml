@@ -44,21 +44,17 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns
     <filter-name>Jersey Web Application</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
+ -->
 
   <filter>
     <filter-name>VelocityFilter</filter-name>
-    <filter-class>com.epimorphics.server.templates.VelocityFilter</filter-class>
-    <init-param>
-      <param-name>renderService</param-name>
-      <param-value>velocity</param-value>
-    </init-param>
+    <filter-class>com.epimorphics.appbase.webapi.VelocityFilter</filter-class>
   </filter>
 
   <filter-mapping>
     <filter-name>VelocityFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
- -->
 
   <listener>
     <listener-class>com.epimorphics.appbase.core.AppConfig</listener-class>
@@ -67,13 +63,11 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns
   <context-param>
     <param-name>AppConfig.myapp</param-name>
     <!-- Will initialize from first of these it finds -->
-    <param-value>${webapp}/WEB-INF/myapp.conf</param-value>
+    <param-value>{webapp}/WEB-INF/app.conf</param-value>
   </context-param>
 
-<!-- 
     <welcome-file-list>
-        <welcome-file>start/index.html</welcome-file>
+        <welcome-file>index.html</welcome-file>
     </welcome-file-list>
- -->
  
 </web-app>

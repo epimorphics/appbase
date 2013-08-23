@@ -19,7 +19,7 @@
  *
  *****************************************************************/
 
-package com.epimorphics.server.templates;
+package com.epimorphics.appbase.templates;
 
 /**
  * Marker class for library plugins, which can have arbitrary extension interfaces.
@@ -27,5 +27,10 @@ package com.epimorphics.server.templates;
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
 public interface LibPlugin {
-
+    
+    /**
+     * A name by which the plugin can be referenced in scripts.
+     * An implementation might configure this as part of the App configuration.
+     */
+    public String getName();
 }

@@ -10,6 +10,7 @@
 package com.epimorphics.appbase.core;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +33,7 @@ import com.epimorphics.util.EpiException;
  * <p>
  * The App(s) are defined by a context parameters whose name matches "AppConfig.appname"
  * and whose value is a comma-separated list of locations to search for the configuration 
- * file for that app. In this, all location-related parameters, the string "${webapp}" will
+ * file for that app. In this, all location-related parameters, the string "{webapp}" will
  * be replaced by the location of the webapp files.
  * </p>
  * 
@@ -41,7 +42,7 @@ import com.epimorphics.util.EpiException;
 public class AppConfig implements ServletContextListener {
     static Logger log = LoggerFactory.getLogger(AppConfig.class);
     
-    public static final String WEBAPP_MACRO = "${webapp}";
+    public static final String WEBAPP_MACRO = "{webapp}";
     public static final String CONFIG_PREFIX = "AppConfig.";
 
     public static AppConfig theConfig;
@@ -109,6 +110,9 @@ public class AppConfig implements ServletContextListener {
         return theConfig;
     }
 
+    public static Collection<App> listApps() {
+        return getAppConfig().apps.values();
+    }
 
     public String expandFileLocation(String location) {
         if (filebase == null) {

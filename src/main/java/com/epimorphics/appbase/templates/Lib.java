@@ -19,7 +19,7 @@
  * $Id:  $
  *****************************************************************/
 
-package com.epimorphics.server.templates;
+package com.epimorphics.appbase.templates;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

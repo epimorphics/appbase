@@ -13,8 +13,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.beanutils.PropertyUtils;
@@ -44,24 +46,27 @@ import com.epimorphics.util.EpiException;
  * To set a configuration value on a component:
  * <pre>
  * componentName.prop = 42
+ * componentName.prop = true
  * componentName.prop = value
  * componentName.prop = string with spaces
+ * componentName.prop = "a string with surround quotes omitted"
  * </pre>
  * The "prop" can be a dotted sequence of prop names (p.q.r) a map access (p("key"))
  * or an array access (p[3]) as defined by Apache BeanUtils).
  * <p>
- * To set link one component to another use
+ * To set link one component to another use a $ prefix:
  * <pre>
  * componetName.prop = $otherComponentName
+ * </pre>
+ * To set a list of links to other components use comma-separated values:
+ * <pre>
+ * componetName.prop = $otherComponentName, $anotherone
  * </pre>
  * where the referenced component needs to have been created earlier in the file.
  * </p>
  * 
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
-
-// TODO ability to set list values with comma separated list
-
 public class App {
     static Logger log = LoggerFactory.getLogger(App.class);
     
@@ -210,7 +215,11 @@ public class App {
         } else {
             // Create a new component
             try {
-                Object component = Class.forName( value.toString() ).newInstance();
+                String name = value.toString();
+                Object component = Class.forName( name ).newInstance();
+                if (component instanceof Named) {
+                    ((Named)component).setName(target);
+                }
                 components.put(target, component);
             } catch (Exception e) {
                 error(lineNum, line, "Failed to instantiate component: " + value, e);
@@ -220,7 +229,27 @@ public class App {
     
     protected Object asValue(String valueName) {
         if (valueName.startsWith("$")) {
-            return components.get( valueName.substring(1) );
+            if (valueName.contains(",")) {
+                // Array of reference values
+                List<Object> values = new ArrayList<Object>();
+                for (String name :  valueName.split(",")) {
+                    values.add( asValue(name.trim()) );
+                }
+                return values;
+            }
+            Object component = components.get( valueName.substring(1) );
+            if (component == null) {
+                throw new EpiException("Reference to " + valueName + " not found");
+            }
+            return component;
+        }
+        if (valueName.startsWith("\"") && valueName.endsWith("\"")) {
+            return valueName.substring(1, valueName.length()-2);
+        }
+        if (valueName.equalsIgnoreCase("true")) {
+            return true;
+        } else if (valueName.equalsIgnoreCase("false")) {
+            return false;
         }
         try {
             return Long.parseLong(valueName);

@@ -9,10 +9,14 @@
 
 package com.epimorphics.appbase.webapi;
 
+import java.util.List;
+
 public class TrialBean {
     protected String prop1;
     protected long proplong;
+    protected boolean isProp;
     protected Object ref;
+    protected List<Object> xref;
     
     public TrialBean() {}
     
@@ -35,8 +39,25 @@ public class TrialBean {
     public void setRef(Object ref) {
         this.ref = ref;
     }
+    
+    public boolean isProp() {
+        return isProp;
+    }
+
+    public void setIsProp(boolean isProp) {
+        this.isProp = isProp;
+    }
+
+    public List<Object> getXref() {
+        return xref;
+    }
+
+    public void setXref(List<Object> xref) {
+        this.xref = xref;
+    }
+
     @Override
     public String toString() {
-        return String.format("TrialBean[prop1=%s, proplong=%d, ref=%s]", prop1, proplong, ref == null ? "null" : ref.toString());
+        return String.format("TrialBean[prop1=%s, proplong=%d, ref=%s, isProp=%b]", prop1, proplong, ref == null ? "null" : ref.toString(), isProp);
     }
 }

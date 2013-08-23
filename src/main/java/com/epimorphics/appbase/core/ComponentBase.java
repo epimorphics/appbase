@@ -9,6 +9,12 @@
 
 package com.epimorphics.appbase.core;
 
+import java.io.File;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 /**
  * Optional base class for components. A component can be any Java Bean
  * so this is base class is not required. Provides local pointer to the
@@ -16,12 +22,39 @@ package com.epimorphics.appbase.core;
  * 
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
-public class ComponentBase implements Startup {
+public class ComponentBase implements Startup, Named {
+    static Logger log = LoggerFactory.getLogger(ComponentBase.class);
+            
     protected App app;
-
+    protected String componentName;
+    
     @Override
     public void startup(App app) {
         this.app = app;
+    }
+
+    public File asFile(String filename) {
+        return new File( expandFileLocation(filename) );
+    }
+
+    public String expandFileLocation(String filename) {
+        return AppConfig.getAppConfig().expandFileLocation(filename);
+    }
+    
+    public void require(Object value, String valuename) {
+        if (value == null) {
+            log.error(String.format("Missing parameter %s on component %s.%s", valuename, app.getName(), componentName));
+        }
+    }
+
+    @Override
+    public String getName() {
+        return componentName;
+    }
+
+    @Override
+    public void setName(String name) {
+        componentName = name;
     }
     
 }

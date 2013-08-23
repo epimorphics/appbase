@@ -9,7 +9,9 @@
 
 package com.epimorphics.appbase.webapi;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+
+import java.util.List;
 
 import org.junit.Test;
 
@@ -21,7 +23,7 @@ public class TestConfig extends TomcatTestBase {
 
     @Override
     String getWebappRoot() {
-        return "src/test/basicWebapp";
+        return "src/test/configTestApp";
     }
     
     @Test
@@ -33,9 +35,18 @@ public class TestConfig extends TomcatTestBase {
         TrialBean component1 = app.getComponentAs("component1", TrialBean.class);
         assertEquals("name 1", component1.getProp1());
         assertEquals(1, component1.getProplong());
+        assertEquals(true, component1.isProp());
         
         TrialBean component2 = app.getComponentAs("component2", TrialBean.class);
         assertEquals("name 2", component2.getProp1());
         assertEquals(component1, component2.getRef());
+        assertEquals(false, component2.isProp());
+        
+        TrialBean component3 = app.getComponentAs("component3", TrialBean.class);
+        List<Object> xref = component3.getXref();
+        assertNotNull(xref);
+        assertEquals(2, xref.size());
+        assertEquals(component1, xref.get(0));
+        assertEquals(component2, xref.get(1));
     }
 }

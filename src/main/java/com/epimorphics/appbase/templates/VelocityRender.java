@@ -19,7 +19,7 @@
  *
  *****************************************************************/
 
-package com.epimorphics.server.templates;
+package com.epimorphics.appbase.templates;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +28,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -47,15 +48,9 @@ import org.apache.velocity.runtime.RuntimeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.epimorphics.rdfutil.DatasetWrapper;
-import com.epimorphics.server.core.Service;
-import com.epimorphics.server.core.ServiceBase;
-import com.epimorphics.server.core.ServiceConfig;
-import com.epimorphics.server.core.Store;
-import com.epimorphics.server.general.PrefixService;
+import com.epimorphics.appbase.core.App;
+import com.epimorphics.appbase.core.ComponentBase;
 import com.epimorphics.util.EpiException;
-import com.hp.hpl.jena.shared.PrefixMapping;
-import com.hp.hpl.jena.util.FileManager;
 
 /**
  * Service to provide velocity-based HTML rendering. Can be used
@@ -69,6 +64,7 @@ import com.hp.hpl.jena.util.FileManager;
  *    <li>root - URL, relative to the webapp, where the velocity filter should be installed (so that a request {root}/foo will
  *    test for a file foo.vm in the templates directory and render that, otherwise will forward the filter down the chain)</li>
  *    <li>production - optional property, if set to true then run in production model with full caching</li>
+ *    <li>plugins - an optional list of plugin objects which should be attached to Lib</li>
  *  </ul>
  * </p>
  * <p>
@@ -79,23 +75,17 @@ import com.hp.hpl.jena.util.FileManager;
  *   <li>response - the servlet response object </li>
  *   <li>root - the root context path for the servlet </li>
  *   <li>lib - a java utility library</li>
- *   <li>dataset - wrapper version of the default store</li>
- *   <li>model - wrapper version of the union model of the default store</li>
+ *   <li>app - the App which owns this rendererr</li>
  *   <li>all request parameter names bound to their values in the request</li>
- *   <li>all registered services available bound to their names</li>
+ *   <li>all App components bound to their names</li>
  *   <li>call-specific bindings which may replace any of the above </li>
  *  </ul>
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
-public class VelocityRender extends ServiceBase implements Service {
-    public static final String TEMPLATES_PARAM = "templates";
-    public static final String ROOT_PARAM      = "root";
-    public static final String PRODUCTION_PARAM = "production";
+public class VelocityRender extends ComponentBase {
     public static final String CONFIG_FILENAME = "velocity.properties";
-    public static final String PREFIXES_FILE   = "prefixes.ttl";
     public static final String MACRO_FILE      = "macros.vm";
     public static final String FILTER_NAME     = "VelocityRenderer";
-    public static final String PLUGIN_PARAM     = "plugins";
     public static final String MANUAL_PARAM    = "manualConfig";
 
     static Logger log = LoggerFactory.getLogger(VelocityRender.class);
@@ -104,25 +94,21 @@ public class VelocityRender extends ServiceBase implements Service {
     protected boolean isProduction;
     protected File templateDir;
     protected String rootURI;
-    protected PrefixMapping prefixes = null;
+    protected Lib theLib = new Lib();
     FilterRegistration registration;
 
-    @Override
-    public void init(Map<String, String> config, ServletContext context) {
-        super.init(config, context);
+    public void setProduction(boolean isProduction) {
+        this.isProduction = isProduction;
+    }
 
-        templateDir = new File(getRequiredFileParam(TEMPLATES_PARAM));
+    public void setTemplates(String templates) {
+        templateDir = asFile(templates);
         if (!templateDir.isDirectory() || !templateDir.canRead()) {
             throw new EpiException("Can't access velocity template directory: " + templateDir);
         }
+    }
 
-        File prefixesFile = new File(templateDir, PREFIXES_FILE);
-        if (prefixesFile.canRead()) {
-            prefixes = FileManager.get().loadModel(prefixesFile.getAbsolutePath());
-            log.info("Loaded prefixes: " + prefixesFile);
-        }
-
-        rootURI = getRequiredParam(ROOT_PARAM);
+    public void setRoot(String rootURI) {
         if ( !rootURI.startsWith("/") ) {
             rootURI = "/" + rootURI;
         }
@@ -132,9 +118,26 @@ public class VelocityRender extends ServiceBase implements Service {
         if (rootURI.endsWith("/")) {
             rootURI = rootURI.substring(0,  rootURI.length()-1);
         }
-
-        isProduction = "true".equalsIgnoreCase( config.get(PRODUCTION_PARAM) );
-
+        this.rootURI = rootURI;
+    }
+    
+    public void setPlugins(List<LibPlugin> plugins) {
+        for (LibPlugin plugin: plugins) {
+            setPlugin(plugin);
+        }
+    }
+    
+    public void setPlugin(LibPlugin plugin) {
+        theLib.addPlugin(plugin.getName(), plugin);
+    }
+    
+    @Override
+    public void startup(App app) {
+        super.startup(app);
+        
+        require(rootURI, "root");
+        require(templateDir, "templates");
+        
         try {
             ve = new VelocityEngine();
 
@@ -158,36 +161,8 @@ public class VelocityRender extends ServiceBase implements Service {
                 ve.init( configFile.getAbsolutePath() );
                 log.info("Loaded config: " + configFile);
             }
-
-            // Install filter
-            if (!config.containsKey(MANUAL_PARAM) || config.get(MANUAL_PARAM).equalsIgnoreCase("false")) {
-                registration = context.addFilter(FILTER_NAME, new VelocityFilter(this));
-                registration.addMappingForUrlPatterns(null, true, rootURI + "/*");
-                log.info("Installed velocity render filter at " + rootURI + "/*");
-            }
         } catch (Exception e) {
             throw new EpiException(e);
-        }
-    }
-
-    @Override
-    public void postInit() {
-        String plugins = config.get(PLUGIN_PARAM);
-        if (plugins != null) {
-            for (String pluginName : plugins.split("\\|")) {
-                LibPlugin plugin = ServiceConfig.get().getServiceAs(pluginName, LibPlugin.class);
-                if (plugin != null) {
-                    Lib.theLib.addPlugin(pluginName, plugin);
-                }
-            }
-        }
-        
-        // Can use global prefix definition if there isn't a local one for this renderer
-        if (prefixes == null) {
-            PrefixService pservice = ServiceConfig.get().getFirst(PrefixService.class);
-            if (pservice != null) {
-                prefixes = pservice.getPrefixes();
-            }
         }
     }
 
@@ -227,7 +202,17 @@ public class VelocityRender extends ServiceBase implements Service {
        response.setCharacterEncoding("UTF-8");
        PrintWriter out = response.getWriter();
        try {
-           template.merge(buildContext(request, response, env), out);
+           String root = request.getServletContext().getContextPath();
+           VelocityContext vc = buildContext(root, env);
+           Enumeration<String> paramNames = request.getParameterNames();
+           while (paramNames.hasMoreElements()) {
+               String paramname = paramNames.nextElement();
+               vc.put( paramname, request.getParameter(paramname) );
+           }
+           vc.put( "request", request );
+           vc.put( "response", response );
+
+           template.merge(vc, out);
        } catch (Exception e) {
            log.error("Exception executing template: " + templateName, e);
            throw new EpiException(e);
@@ -247,18 +232,9 @@ public class VelocityRender extends ServiceBase implements Service {
      */
     public StreamingOutput render(String templateName, String requestURI, ServletContext context, MultivaluedMap<String, String> parameters, Object...args) {
         final Template template = ve.getTemplate(templateName);     // Throws exception if not found
-        final VelocityContext vc = new VelocityContext();
+        final VelocityContext vc = buildContext(context.getContextPath(), null);
         vc.put("uri", requestURI);
         vc.put("context", context);
-        String root = context.getContextPath();
-        if (root.equals("/")) {
-            root = "";
-        }
-        vc.put( "root", root);
-        vc.put( "lib", Lib.theLib);
-        for (String serviceName : ServiceConfig.get().getServiceNames()) {
-            vc.put(serviceName, ServiceConfig.get().getService(serviceName));
-        }
         for (String key : parameters.keySet()) {
             vc.put(key, parameters.getFirst(key));
         }
@@ -282,38 +258,17 @@ public class VelocityRender extends ServiceBase implements Service {
         };
     }
 
-    public void setPrefixes(PrefixMapping pm) {
-        prefixes = pm;
-    }
 
-    public PrefixMapping getPrefixes() {
-        return prefixes;
-    }
-
-    protected VelocityContext buildContext(HttpServletRequest request, HttpServletResponse response, Map<String, Object> env) {
+    protected VelocityContext buildContext(String root, Map<String, Object> env) {
         VelocityContext vc = new VelocityContext();
-        Enumeration<String> paramNames = request.getParameterNames();
-        while (paramNames.hasMoreElements()) {
-            String paramname = paramNames.nextElement();
-            vc.put( paramname, request.getParameter(paramname) );
-        }
-        vc.put( "request", request );
-        vc.put( "response", response );
-        String root = request.getServletContext().getContextPath();
         if (root.equals("/")) {
             root = "";
         }
         vc.put( "root", root);
-        vc.put( "lib", Lib.theLib);
-        for (String serviceName : ServiceConfig.get().getServiceNames()) {
-            vc.put(serviceName, ServiceConfig.get().getService(serviceName));
-        }
-        Store defaultStore = ServiceConfig.get().getFirst(Store.class);
-        if (defaultStore != null) {
-            DatasetWrapper dsw = new DatasetWrapper(defaultStore.asDataset(), true, prefixes);
-            vc.put( "dataset", dsw);
-//            vc.put( "model", dsw.getDefaultModelW() );
-//            vc.put( "unionmodel", new ModelWrapper( defaultStore.getUnionModel() ) );
+        vc.put( "lib", theLib);
+        vc.put( "app", app);
+        for (String serviceName : app.listComponentNames()) {
+            vc.put(serviceName, app.getComponent(serviceName));
         }
         if (env != null) {
             for (Entry<String, Object> param : env.entrySet()) {

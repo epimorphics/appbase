@@ -14,10 +14,10 @@ import java.net.URL;
 
 import org.apache.catalina.startup.Tomcat;
 
-public class AppBaseTest {
+public class ExampleApp {
 
     public static void main(String[] args) throws Exception {
-        String root = "src/test/webapp";
+        String root = "src/test/exampleApp";
 
         Tomcat tomcat = new Tomcat();
         tomcat.setPort(8080);
