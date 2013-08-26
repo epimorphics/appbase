@@ -57,4 +57,8 @@ public class ComponentBase implements Startup, Named {
         componentName = name;
     }
     
+    public App getApp() {
+        return app;
+    }
+    
 }

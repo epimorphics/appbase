@@ -57,11 +57,11 @@ import com.hp.hpl.jena.shared.PrefixMapping;
  * <p>
  * To set link one component to another use a $ prefix:
  * <pre>
- * componetName.prop = $otherComponentName
+ * componentName.prop = $otherComponentName
  * </pre>
  * To set a list of links to other components use comma-separated values:
  * <pre>
- * componetName.prop = $otherComponentName, $anotherone
+ * componentName.prop = $otherComponentName, $anotherone
  * </pre>
  * where the referenced component needs to have been created earlier in the file.
  * </p>
@@ -70,6 +70,9 @@ import com.hp.hpl.jena.shared.PrefixMapping;
  */
 public class App {
     static Logger log = LoggerFactory.getLogger(App.class);
+    
+    public static final String LANGUAGE_PROP = "language";
+    public static final String DEAFULT_LANGUAGE = "en";
     
     protected String name;
     protected Map<String, Object> config = new HashMap<>();
@@ -158,6 +161,24 @@ public class App {
         return config.get(name);
     }
 
+    /**
+     * Get a configuration parameter with default
+     */
+    public Object getParam(String name, Object dflt) {
+        Object val = config.get(name);
+        if (val == null) {
+            val = dflt;
+        }
+        return val;
+    }
+
+    /**
+     * Get language for this app. Set with "language" configuration parameter.
+     */
+    public String getLanguage() {
+        return getParam(LANGUAGE_PROP, DEAFULT_LANGUAGE).toString();
+    }
+    
     /**
      * Gracefully shutdown any components that implement
      * the Shutdown signature.
