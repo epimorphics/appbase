@@ -9,16 +9,21 @@
 
 package com.epimorphics.appbase.data;
 
+import java.util.List;
+
 /**
- * Package a set of SPARQL query results for easy of access from scripting.
+ * Interface to a set of wrapped SPARQL query results.
  * 
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
-
-// TODO consider making this an interface so could have streaming and non-streaming implementations?
-
-public class WResultSet {
-
-    // TODO define the interface!
+public interface WResultSet extends Iterable<WQuerySolution> {
+    /** Get the variable names for the projection. Not all query
+     *  solutions from a result have every variable defined. 
+     */
+    public List<String> getResultVars();
     
+    /**
+     * Return a materialized copy of the results
+     */
+    public WResultSet copy();
 }

@@ -137,7 +137,7 @@ public class App {
     /**
      * Return the configured prefixes
      */
-    public PrefixMapping getPrefixs() {
+    public PrefixMapping getPrefixes() {
         if (prefixService == null) {
             prefixService = getA(PrefixService.class);
             if (prefixService == null) {

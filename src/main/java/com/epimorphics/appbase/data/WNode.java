@@ -9,7 +9,7 @@
 
 package com.epimorphics.appbase.data;
 
-import com.hp.hpl.jena.graph.Graph;
+import com.epimorphics.vocabs.SKOS;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
@@ -17,6 +17,9 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.impl.LiteralImpl;
 import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
+import com.hp.hpl.jena.sparql.vocabulary.FOAF;
+import com.hp.hpl.jena.vocabulary.DCTerms;
+import com.hp.hpl.jena.vocabulary.RDFS;
 
 /**
  * Wraps up an RDF Node for ease of access from UI scripting.
@@ -33,8 +36,7 @@ import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
 public class WNode {
     protected WSource source;
     protected Node node;
-    protected boolean fullyDescribed; 
-    protected Graph description;
+    protected NodeDescription description;
     
     public WNode(WSource source, RDFNode node) {
         this(source, node.asNode());
@@ -44,15 +46,10 @@ public class WNode {
         this(source, node, null);
     }
     
-    public WNode(WSource source, Node node, Graph description) {
-        this(source, node, description, false);
-    }
-    
-    public WNode(WSource source, Node node, Graph description, boolean fullyDescribed) {
+    public WNode(WSource source, Node node, NodeDescription description) {
         this.source = source;
         this.node = node;
         this.description = description;
-        this.fullyDescribed = fullyDescribed;
     }
     
     // -- Basic accessors -------------------------------
@@ -86,7 +83,7 @@ public class WNode {
      */
     public String getID() {
         if (isURIResource()) {
-            return source.getApp().getPrefixs().shortForm(getURI());
+            return source.getApp().getPrefixes().shortForm(getURI());
         }
         return null;
     }
@@ -138,7 +135,7 @@ public class WNode {
     }
     
     public String getDatatype() {
-        return source.getApp().getPrefixs().shortForm( node.getLiteralDatatypeURI() );
+        return source.getApp().getPrefixes().shortForm( node.getLiteralDatatypeURI() );
     }
     
     // TODO date support
@@ -146,25 +143,42 @@ public class WNode {
     // -- Label and description access -------------------------------
     
     protected void ensureLabelled() {
-        if (description == null) {
+        if (description == null || !description.hasLabels()) {
             description = source.label( node );
         }
     }
     
     protected void ensureDescribed() {
-        if (description == null || !fullyDescribed) {
+        if (description == null || !description.isFullDescription()) {
             description = source.describe( node );
-            fullyDescribed = true;
         }
     }
+    
+    public static final Node[] labelProps = { SKOS.prefLabel.asNode(), SKOS.altLabel.asNode(), 
+        RDFS.label.asNode(), DCTerms.title.asNode(), FOAF.name.asNode() };
     
     /**
      * Return a lexical label to use for the node. In the case of a URI node which is not
      * yet described then this will provide a cache check and possibly a query to find sufficient description.
      */
     public String getLabel() {
-        // TODO
-        return null;
+        if (isLiteral()) {
+            return asLiteral().getLexicalForm();
+        }
+        ensureLabelled();
+        return description.getStringValue(labelProps);
+    }
+    
+    /**
+     * Return a lexical label to use for the node, which matches the target language. In the case of a URI node which is not
+     * yet described then this will provide a cache check and possibly a query to find sufficient description.
+     */
+    public String getLabel(String language) {
+        if (isLiteral()) {
+            return asLiteral().getLexicalForm();
+        }
+        ensureLabelled();
+        return description.getLangMatchValue(language, labelProps);
     }
     
     // getLabel getLabel(language)

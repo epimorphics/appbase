@@ -9,12 +9,16 @@
 
 package com.epimorphics.appbase.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.epimorphics.appbase.core.ComponentBase;
-import com.hp.hpl.jena.graph.Graph;
+import com.epimorphics.appbase.data.impl.WResultSetWrapper;
+import com.epimorphics.rdfutil.QueryUtil;
+import com.epimorphics.util.PrefixUtils;
 import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.query.ParameterizedSparqlString;
+import com.hp.hpl.jena.query.QuerySolutionMap;
 
 /**
  * A wrapped SPARQL source, designed for easy use from UI scripting.
@@ -45,8 +49,12 @@ public class WSource extends ComponentBase {
      * var name and an object to encode as an RDF node.
      */
     public WResultSet select(String query, Object...bindings) {
-        // TODO
-        return null;
+        String expandedQuery = PrefixUtils.expandQuery(query, getApp().getPrefixes());
+        if (bindings.length != 0) {
+            QuerySolutionMap map = QueryUtil.createBindings(bindings);
+            expandedQuery = new ParameterizedSparqlString(expandedQuery, map).toString();
+        }
+        return new WResultSetWrapper(source.select(expandedQuery), this);
     }
     
     /**
@@ -55,17 +63,7 @@ public class WSource extends ComponentBase {
      * underlying source.
      * This batch call may be cheaper than repeated calls to the nodes themselves.
      */
-    public List<WNode> describe(List<Resource> resources) {
-        // TODO
-        return null;
-    }
-    
-    /**
-     * Return a full description of a resource. The description
-     * may be returned from a cache or may result in a new query to the 
-     * underlying source.
-     */
-    public WNode describe(Resource resource) {
+    public List<WNode> describe(List<WNode> resources) {
         // TODO
         return null;
     }
@@ -85,17 +83,7 @@ public class WSource extends ComponentBase {
      * underlying source.
      * This batch call may be cheaper than repeated calls to the nodes themselves.
      */
-    public List<WNode> label(List<Resource> resources) {
-        // TODO
-        return null;
-    }
-    
-    /**
-     * Return a labelled version of a resource. The label description
-     * may be returned from a cache or may result in a new query to the 
-     * underlying source.
-     */
-    public WNode label(Resource resource) {
+    public List<WNode> label(List<WNode> resources) {
         // TODO
         return null;
     }
@@ -109,14 +97,27 @@ public class WSource extends ComponentBase {
         return null;
     }
     
-    protected Graph describe(Node node) {
-        // TODO
-        return null;
+    protected NodeDescription describe(Node node) {
+        List<String> resources = new ArrayList<>(1);
+        resources.add( node.getURI() ); 
+        NodeDescription description = new NodeDescription(node, source.describeAll(resources));
+        // TODO cache
+        return description;
     }
     
-    protected Graph label(Node node) {
-        // TODO
-        return null;
+    protected NodeDescription label(Node node) {
+        // TODO, real version
+        return describe(node);
+    }
+    
+    /**
+     * Return a wrapped version of the given node. This will include
+     * whatever cached description is already available but will not
+     * itself invoke a new query.
+     */
+    public WNode get(Node node) {
+        // TODO check cache for description
+        return new WNode(this, node);
     }
     
 }
