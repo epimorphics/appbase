@@ -1,0 +1,10 @@
+#parse("header.vm")
+<h1>Testing data access</h1>
+
+#set($results = $wsource.select("SELECT * WHERE {?school a school-ont:School} ORDER BY ?school LIMIT 20"))
+<ul>
+#foreach($result in $results)
+   <li>$result.school.uRI $result.school.label</li>
+#end
+</ul>
+#parse("footer.vm")
