@@ -11,9 +11,7 @@ package com.epimorphics.appbase.data.impl;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.Iterator;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
@@ -24,6 +22,8 @@ import com.epimorphics.appbase.core.ComponentBase;
 import com.epimorphics.appbase.data.SparqlSource;
 import com.epimorphics.util.EpiException;
 import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.mem.GraphMem;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -80,15 +80,17 @@ public class FileSparqlSource extends ComponentBase implements SparqlSource {
     public ResultSet select(String queryString) {
         Query query = QueryFactory.create(queryString) ;
         QueryExecution qexec = QueryExecutionFactory.create(query, model) ;
-        // No locking required since store is not updateable
+        model.enterCriticalSection(true);
         try {
             return ResultSetFactory.makeRewindable( qexec.execSelect() );
-        } finally { qexec.close() ; }
-
+        } finally { 
+            qexec.close() ;
+            model.leaveCriticalSection();
+        }
     }
 
     @Override
-    public Graph describeAll(Collection<String> uris) {
+    public Graph describeAll(String... uris) {
         Model description = ModelFactory.createDefaultModel();
         for (String uri: uris) {
             Closure.closure( model.createResource(uri), false, description);
@@ -97,11 +99,29 @@ public class FileSparqlSource extends ComponentBase implements SparqlSource {
     }
 
     @Override
-    public Collection<Graph> describeEach(Collection<String> resources) {
-        List<Graph> graphs = new ArrayList<>(resources.size());
-        for (String uri: resources) {
-            graphs.add( Closure.closure(model.createResource(uri), false).getGraph() );
+    public Graph[] describeEach(String... resources) {
+        Graph[] graphs = new Graph[resources.length];
+        for (int i = 0; i < resources.length; i++) {
+            String uri = resources[i];
+            graphs[i] = Closure.closure(model.createResource(uri), false).getGraph();
         }
         return graphs;
+    }
+
+    @Override
+    public Graph construct(String queryString) {
+        Query query = QueryFactory.create(queryString) ;
+        QueryExecution qexec = QueryExecutionFactory.create(query, model) ;
+        model.enterCriticalSection(true);
+        try {
+            Graph graph = new GraphMem();
+            for (Iterator<Triple> i = qexec.execConstructTriples(); i.hasNext();) {
+                graph.add(i.next());
+            }
+            return graph;
+        } finally { 
+            qexec.close() ;
+            model.leaveCriticalSection();
+        }
     }
 }

@@ -25,6 +25,8 @@ import com.hp.hpl.jena.graph.NodeFactory;
 public abstract class BaseSourceTest {
     public static final String SOURCE_NAME = "wsource";
     
+    public static final String TEST_NS = "http://www.epimorphics.com/vocabs/test/";
+    
     protected WSource source;
     protected App app;
     

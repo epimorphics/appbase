@@ -34,16 +34,26 @@ import com.hp.hpl.jena.util.FileManager;
 public class PrefixService extends ComponentBase {
     static Logger log = LoggerFactory.getLogger(PrefixService.class);
 
-    protected static PrefixService globalDefault;
+    protected static PrefixMapping globalDefault;
+    protected static final String DEFAULT_PREFIXES = "defaultPrefixes.ttl";
+    
+    static {
+        globalDefault = FileManager.get().loadModel(DEFAULT_PREFIXES);
+    }
     
     protected PrefixMapping prefixes;
     protected Map<String, Object> jsonldContext;
+    
+    public PrefixService() {
+        prefixes = globalDefault;
+    }
     
     public void setPrefixFile(String file) {
         File pf = asFile(file);
         if (pf.canRead()) {
             prefixes = FileManager.get().loadModel(pf.getAbsolutePath());
             log.info("Loaded prefixes: " + pf);
+            prefixes.setNsPrefixes(globalDefault);
         } else {
             log.error("Failed to find prefixes file: " + pf);
         }

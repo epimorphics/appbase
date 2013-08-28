@@ -9,8 +9,6 @@
 
 package com.epimorphics.appbase.data;
 
-import java.util.Collection;
-
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.query.ResultSet;
 
@@ -32,10 +30,15 @@ public interface SparqlSource {
     /**
      * Fetch a description of a set of resources.
      */
-    public Graph describeAll(Collection<String> uris);
+    public Graph describeAll(String... uris);
 
     /**
      * Fetch a description of a set of resources.
      */
-    public Collection<Graph> describeEach(Collection<String> resources);
+    public Graph[] describeEach(String... uris);
+
+    /**
+     * Excecute a construct query
+     */
+    public Graph construct(String query);
 }
