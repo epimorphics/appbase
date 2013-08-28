@@ -9,6 +9,11 @@
 
 package com.epimorphics.appbase.data;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.List;
 
 import org.junit.Test;
@@ -17,11 +22,8 @@ import com.epimorphics.util.TestUtil;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.NodeFactory;
-import com.hp.hpl.jena.graph.impl.LiteralLabelFactory;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
 import com.hp.hpl.jena.vocabulary.RDFS;
-
-import static org.junit.Assert.*;
 
 public class TestSource extends BaseSourceTest {
 
@@ -82,6 +84,20 @@ public class TestSource extends BaseSourceTest {
         assertEquals(1, elts.get(0).asInt());
         assertEquals(3, elts.get(1).asInt());
         assertEquals(5, elts.get(2).asInt());
+        
+        // Connections
+        checkConnections( getNode("test:c").listInLinks("test:p"), new String[]{"test:a", "test:b"} );
+        checkConnections( getNode("test:d").listInLinks("test:p"), new String[]{"test:c"} );
+        checkConnections( getNode("test:c").listInLinks("test:q"), new String[]{"test:f"} );
+
+        checkConnections( getNode("test:c").connectedNodes("test:p / test:p"), new String[]{"test:e"} );
+        
+        List<PropertyValue> connections = getNode("test:c").listInLinks();
+        assertEquals(2, connections.size());
+        assertEquals(getNode("test:p"), connections.get(0).getProp());
+        checkConnections( connections.get(0).getValues(), new String[]{"test:a", "test:b"});
+        assertEquals(getNode("test:q"), connections.get(1).getProp());
+        checkConnections( connections.get(1).getValues(), new String[]{"test:f"});
     }
     
     private void checkLabel(DatasetGraph dsg, String iN, String label) {
@@ -91,4 +107,11 @@ public class TestSource extends BaseSourceTest {
         assertTrue(g1.contains(i1, RDFS.label.asNode(), NodeFactory.createLiteral(label)));
     }
     
+    private void checkConnections(List<WNode> ans, String[] expected) {
+        WNode[] expectedN = new WNode[ expected.length ];
+        for (int i = 0; i < expected.length; i++) {
+            expectedN[i] = getNode( expected[i] );
+        }
+        TestUtil.testArray(ans, expectedN);
+    }
 }

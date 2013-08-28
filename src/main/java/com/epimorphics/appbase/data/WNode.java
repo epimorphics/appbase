@@ -308,6 +308,39 @@ public class WNode {
     
     // -- queries --------------------
     
+    /**
+     * Return the set of nodes which point this one via a specific property
+     */
+    public List<WNode> listInLinks(Object prop) {
+        return connectedNodes( "^<" + asNode(prop).getURI() + ">" );
+    }
+    
+    /**
+     * Return all nodes which are connected to this one via a SPARQL property path
+     */
+    public List<WNode> connectedNodes(String path) {
+        if (!isURIResource()) return null;
+        String query = String.format("SELECT ?x WHERE {<%s> %s ?x}", getURI(), path);
+        List<WNode> results = new ArrayList<>();
+        for (WQuerySolution row : source.select(query)) {
+            results.add( row.get("x") );
+        }
+        return results;
+    }
+    
+    /**
+     * Return all the nodes which point this one via any property
+     */
+    public List<PropertyValue> listInLinks() {
+        if (!isURIResource()) return null;
+        String query = String.format("SELECT ?p ?x WHERE {?x ?p <%s>}", getURI());
+        PropertyValueSet values = new PropertyValueSet();
+        for (WQuerySolution row : source.select(query)) {
+            values.add( row.get("p"), row.get("x") );
+        }
+        return values.getOrderedValues();
+    }
+    
     // listInLinks listInLinks(object)
     // listConnectedNodes
 
