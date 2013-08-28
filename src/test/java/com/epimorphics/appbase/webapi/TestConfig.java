@@ -28,7 +28,7 @@ public class TestConfig extends TomcatTestBase {
     
     @Test
     public void testConfig() {
-        App app = AppConfig.get();
+        App app = AppConfig.getApp();
         assertEquals("This is a string", app.getParam("stringParam"));
         assertEquals(new Long(42), app.getParam("intParam"));
         

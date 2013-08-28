@@ -91,14 +91,14 @@ public class AppConfig implements ServletContextListener {
     /**
      * Return the global default app.
      */
-    public static App get() {
+    public static App getApp() {
         return getAppConfig().defaultApp;
     }
     
     /**
      * Return the app with the given name
      */
-    public static App get(String appName) {
+    public static App getApp(String appName) {
         return getAppConfig().apps.get(appName);
     }
 

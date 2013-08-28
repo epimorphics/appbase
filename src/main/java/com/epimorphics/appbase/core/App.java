@@ -80,10 +80,21 @@ public class App {
     
     protected PrefixService prefixService;
 
+    /**
+     * Construct an App instance configured by a file.
+     */
     public App(String name, File config) throws IOException {
         this.name = name;
         loadConfig(config);
         startup();
+    }
+
+    /**
+     * Construct a raw app instance used for testing.
+     * @param name
+     */
+    public App(String name) {
+        this.name = name;
     }
     
     /**
@@ -135,6 +146,13 @@ public class App {
     }
     
     /**
+     * Register a new component. Mostly used for testing.
+     */
+    public void addComponent(String name, Object component) {
+        components.put(name, component);
+    }
+    
+    /**
      * Return the configured prefixes
      */
     public PrefixMapping getPrefixes() {
@@ -161,6 +179,13 @@ public class App {
         return config.get(name);
     }
 
+    /**
+     * Set a configuration parameter. Mostly used for testing.
+     */
+    public void setParam(String param, Object value) {
+        config.put(param, value);
+    }
+    
     /**
      * Get a configuration parameter with default
      */

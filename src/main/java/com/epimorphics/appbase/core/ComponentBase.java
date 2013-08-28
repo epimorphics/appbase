@@ -33,11 +33,11 @@ public class ComponentBase implements Startup, Named {
         this.app = app;
     }
 
-    public File asFile(String filename) {
+    public static File asFile(String filename) {
         return new File( expandFileLocation(filename) );
     }
 
-    public String expandFileLocation(String filename) {
+    public static String expandFileLocation(String filename) {
         return AppConfig.getAppConfig().expandFileLocation(filename);
     }
     
