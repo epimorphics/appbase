@@ -21,7 +21,7 @@ import com.hp.hpl.jena.query.QueryExecutionFactory;
 public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource {
     protected String endpoint;
     
-    public void setEndpont(String endpoint) {
+    public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
     }
 

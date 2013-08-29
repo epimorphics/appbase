@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.epimorphics.rdfutil.NodeUtil;
+import com.epimorphics.rdfutil.RDFUtil;
 import com.epimorphics.util.EpiException;
 import com.epimorphics.vocabs.SKOS;
 import com.hp.hpl.jena.graph.Graph;
@@ -222,7 +223,18 @@ public class WNode {
             return asLiteral().getLexicalForm();
         }
         ensureLabelled();
-        return description.getStringValue(labelProps);
+        String label = description.getStringValue(labelProps);
+        return label == null ? defaultLabel() : label;
+    }
+    
+    private String defaultLabel() {
+        if (isLiteral()) {
+            return asLiteral().getLexicalForm();
+        } else if (isURIResource()) {
+            return RDFUtil.getLocalname( getURI() );
+        } else {
+            return "[ "+ node.getBlankNodeLabel() + "]";
+        }
     }
     
     /**
@@ -234,14 +246,15 @@ public class WNode {
             return asLiteral().getLexicalForm();
         }
         ensureLabelled();
-        return description.getLangMatchValue(language, labelProps);
+        String label = description.getLangMatchValue(language, labelProps);
+        return label == null ? defaultLabel() : label;
     }
         
     protected boolean isDescribed(boolean fully) {
         if (!isURIResource()) {
             return true;
         }
-        if (description != null) {
+        if (description == null) {
             return false;
         }
         return fully ? description.isFullDescription() : description.hasLabels() ;

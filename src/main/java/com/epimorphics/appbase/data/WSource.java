@@ -242,6 +242,15 @@ public class WSource extends ComponentBase {
         return new WNode(this, node);
     }
     
+    /**
+     * Return a wrapped version of the given node. This will include
+     * whatever cached description is already available but will not
+     * itself invoke a new query.
+     */
+    public WNode getNode(Object nspec) {
+        return get( asNode(nspec) );
+    }
+    
     // -- Text search -------------------------
     
 
