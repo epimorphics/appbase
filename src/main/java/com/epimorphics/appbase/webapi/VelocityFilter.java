@@ -63,7 +63,9 @@ public class VelocityFilter implements Filter {
                     renderers.add(renderer);
                 }
             }
-            log.warn("Velocity filter defined by no renderers found");
+            if (renderers.isEmpty()) {
+                log.warn("Velocity filter could not find any renderers");
+            }
         }
         return renderers;
     }
