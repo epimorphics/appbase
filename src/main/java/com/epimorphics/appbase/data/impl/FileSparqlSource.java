@@ -54,7 +54,7 @@ public class FileSparqlSource extends BaseSparqlSource implements SparqlSource {
      * Configuration call to set file or directories from which to load,
      * can be a comma separated list
      */
-    public void setFileDir(String fileSpec) {
+    public void setFiles(String fileSpec) {
         this.fileSpec = fileSpec;
     }
     

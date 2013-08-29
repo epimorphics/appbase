@@ -1,0 +1,52 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix test:  <http://www.epimorphics.com/vocabs/test/> .
+
+test:i1 a test:Sample;
+    skos:prefLabel "Pref label";
+    skos:altLabel "Alt label";
+    rdfs:label "rdfs label";
+    foaf:name  "name" .
+
+test:i2 a test:Sample;
+    skos:altLabel "Alt label";
+    rdfs:label "rdfs label";
+    foaf:name  "name" .
+
+test:i3 a test:Sample;
+    rdfs:label "rdfs label";
+    foaf:name  "name" .
+
+test:i4 a test:Sample;
+    foaf:name  "name" .
+
+test:i5 a test:Sample;
+    rdfs:label "en label"@en;
+    rdfs:label "plain label" .
+        
+test:test 
+    test:list (1 3 5);
+    test:num 42;
+    test:float 3.14;
+    test:string "a string";
+    test:resource test:i1, test:i2 ;
+    .
+    
+test:a test:p test:c .
+test:b test:p test:c .
+test:c test:p test:d .
+test:d test:p test:e .
+test:f test:q test:c .
+
+
+test:a rdfs:label "aa" .
+test:b rdfs:label "ab" .
+test:c rdfs:label "ac" .
+test:d rdfs:label "ad" .
+test:e rdfs:label "ae" .
+

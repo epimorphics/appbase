@@ -42,7 +42,7 @@ public abstract class BaseSourceTest {
         prefixes.startup(app);
         
         FileSparqlSource ss = new FileSparqlSource();
-        ss.setFileDir( getTestFileDir() );
+        ss.setFiles( getTestFileDir() );
 //        ss.setTextIndex("default");
         ss.setTextIndex("rdfs:label, skos:altLabel, skos:prefLabel");
         ss.startup(app);
