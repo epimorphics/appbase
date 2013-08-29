@@ -9,25 +9,14 @@ Based on approach and code used for Modal, Pearson, SE, Registry, BG.
 
 ## Core functions
 
-### Configuration
-
-Configure application as a set of components.
-
-Simple, flexible configuration specification (poor man's Spring).
-
-### Data access abstraction
-
-Data access based entirely on SPARQL (with convenience wrappers) so can use remote (e.g. Fuseki)
-endpoints or local data transparently. Support for caching of remote resources.
-
-### Web UI
-
-Easy configuration of a velocity-based rendering.
-
-Convenience wrappers for data sources and local data cases for usability from velocity.
+   * **Configuration.** Support for configurating a set of "components" that make up and application. Supports parameter setting and linking components (c.f. Spring et al).
+   * **Data access.**   Provides simple abstraction for accessing RDF data sources to ease switching between memory, TDB and remote sources. Mostly there to support ...
+   * **Data wrapper.**  Wrappers to simplify access to RDF data from UI scripts. Supports cached access to labels/descriptions of resources for rendering.
+   * **Template UI.**   Easy velocity based rendering. 
 
 ### TBD
 
-Data access API support?
+   * Data (cube) API
+   * Support for generic JSON APIs
 
-JSON API support?
+Full documentation: https://epimorphics.codebasehq.com/projects/data-fabric/notebook/AppBase/index
