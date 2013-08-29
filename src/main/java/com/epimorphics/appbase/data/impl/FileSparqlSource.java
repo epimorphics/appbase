@@ -11,7 +11,6 @@ package com.epimorphics.appbase.data.impl;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.Iterator;
 import java.util.regex.Pattern;
 
 import org.apache.jena.query.text.EntityDefinition;
@@ -22,21 +21,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.epimorphics.appbase.core.App;
-import com.epimorphics.appbase.core.ComponentBase;
 import com.epimorphics.appbase.data.SparqlSource;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.NodeFactory;
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.mem.GraphMem;
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.query.ResultSetFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.sparql.util.Closure;
@@ -49,7 +43,7 @@ import com.hp.hpl.jena.vocabulary.RDFS;
  * 
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
-public class FileSparqlSource extends ComponentBase implements SparqlSource {
+public class FileSparqlSource extends BaseSparqlSource implements SparqlSource {
     static Logger log = LoggerFactory.getLogger( FileSparqlSource.class );
     
     protected String fileSpec = "";
@@ -126,51 +120,40 @@ public class FileSparqlSource extends ComponentBase implements SparqlSource {
     }
 
     @Override
-    public ResultSet select(String queryString) {
-        Query query = QueryFactory.create(queryString) ;
-        QueryExecution qexec = QueryExecutionFactory.create(query, dataset) ;
-        dataset.getLock().enterCriticalSection(true);
-        try {
-            return ResultSetFactory.makeRewindable( qexec.execSelect() );
-        } finally { 
-            qexec.close() ;
-            dataset.getLock().leaveCriticalSection();
-        }
-    }
-
-    @Override
     public Graph describeAll(String... uris) {
+        dataset.getLock().enterCriticalSection(true);
         Model description = ModelFactory.createDefaultModel();
         for (String uri: uris) {
             Closure.closure( dataset.getDefaultModel().createResource(uri), false, description);
         }
+        dataset.getLock().leaveCriticalSection();
         return description.getGraph();
     }
 
     @Override
     public Graph[] describeEach(String... resources) {
+        dataset.getLock().enterCriticalSection(true);
         Graph[] graphs = new Graph[resources.length];
         for (int i = 0; i < resources.length; i++) {
             String uri = resources[i];
             graphs[i] = Closure.closure( dataset.getDefaultModel().createResource(uri), false).getGraph();
         }
+        dataset.getLock().leaveCriticalSection();
         return graphs;
     }
-
+    
     @Override
-    public Graph construct(String queryString) {
+    protected QueryExecution start(String queryString) {
         Query query = QueryFactory.create(queryString) ;
         QueryExecution qexec = QueryExecutionFactory.create(query, dataset) ;
         dataset.getLock().enterCriticalSection(true);
-        try {
-            Graph graph = new GraphMem();
-            for (Iterator<Triple> i = qexec.execConstructTriples(); i.hasNext();) {
-                graph.add(i.next());
-            }
-            return graph;
-        } finally { 
-            qexec.close() ;
-            dataset.getLock().leaveCriticalSection();
-        }
+        return qexec;
     }
+    
+    @Override
+    protected void finish(QueryExecution qexec) {
+        qexec.close() ;
+        dataset.getLock().leaveCriticalSection();
+    }
+    
 }
