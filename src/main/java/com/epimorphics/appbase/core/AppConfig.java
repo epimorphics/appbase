@@ -10,9 +10,11 @@
 package com.epimorphics.appbase.core;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
@@ -46,11 +48,14 @@ public class AppConfig implements ServletContextListener {
     public static final String CONFIG_PREFIX = "AppConfig.";
 
     public static AppConfig theConfig;
+    
+    protected static List<Startup> startupHooks = new ArrayList<>();
+    protected static List<Shutdown> shutdownHooks = new ArrayList<>();
 
     protected Map<String, App> apps = new HashMap<String, App>();
     protected App defaultApp;
     protected String filebase = null;
-
+    
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         theConfig = this;           // Keep the last initialized version as the default global config
@@ -68,6 +73,9 @@ public class AppConfig implements ServletContextListener {
                     if (configFile.exists() && configFile.canRead()) {
                         try {
                             App app = new App(appName, configFile);
+                            for (Startup s : startupHooks) {
+                                s.startup(app);
+                            }
                             apps.put(appName, app);
                             if (defaultApp == null) {
                                 defaultApp = app;
@@ -113,6 +121,21 @@ public class AppConfig implements ServletContextListener {
     public static Collection<App> listApps() {
         return getAppConfig().apps.values();
     }
+    
+    /**
+     * Register a hook to be run whenever any app starts up. Only has effect if registered
+     * before the app config is loaded. Useful for command line configuration of embedded apps.
+     */
+    public static void addStartupHook(Startup s) {
+        startupHooks.add(s);
+    }
+    
+    /**
+     * Register a hook to be run the system shuts down.
+     */
+    public static void addShutdownHook(Shutdown s) {
+        shutdownHooks.add(s);
+    }
 
     public String expandFileLocation(String location) {
         if (filebase == null) {
@@ -130,6 +153,9 @@ public class AppConfig implements ServletContextListener {
         for (String name : apps.keySet()) {
             apps.get(name).shutdown();
             log.info("Shut down " + name);
+        }
+        for (Shutdown s : shutdownHooks) {
+            s.shutdown();
         }
     }
 

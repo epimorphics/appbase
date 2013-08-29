@@ -43,3 +43,10 @@ test:c test:p test:d .
 test:d test:p test:e .
 test:f test:q test:c .
 
+
+test:a rdfs:label "aa" .
+test:b rdfs:label "ab" .
+test:c rdfs:label "ac" .
+test:d rdfs:label "ad" .
+test:e rdfs:label "ae" .
+

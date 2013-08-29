@@ -98,6 +98,22 @@ public class TestSource extends BaseSourceTest {
         checkConnections( connections.get(0).getValues(), new String[]{"test:a", "test:b"});
         assertEquals(getNode("test:q"), connections.get(1).getProp());
         checkConnections( connections.get(1).getValues(), new String[]{"test:f"});
+        
+        // Text search
+        List<WNode> matches = source.search("aa");
+        assertEquals(1, matches.size());
+        checkConnections(matches, new String[]{"test:a"});
+
+        matches = source.search("label");
+        assertEquals(4, matches.size());
+        checkConnections(matches, new String[]{"test:i1", "test:i2", "test:i3", "test:i5"});
+        
+        matches = source.search("label", 2);
+        assertEquals(2, matches.size());
+        
+        matches = source.search("pref");
+        assertEquals(1, matches.size());
+        checkConnections(matches, new String[]{"test:i1"});
     }
     
     private void checkLabel(DatasetGraph dsg, String iN, String label) {

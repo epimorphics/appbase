@@ -21,6 +21,7 @@ import com.epimorphics.appbase.core.ComponentBase;
 import com.epimorphics.appbase.data.NodeDescription.Coverage;
 import com.epimorphics.appbase.data.impl.WResultSetWrapper;
 import com.epimorphics.rdfutil.QueryUtil;
+import com.epimorphics.util.EpiException;
 import com.epimorphics.util.PrefixUtils;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -30,6 +31,7 @@ import com.hp.hpl.jena.mem.GraphMem;
 import com.hp.hpl.jena.query.ParameterizedSparqlString;
 import com.hp.hpl.jena.query.QuerySolutionMap;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
 import com.hp.hpl.jena.sparql.core.DatasetGraphFactory;
 import com.hp.hpl.jena.sparql.core.Var;
@@ -240,11 +242,56 @@ public class WSource extends ComponentBase {
         return new WNode(this, node);
     }
     
+    // -- Text search -------------------------
+    
+
+    /**
+     * Search for resources which match a text search string. Assumes the
+     * associated source has been indexed with Jena text
+     */
+    public List<WNode> search(String text) {
+        return find("SELECT ?x WHERE {?x jtext:query '" + text.replace("'", "\\'") + "' }", "x");
+    }
+
+    /**
+     * Search for resources which match a text search string. Assumes the
+     * associated source has been indexed with Jena text
+     */
+    public List<WNode> search(String text, int limit) {
+        return find( String.format("SELECT ?x WHERE {?x jtext:query ('%s' %d) }", text.replace("'", "\\'"), limit), "x");
+    }
+    
     // -- Batch queries -----------------------
     
     /**
+     * Find a set of notes via a select query
+     * @param query the sparql query to run
+     * @param var the variable name whose bindings are to be returned
+     */
+    public List<WNode> find(String query, String var) {
+        List<WNode> results = new ArrayList<>();
+        for (WQuerySolution row : select(query)) {
+            results.add( row.get(var) );
+        }
+        return results;
+    }
+    
+    
+    protected Node asNode(Object prop) {
+        if (prop instanceof Node) {
+            return (Node)prop;
+        } else if (prop instanceof RDFNode) {
+            return ((RDFNode)prop).asNode();
+        } else if (prop instanceof String) {
+            return NodeFactory.createURI( getApp().getPrefixes().expandPrefix((String)prop) );
+        } else {
+            throw new EpiException("Illegal type used to define property: " + prop);
+        }
+    }
+    
+    /**
      * Pseudo construct which uses a simple SELECT query to describe a set of resources and constructs separate
-     * graphs for each description.
+     * graphs for each description. Used to implement labelling of resources.
      * @param queryBody The body of a select query which returns values associated with some ?uri variable. 
      * The body should be just a basic graph pattern, with no SELECT operator. It will be wrapped in a SELECT
      * with an appropriate VALUES statement to inject the actual URIs to be retrieved. Each variable

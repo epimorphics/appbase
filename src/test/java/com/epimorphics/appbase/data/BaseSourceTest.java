@@ -43,6 +43,8 @@ public abstract class BaseSourceTest {
         
         FileSparqlSource ss = new FileSparqlSource();
         ss.setFileDir( getTestFileDir() );
+//        ss.setTextIndex("default");
+        ss.setTextIndex("rdfs:label, skos:altLabel, skos:prefLabel");
         ss.startup(app);
         
         source = new WSource();

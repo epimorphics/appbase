@@ -12,11 +12,10 @@ package com.epimorphics.appbase.data.impl;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang.NotImplementedException;
-
 import com.epimorphics.appbase.data.WQuerySolution;
 import com.epimorphics.appbase.data.WResultSet;
 import com.epimorphics.appbase.data.WSource;
+import com.epimorphics.util.EpiException;
 import com.hp.hpl.jena.query.ResultSet;
 
 
@@ -58,7 +57,7 @@ public class WResultSetWrapper implements Iterable<WQuerySolution>, Iterator<WQu
 
     @Override
     public void remove() {
-        throw new NotImplementedException();
+        throw new EpiException("Remove not implemented on result sets");
     }
     
     @Override
