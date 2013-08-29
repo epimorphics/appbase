@@ -231,6 +231,7 @@ public class WSource extends ComponentBase {
      * itself invoke a new query.
      */
     public WNode get(Node node) {
+        if (node == null) return null;
         if (node.isURI()) {
             synchronized (cache) {
                 NodeDescription nd = cache.get(node);
@@ -289,6 +290,8 @@ public class WSource extends ComponentBase {
     protected Node asNode(Object prop) {
         if (prop instanceof Node) {
             return (Node)prop;
+        } if (prop instanceof WNode) {
+            return ((WNode)prop).node;
         } else if (prop instanceof RDFNode) {
             return ((RDFNode)prop).asNode();
         } else if (prop instanceof String) {

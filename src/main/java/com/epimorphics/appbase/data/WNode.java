@@ -274,6 +274,8 @@ public class WNode {
     protected Node asNode(Object prop) {
         if (prop instanceof Node) {
             return (Node)prop;
+        } if (prop instanceof WNode) {
+            return ((WNode)prop).node;
         } else if (prop instanceof RDFNode) {
             return ((RDFNode)prop).asNode();
         } else if (prop instanceof String) {
