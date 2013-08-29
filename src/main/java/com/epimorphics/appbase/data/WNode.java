@@ -109,7 +109,11 @@ public class WNode {
     }
     
     public Literal asLiteral() {
-        return new LiteralImpl(node, null);
+        if (isLiteral()) {
+            return new LiteralImpl(node, null);
+        } else {
+            return null;
+        }
     }
     
     public boolean isNumber() {
