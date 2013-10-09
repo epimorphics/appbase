@@ -50,7 +50,7 @@ public abstract class TomcatTestBase {
     Tomcat tomcat ;
     Client c;
 
-    abstract String getWebappRoot() ;
+    abstract public String getWebappRoot() ;
 
 
     @Before

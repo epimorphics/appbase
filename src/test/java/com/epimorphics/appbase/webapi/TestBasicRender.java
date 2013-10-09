@@ -22,7 +22,7 @@ import com.sun.jersey.api.client.ClientResponse;
 public class TestBasicRender extends TomcatTestBase {
 
     @Override
-    String getWebappRoot() {
+    public String getWebappRoot() {
         return  "src/test/exampleApp";
     }
     

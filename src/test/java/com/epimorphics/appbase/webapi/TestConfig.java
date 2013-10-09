@@ -22,7 +22,7 @@ import com.epimorphics.appbase.core.AppConfig;
 public class TestConfig extends TomcatTestBase {
 
     @Override
-    String getWebappRoot() {
+    public String getWebappRoot() {
         return "src/test/configTestApp";
     }
     
