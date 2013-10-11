@@ -11,7 +11,7 @@ package com.epimorphics.appbase.json;
 
 
 /**
- * Signature for API objects which self-serliaze to JSON using
+ * Signature for API objects which self-serialize to JSON using
  * the Jena streaming JSON writers.
  * 
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
