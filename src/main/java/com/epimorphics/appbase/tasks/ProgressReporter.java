@@ -51,4 +51,17 @@ public interface ProgressReporter {
      * 
      */
     public void report(String message, int lineNumber);
+    
+
+    /**
+     * Return the state of the task. It may be Waiting to start,
+     * Running or Terminated.
+     */
+    public TaskState getState();
+    
+    /**
+     * Return true if the task has Terminated and was successful.
+     */
+    public boolean succeeded();
+    
 }
