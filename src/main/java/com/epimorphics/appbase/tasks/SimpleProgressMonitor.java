@@ -20,7 +20,7 @@ import java.util.List;
 public class SimpleProgressMonitor implements ProgressMonitor, ProgressReporter {
     protected TaskState state = TaskState.Waiting;
     protected int progress = 0;
-    protected boolean succeeded = false;
+    protected boolean succeeded = true;
     protected List<ProgressMessage> messages = new ArrayList<>();
     
     @Override
@@ -96,6 +96,11 @@ public class SimpleProgressMonitor implements ProgressMonitor, ProgressReporter 
     @Override
     public synchronized boolean moreMessagesSince(int offset) {
         return messages.size() > offset;
+    }
+    
+    @Override
+    public String toString() {
+        return String.format("Progress: %d %s(%s)", progress, state, succeeded ? "succeeded" : "failed");
     }
 
 }

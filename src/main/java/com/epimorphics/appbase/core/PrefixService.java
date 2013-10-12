@@ -48,6 +48,10 @@ public class PrefixService extends ComponentBase {
         prefixes = globalDefault;
     }
     
+    public static PrefixMapping getDefault() {
+        return globalDefault;
+    }
+    
     public void setPrefixFile(String file) {
         File pf = asFile(file);
         if (pf.canRead()) {
