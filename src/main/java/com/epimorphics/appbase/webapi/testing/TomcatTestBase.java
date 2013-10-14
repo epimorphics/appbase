@@ -19,13 +19,16 @@
  *
  *****************************************************************/
 
-package com.epimorphics.appbase.webapi;
+package com.epimorphics.appbase.webapi.testing;
 
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.InputStream;
 import java.io.StringWriter;
+
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.catalina.startup.Tomcat;
 import org.junit.After;
@@ -42,13 +45,14 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.client.urlconnection.URLConnectionClientHandler;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 public abstract class TomcatTestBase {
 
-    static final String BASE_URL = "http://localhost:8070/";
+    protected static final String BASE_URL = "http://localhost:8070/";
 
-    Tomcat tomcat ;
-    Client c;
+    protected Tomcat tomcat ;
+    protected Client c;
 
     abstract public String getWebappRoot() ;
 
@@ -141,6 +145,18 @@ public abstract class TomcatTestBase {
             r = r.queryParam(param, value);
         }
         ClientResponse response = r.post(ClientResponse.class);
+        return response;
+    }
+
+    protected ClientResponse postForm(String uri, String...paramvals) {
+        WebResource r = c.resource(uri);
+        MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
+        for (int i = 0; i < paramvals.length; ) {
+            String param = paramvals[i++];
+            String value = paramvals[i++];
+            formData.add(param, value);
+        }
+        ClientResponse response = r.type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(ClientResponse.class, formData);
         return response;
     }
 

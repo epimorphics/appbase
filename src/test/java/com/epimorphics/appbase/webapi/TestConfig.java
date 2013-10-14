@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.core.AppConfig;
+import com.epimorphics.appbase.webapi.testing.TomcatTestBase;
 
 
 public class TestConfig extends TomcatTestBase {

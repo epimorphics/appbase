@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import com.epimorphics.appbase.webapi.testing.TomcatTestBase;
 import com.sun.jersey.api.client.ClientResponse;
 
 public class TestBasicRender extends TomcatTestBase {
