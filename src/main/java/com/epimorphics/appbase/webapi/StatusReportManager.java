@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 import com.epimorphics.appbase.tasks.SimpleProgressMonitor;
 
@@ -66,12 +66,12 @@ public class StatusReportManager {
     
     protected void startReaper() {
         if (!reaperStarted) {
-            TimerManager.get().scheduleAtFixedRate(new Reaper(this), reaperInterval, reaperInterval);
+            TimerManager.get().scheduleAtFixedRate(new Reaper(this), reaperInterval, reaperInterval, TimeUnit.MILLISECONDS);
             reaperStarted = true;
         }
     }
     
-    final class Reaper extends TimerTask {
+    final class Reaper implements Runnable {
         protected StatusReportManager parent;
         
         public Reaper(StatusReportManager parent) {

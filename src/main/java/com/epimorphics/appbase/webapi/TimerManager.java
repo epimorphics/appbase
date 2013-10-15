@@ -9,7 +9,8 @@
 
 package com.epimorphics.appbase.webapi;
 
-import java.util.Timer;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * Global singleton timer used for scheduling both one-off and periodic tasks.
@@ -18,11 +19,11 @@ import java.util.Timer;
  */
 public class TimerManager {
 
-    public static Timer theTimer;
+    public static ScheduledExecutorService theTimer;
     
-    public static Timer get() {
+    public static ScheduledExecutorService get() {
         if (theTimer == null) {
-            theTimer = new Timer(true);
+            theTimer = new ScheduledThreadPoolExecutor(1);
         }
         return theTimer;
     }
