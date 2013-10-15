@@ -15,6 +15,12 @@ package com.epimorphics.appbase.tasks;
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
 public interface ProgressReporter {
+    
+    /**
+     * Return an ID string for this monitor/reporter. 
+     * Useful when managing a pool of persistent status reports.
+     */
+    public String getId();
 
     /**
      * Change the state of the progress report. 
