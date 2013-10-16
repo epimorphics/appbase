@@ -24,6 +24,7 @@ import javax.servlet.ServletContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.epimorphics.appbase.webapi.TimerManager;
 import com.epimorphics.util.EpiException;
 
 /**
@@ -157,6 +158,7 @@ public class AppConfig implements ServletContextListener {
         for (Shutdown s : shutdownHooks) {
             s.shutdown();
         }
+        TimerManager.get().shutdown();
     }
 
 }
