@@ -20,12 +20,6 @@ import java.util.List;
 public interface ProgressMonitor {
     
     /**
-     * Return an ID string for this monitor/reporter. 
-     * Useful when managing a pool of persistent status reports.
-     */
-    public String getId();
-    
-    /**
      * Return the state of the task. It may be Waiting to start,
      * Running or Terminated.
      */

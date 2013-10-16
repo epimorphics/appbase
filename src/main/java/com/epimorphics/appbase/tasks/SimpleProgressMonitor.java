@@ -9,6 +9,8 @@
 
 package com.epimorphics.appbase.tasks;
 
+import static com.epimorphics.appbase.tasks.WebProgressMonitor.*;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -21,12 +23,7 @@ import com.epimorphics.appbase.json.JSONWritable;
  * 
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
-public class SimpleProgressMonitor implements ProgressMonitor, ProgressReporter, JSONWritable {
-    static final String PROGRESS_FIELD = "progress";
-    static final String STATE_FIELD = "state";
-    static final String SUCEEDED_FIELD = "succeeded";
-    static final String MESSAGES_FIELD = "messages";
-    
+public class SimpleProgressMonitor implements ProgressMonitor, ProgressReporter, JSONWritable {    
     protected String id;
     protected TaskState state = TaskState.Waiting;
     protected int progress = 0;

@@ -31,6 +31,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.catalina.startup.Tomcat;
+import org.apache.jena.atlas.json.JSON;
+import org.apache.jena.atlas.json.JsonObject;
 import org.junit.After;
 import org.junit.Before;
 
@@ -184,6 +186,11 @@ public abstract class TomcatTestBase {
     protected ClientResponse getResponse(String uri, String mime) {
         WebResource r = c.resource( uri );
         return r.accept(mime).get(ClientResponse.class);
+    }
+    
+    protected JsonObject getJSONResponse(String uri) {
+        ClientResponse r = getResponse(uri, MediaType.APPLICATION_JSON);
+        return JSON.parse( r.getEntityInputStream() );
     }
 
 

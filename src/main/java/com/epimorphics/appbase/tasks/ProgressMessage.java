@@ -9,6 +9,12 @@
 
 package com.epimorphics.appbase.tasks;
 
+import static com.epimorphics.appbase.json.JsonUtil.getIntValue;
+import static com.epimorphics.appbase.json.JsonUtil.getLongValue;
+import static com.epimorphics.appbase.json.JsonUtil.getStringValue;
+
+import org.apache.jena.atlas.json.JsonObject;
+
 import com.epimorphics.appbase.json.JSFullWriter;
 import com.epimorphics.appbase.json.JSONWritable;
 
@@ -18,6 +24,10 @@ import com.epimorphics.appbase.json.JSONWritable;
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
 public class ProgressMessage implements JSONWritable {
+    public static final String MESSAGE_FIELD     = "message";
+    public static final String LINE_NUMBER_FIELD = "lineNumber";
+    public static final String TIMESTAMP_FIELD   = "timestamp";
+    
     protected static final int NULL_LINE_NUMBER = -1;
     
     String message;
@@ -29,9 +39,20 @@ public class ProgressMessage implements JSONWritable {
     }
     
     public ProgressMessage(String message, int lineNumber) {
+        this(message, lineNumber, System.currentTimeMillis());
+    }
+    
+    public ProgressMessage(String message, int lineNumber, long timestamp) {
         this.message = message;
         this.lineNumber = lineNumber;
-        this.timestamp = System.currentTimeMillis();
+        this.timestamp = timestamp;
+    }
+    
+    public ProgressMessage(JsonObject json) {
+        this(   getStringValue(json, MESSAGE_FIELD, ""),
+                getIntValue(json, LINE_NUMBER_FIELD, NULL_LINE_NUMBER),
+                getLongValue(json, TIMESTAMP_FIELD, System.currentTimeMillis())
+                );
     }
     
     @Override
@@ -42,10 +63,10 @@ public class ProgressMessage implements JSONWritable {
     @Override
     public void writeTo(JSFullWriter out) {
         out.startObject();
-        out.pair("timestamp", timestamp);
-        out.pair("message", message);
+        out.pair(TIMESTAMP_FIELD, timestamp);
+        out.pair(MESSAGE_FIELD, message);
         if (lineNumber != NULL_LINE_NUMBER) {
-            out.pair("line", lineNumber);
+            out.pair(LINE_NUMBER_FIELD, lineNumber);
         }
         out.finishObject();
     }
