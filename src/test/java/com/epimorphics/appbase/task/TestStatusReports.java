@@ -18,32 +18,11 @@ import org.apache.jena.atlas.json.JsonObject;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import com.epimorphics.appbase.json.JSFullWriter;
-import com.epimorphics.appbase.tasks.SimpleProgressMonitor;
-import com.epimorphics.appbase.tasks.TaskState;
-import com.epimorphics.appbase.webapi.StatusReportManager;
+import com.epimorphics.json.JSFullWriter;
+import com.epimorphics.tasks.SimpleProgressMonitor;
+import com.epimorphics.tasks.TaskState;
 
 public class TestStatusReports {
-    
-    @Test
-    public void testReaper() throws InterruptedException {
-        StatusReportManager manager = new StatusReportManager();
-        manager.setReaperInterval(100);
-        manager.setRetentionPeriod(200);
-        
-        SimpleProgressMonitor monitor1 = manager.createProgressMonitor();
-        String m1ID = monitor1.getId();
-        assertNotNull( manager.getProgressMonitor(m1ID) );
-        Thread.sleep(10);
-        assertNotNull( manager.getProgressMonitor(m1ID) );
-        
-        Thread.sleep(500);
-        SimpleProgressMonitor monitor2 = manager.createProgressMonitor();
-        String m2ID = monitor2.getId();
-        assertNotNull( manager.getProgressMonitor(m2ID) );
-        
-        assertNull( manager.getProgressMonitor(m1ID) );
-    }
     
     @Test
     public void testJSONSerialize() throws IOException {

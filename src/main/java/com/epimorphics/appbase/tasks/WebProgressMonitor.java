@@ -22,6 +22,9 @@ import org.apache.jena.atlas.json.JsonArray;
 import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.atlas.json.JsonValue;
 
+import com.epimorphics.tasks.ProgressMessage;
+import com.epimorphics.tasks.ProgressMonitor;
+import com.epimorphics.tasks.TaskState;
 import com.epimorphics.util.EpiException;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;

@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import com.epimorphics.appbase.tasks.SimpleProgressMonitor;
+import com.epimorphics.tasks.SimpleProgressMonitor;
 
 /**
  * Component to help web service provide a persistent, asynchronous status and progress report.
