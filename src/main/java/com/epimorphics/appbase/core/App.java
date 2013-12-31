@@ -271,7 +271,7 @@ public class App {
             try {
                 PropertyUtils.setSimpleProperty(component, prop, value);
             } catch (Exception e) {
-                error(lineNum, line, "Component " + componentName + " does not have property " + prop);
+                error(lineNum, line, "Component " + componentName + " does not have property " + prop + ", " + e);
             }
             
         } else {
