@@ -54,7 +54,7 @@ public class VelocityFilter implements Filter {
     public VelocityFilter() {
     }
 
-    protected List<VelocityRender> listRenderers() {
+    protected synchronized List<VelocityRender> listRenderers() {
         if (renderers == null) {
             renderers = new ArrayList<>();
             for (App app : AppConfig.listApps()) {
