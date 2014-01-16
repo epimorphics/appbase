@@ -306,7 +306,7 @@ public class App {
             return component;
         }
         if (valueName.startsWith("\"") && valueName.endsWith("\"")) {
-            return valueName.substring(1, valueName.length()-2);
+            return valueName.substring(1, valueName.length()-1);
         }
         if (valueName.equalsIgnoreCase("true")) {
             return true;
