@@ -3,10 +3,10 @@
   <groupId>com.epimorphics</groupId>
   <artifactId>appbase</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>Server base utilities</name>
+  <name>appbase - server utilities</name>
 
   <scm>
-    <developerConnection>scm:git:ssh://git@codebasehq.com:epimorphics/data-fabric/appbase.git</developerConnection>
+    <developerConnection>scm:git:ssh://git@github.com/epimorphics/appbase.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
@@ -86,7 +86,7 @@
     <dependency>
       <groupId>com.epimorphics</groupId>
       <artifactId>lib</artifactId>
-      <version>0.0.17-SNAPSHOT</version>
+      <version>0.0.18</version>
     </dependency>
         <dependency>
       <groupId>javax.servlet</groupId>

@@ -14,13 +14,4 @@ Based on approach and code used for Modal, Pearson, SE, Registry, BG.
 ### TBD
 
    * Data (cube) API
-   * Support for generic JSON APIs
 
-Based on approach and code used for Modal, Pearson, SE, Registry, BG.
-
-   * [[AppBase/GettingStarted]]
-   * [[AppBase/Configuration]]
-   * [[AppBase/TemplatesAndDataAccess]]
-   * REST APIs - to be done
-
-Full documentation: https://epimorphics.codebasehq.com/projects/data-fabric/notebook/AppBase/index
