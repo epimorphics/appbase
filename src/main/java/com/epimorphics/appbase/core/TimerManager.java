@@ -7,7 +7,7 @@
  *
  *****************************************************************/
 
-package com.epimorphics.appbase.webapi;
+package com.epimorphics.appbase.core;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;

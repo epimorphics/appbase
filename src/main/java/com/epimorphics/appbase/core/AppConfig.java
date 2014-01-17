@@ -24,7 +24,6 @@ import javax.servlet.ServletContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.epimorphics.appbase.webapi.TimerManager;
 import com.epimorphics.util.EpiException;
 
 /**

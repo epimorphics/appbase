@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Optional base class for components. A component can be any Java Bean
- * so this is base class is not required. Provides local pointer to the
+ * so this base class is not required. Provides local pointer to the
  * app which contains this component.
  * 
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
