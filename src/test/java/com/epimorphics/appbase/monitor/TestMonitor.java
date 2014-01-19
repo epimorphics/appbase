@@ -50,7 +50,7 @@ public class TestMonitor {
 
     @Test
     public void testMonitor() throws IOException, InterruptedException {
-        monitor.setScanIterval(5);
+        monitor.setScanInterval(5);
         assertTrue( monitor.getEntries().isEmpty() );
         
         touchFile("foo", "foo1");
