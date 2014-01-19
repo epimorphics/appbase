@@ -61,7 +61,7 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
      * will only be scanned once at first access and then only when explicitly refreshed
      * @param mode
      */
-    public void setProductionModel(boolean mode) {
+    public void setProductionMode(boolean mode) {
         productionMode = mode;
     }
     
