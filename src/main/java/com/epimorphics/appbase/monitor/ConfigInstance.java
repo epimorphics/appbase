@@ -9,25 +9,20 @@
 
 package com.epimorphics.appbase.monitor;
 
-import java.io.File;
 
 /**
  * Interface for things which can be dynamically configured
- * by a ConfigMonitor. They have to support access to a config
- * source file to enable new versions to be retrieved.
+ * by a ConfigMonitor. Need some sort of ID/name by which the latest
+ * version can be retrieved.
  * 
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
 public interface ConfigInstance {
 
     /**
-     * Return the configuration file which defined this instance.
+     * Return a name by which this instance can be
+     * retrieved, should be unique across the configured instances.
      */
-    public File getSourceFile();
-
-    /**
-     * Record the configuration file which defined this instance.
-     */
-    public void setSourceFile(File file);
+    public String getName();
     
 }

@@ -53,7 +53,7 @@ public class TestMonitor {
         monitor.setScanInterval(5);
         assertTrue( monitor.getEntries().isEmpty() );
         
-        touchFile("foo", "foo1");
+        File fooFile = touchFile("foo", "foo1");
         Thread.sleep(20);
         
         Collection<TestInstance> entries = monitor.getEntries();
@@ -69,7 +69,7 @@ public class TestMonitor {
         
         entries = monitor.getEntries();
         assertEquals(2, entries.size());
-        TestInstance fooCheck = monitor.getLatest(fooInst);
+        TestInstance fooCheck = monitor.get("foo");
         TestUtil.testArray(entryNames(entries), new String[]{"foo1", "bar1"});
         assertEquals(fooCheck, fooInst);
         
@@ -78,12 +78,13 @@ public class TestMonitor {
         entries = monitor.getEntries();
         assertEquals(2, entries.size());
         TestUtil.testArray(entryNames(entries), new String[]{"foo2", "bar1"});
-        fooCheck = monitor.getLatest(fooInst);
+        fooCheck = monitor.get("foo");
         assertNotSame(fooInst, fooCheck);
         assertEquals("foo2", fooCheck.getMessage());
         
-        fooCheck.getSourceFile().delete();
+        fooFile.delete();
         Thread.sleep(20);
+        entries = monitor.getEntries();
         assertEquals(1, entries.size());
         TestUtil.testArray(entryNames(entries), new String[]{"bar1"});
     }
@@ -106,23 +107,21 @@ public class TestMonitor {
     }
     
     public static class TestInstance implements ConfigInstance {
-        protected File sourceFile;
+        protected String name;
         protected String message;
         
         public TestInstance(String message) {
             this.message = message;
         }
         
-        @Override
-        public File getSourceFile() {
-            return sourceFile;
+        public String getName() {
+            return name;
         }
-        @Override
-        public void setSourceFile(File file) {
-            this.sourceFile = file;
+
+        public void setName(String name) {
+            this.name = name;
         }
-        
-        
+
         public void setMessage(String message) {
             this.message = message;
         }
@@ -136,6 +135,7 @@ public class TestMonitor {
         protected TestInstance configure(File file) {
             String content = FileManager.get().readWholeFileAsUTF8(file.getPath());
             TestInstance i = new TestInstance( content );
+            i.setName( file.getName() );
             return i;
         }
         

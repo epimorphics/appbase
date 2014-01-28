@@ -51,10 +51,12 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
     protected boolean productionMode = false;
     protected boolean waitForStable = false;
     protected int scanInterval = 2 * 1000;  // 2 seconds
-    protected Map<File, T> entries = new HashMap<>();
     protected Scanner scanner;
     protected int fingerprintLength = 0;
     protected ScheduledFuture<?> scanTask;
+    
+    protected Map<File, T> entries = new HashMap<>();
+    protected Map<String, T> entryIndex = new HashMap<>();
 
     /**
      * Set production mode on/off. In production mode then the directory
@@ -122,9 +124,9 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
     /**
      * Return the current version of the given configured object
      */
-    public synchronized T getLatest(T entry) {
+    public synchronized T get(String name) {
         init();
-        return entries.get(entry.getSourceFile());
+        return entryIndex.get(name);
     }
     
     /**
@@ -175,16 +177,43 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
                 File file = change.file;
                 switch(change.state) {
                 case NEW:
+                    addEntry(file, configure(file) );
+                    break;
+                    
                 case MODIFIED:
                     T entry = configure(file);
-                    entry.setSourceFile(file);
-                    entries.put(file, entry);
+                    removeEntry( file );
+                    addEntry(file, entry);
                     break;
+                    
                 case DELETED:
-                    entries.remove(file);
+                    removeEntry( file );
                     break;
                 }
             }
+        }
+    }
+    
+    // Assumes in synchronized block
+    private void addEntry(File file, T entry) {
+        if (entry != null) {
+            String name = entry.getName();
+            if (name != null) {
+                entryIndex.put(name, entry);
+            }
+            entries.put(file, entry);
+        }
+    }
+    
+    // Assumes in synchronized block
+    private void removeEntry(File file) {
+        T entry = entries.get(file);
+        if (entry != null) {
+            String name = entry.getName();
+            if (name != null) {
+                entryIndex.remove(name);
+            }
+            entries.remove(file);
         }
     }
     
