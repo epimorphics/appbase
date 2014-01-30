@@ -77,6 +77,7 @@ public class App {
     protected String name;
     protected Map<String, Object> config = new HashMap<>();
     protected Map<String, Object> components = new HashMap<String, Object>();
+    protected List<Object> orderedComponents = new ArrayList<>();
     
     protected PrefixService prefixService;
 
@@ -222,8 +223,7 @@ public class App {
      * Run any components that should be run at startup
      */
     public void startup() {
-        for (String cname : components.keySet()) {
-            Object component= components.get(cname);
+        for (Object component : orderedComponents) {
             if (component instanceof Startup) {
                 ((Startup)component).startup(this);
             }
@@ -271,7 +271,7 @@ public class App {
             try {
                 PropertyUtils.setSimpleProperty(component, prop, value);
             } catch (Exception e) {
-                error(lineNum, line, "Component " + componentName + " does not have property " + prop, e);
+                error(lineNum, line, "Problem configuring property " + prop + " of component " + componentName, e);
             }
             
         } else {
@@ -283,6 +283,7 @@ public class App {
                     ((Named)component).setName(target);
                 }
                 components.put(target, component);
+                orderedComponents.add(component);
             } catch (Exception e) {
                 error(lineNum, line, "Failed to instantiate component: " + value, e);
             }
