@@ -28,6 +28,11 @@ public interface SparqlSource {
     public ResultSet select(String query);
 
     /**
+     * Fetch the result of a full specified describe query
+     */
+    public Graph describe(String query);
+    
+    /**
      * Fetch a description of a set of resources.
      */
     public Graph describeAll(String... uris);

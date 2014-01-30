@@ -49,7 +49,12 @@ public abstract class BaseSparqlSource extends ComponentBase implements SparqlSo
         for (String uri: uris) {
             query.append(" <" + uri + ">");
         }
-        QueryExecution qexec = start(query.toString());
+        return describe(query.toString());
+    }
+
+    @Override
+    public Graph describe(String query) {
+        QueryExecution qexec = start(query);
         try {
             Graph graph = new GraphMem();
             for (Iterator<Triple> i = qexec.execDescribeTriples(); i.hasNext();) {
@@ -60,7 +65,7 @@ public abstract class BaseSparqlSource extends ComponentBase implements SparqlSo
             finish(qexec);
         }
     }
-
+    
     @Override
     public Graph[] describeEach(String... uris) {
         Model all = ModelFactory.createModelForGraph( describeAll(uris) );
