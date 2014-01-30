@@ -21,10 +21,21 @@ public class TimerManager {
 
     public static ScheduledExecutorService theTimer;
     
-    public static ScheduledExecutorService get() {
+    public synchronized static ScheduledExecutorService get() {
         if (theTimer == null) {
             theTimer = new ScheduledThreadPoolExecutor(1);
         }
         return theTimer;
+    }
+    
+    /**
+     * Restart the global timer. Used by test cases to restart the timer
+     * after it has been shutdown by a servlet-context cleanup.
+     */
+    public synchronized static void shutdown() {
+        if (theTimer != null) {
+            theTimer.shutdown();
+            theTimer = null;
+        }
     }
 }

@@ -37,6 +37,7 @@ public class TestMonitor {
     public void setup() throws IOException {
         testDir = Files.createTempDirectory("testmonitor").toFile();
         app = new App("TestMonitor");
+        app.startup();
         monitor = new TMonitor();
         monitor.setDirectory(testDir.getPath());
         monitor.setFileSampleLength(1000);

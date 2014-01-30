@@ -157,7 +157,7 @@ public class AppConfig implements ServletContextListener {
         for (Shutdown s : shutdownHooks) {
             s.shutdown();
         }
-        TimerManager.get().shutdown();
+        TimerManager.shutdown();
     }
 
 }
