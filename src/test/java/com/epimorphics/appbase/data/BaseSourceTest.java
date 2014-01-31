@@ -28,6 +28,7 @@ public abstract class BaseSourceTest {
     public static final String TEST_NS = "http://www.epimorphics.com/vocabs/test/";
     
     protected WSource source;
+    protected SparqlSource ssource;
     protected App app;
     
     protected abstract String getTestFileDir();
@@ -46,6 +47,7 @@ public abstract class BaseSourceTest {
 //        ss.setTextIndex("default");
         ss.setTextIndex("rdfs:label, skos:altLabel, skos:prefLabel");
         ss.startup(app);
+        ssource = ss;
         
         source = new WSource();
         source.setName(SOURCE_NAME);

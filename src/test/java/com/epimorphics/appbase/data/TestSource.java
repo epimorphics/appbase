@@ -18,10 +18,14 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.epimorphics.appbase.util.SQueryUtil;
 import com.epimorphics.util.TestUtil;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.NodeFactory;
+import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
@@ -33,7 +37,7 @@ public class TestSource extends BaseSourceTest {
     }
 
     @Test
-    public void testBasics() {
+    public void testWrapper() {
         // Labels
         assertEquals("Pref label", getNode("test:i1").getLabel());
         assertEquals("Alt label",  getNode("test:i2").getLabel());
@@ -115,6 +119,23 @@ public class TestSource extends BaseSourceTest {
         assertEquals(1, matches.size());
         checkConnections(matches, new String[]{"test:i1"});
     }
+    
+    @Test
+    public void testQuery() {
+        List<Literal> literals = SQueryUtil.selectLiteralVar("x", "SELECT ?x WHERE {test:i1 ?p ?x}", ssource, app.getPrefixes());
+        TestUtil.testArray(literals, new Literal[]{
+                ResourceFactory.createPlainLiteral("name"),
+                ResourceFactory.createPlainLiteral("rdfs label"),
+                ResourceFactory.createPlainLiteral("Alt label"),
+                ResourceFactory.createPlainLiteral("Pref label"),
+        });
+        
+        List<Resource> resources = SQueryUtil.selectResourceVar("x", "SELECT ?x WHERE {test:i1 ?p ?x}", ssource, app.getPrefixes());
+        TestUtil.testArray(resources, new Resource[]{
+                ResourceFactory.createResource(TEST_NS + "Sample")
+        });
+    }
+    
     
     private void checkLabel(DatasetGraph dsg, String iN, String label) {
         Node i1 = NodeFactory.createURI(TEST_NS + iN);
