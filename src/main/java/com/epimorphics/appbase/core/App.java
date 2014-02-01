@@ -145,6 +145,21 @@ public class App {
         }
         return null;
     }
+
+    /**
+     * Return the a component with the given class if there is one,
+     * otherwise return null 
+     */
+    @SuppressWarnings("unchecked")
+    public <T> List<T> getAll(Class<T> cls) {
+        List<T> results = new ArrayList<>();
+        for (Object s : components.values()) {
+            if (cls.isInstance(s)) {
+                results.add( (T)s );
+            }
+        }
+        return results;
+    }
     
     /**
      * Register a new component. Mostly used for testing.
