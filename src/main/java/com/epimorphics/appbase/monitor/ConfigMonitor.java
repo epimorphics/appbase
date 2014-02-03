@@ -17,6 +17,9 @@ import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.core.ComponentBase;
 import com.epimorphics.appbase.core.Startup;
@@ -47,6 +50,8 @@ import com.epimorphics.appbase.monitor.Scanner.FileRecord;
 // want a result. No support for this at present.
 
 public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentBase implements Runnable, Startup {
+    static Logger log = LoggerFactory.getLogger(ConfigMonitor.class);
+    
     protected boolean initialized = false;
     protected boolean productionMode = false;
     protected boolean waitForStable = false;
@@ -106,8 +111,8 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
      * for changes. Set to 0 to just use length and modification times for change detection.
      * Default is 0.
      */
-    public void setFileSampleLength(int len) {
-        fingerprintLength = len;
+    public void setFileSampleLength(long len) {
+        fingerprintLength = (int)len;
         if (scanner != null) {
             scanner.setFingerprintLength(fingerprintLength);
         }
@@ -197,6 +202,7 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
     // Assumes in synchronized block
     private void addEntry(File file, T entry) {
         if (entry != null) {
+            log.info("Adding monitored entry for: " + file);
             String name = entry.getName();
             if (name != null) {
                 entryIndex.put(name, entry);
@@ -207,6 +213,7 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
     
     // Assumes in synchronized block
     private void removeEntry(File file) {
+        log.info("Removing monitored entry for: " + file);
         T entry = entries.get(file);
         if (entry != null) {
             String name = entry.getName();
