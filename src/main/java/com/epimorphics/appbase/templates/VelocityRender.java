@@ -154,7 +154,8 @@ public class VelocityRender extends ComponentBase {
             }
             ve.setProperty( RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
                     "org.apache.velocity.runtime.log.Log4JLogChute" );
-
+            ve.setProperty("runtime.log.logsystem.log4j.logger", "modal-velocity");
+            
             // Override with any user supplied config
             File configFile = new File(templateDir, CONFIG_FILENAME);
             if (configFile.canRead()) {
