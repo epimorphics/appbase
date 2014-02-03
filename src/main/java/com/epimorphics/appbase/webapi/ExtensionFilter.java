@@ -42,8 +42,10 @@ public class ExtensionFilter implements Filter {
         String accept = this.extensions.get(ext);
  
         // remove extension and remap the Accept header
-        uri = uri.substring(0, uri.length() - ext.length());
-        request = new RequestWrapper(httpRequest, uri, accept);
+        if (!ext.isEmpty()) {
+            uri = uri.substring(0, uri.length() - ext.length());
+            request = new RequestWrapper(httpRequest, uri, accept);
+        }
  
         // add "Vary: accept" to the response headers
         HttpServletResponse httpResponse = (HttpServletResponse)response;
