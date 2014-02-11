@@ -83,6 +83,8 @@ public class AppConfig implements ServletContextListener {
                             } else {
                                 log.info("Loaded App " + appName);
                             }
+                            // exit after the first successful configuration of this app
+                            break;
                         } catch (Exception e) {
                             log.error("Failed to load configuration file: " + configFile, e);
                         }
