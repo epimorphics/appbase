@@ -17,7 +17,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -133,11 +135,13 @@ public class TestMonitor {
     
     public static class TMonitor extends ConfigMonitor<TestInstance> {
         @Override
-        protected TestInstance configure(File file) {
+        protected Collection<TestInstance> configure(File file) {
             String content = FileManager.get().readWholeFileAsUTF8(file.getPath());
             TestInstance i = new TestInstance( content );
             i.setName( file.getName() );
-            return i;
+            List<TestInstance> results = new ArrayList<>();
+            results.add(i);
+            return results;
         }
         
     }

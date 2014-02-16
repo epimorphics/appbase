@@ -12,6 +12,7 @@ package com.epimorphics.appbase.monitor;
 import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
@@ -25,6 +26,7 @@ import com.epimorphics.appbase.core.ComponentBase;
 import com.epimorphics.appbase.core.Startup;
 import com.epimorphics.appbase.core.TimerManager;
 import com.epimorphics.appbase.monitor.Scanner.FileRecord;
+import com.hp.hpl.jena.util.OneToManyMap;
 
 /**
  * Monitors a directory tree containing configuration information. 
@@ -60,7 +62,7 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
     protected int fingerprintLength = 0;
     protected ScheduledFuture<?> scanTask;
     
-    protected Map<File, T> entries = new HashMap<>();
+    protected OneToManyMap<File, T> entries = new OneToManyMap<>();
     protected Map<String, T> entryIndex = new HashMap<>();
 
     /**
@@ -173,7 +175,7 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
         doScan(waitForStable);
     }
     
-    protected abstract T configure(File file);
+    protected abstract Collection<T> configure(File file);
     
     private synchronized void doScan(boolean returnImmediately) {
         Set<FileRecord> changes = scanner.scan(returnImmediately);
@@ -186,9 +188,9 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
                     break;
                     
                 case MODIFIED:
-                    T entry = configure(file);
+                    Collection<T> entrylist = configure(file);
                     removeEntry( file );
-                    addEntry(file, entry);
+                    addEntry(file, entrylist);
                     break;
                     
                 case DELETED:
@@ -200,8 +202,8 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
     }
     
     // Assumes in synchronized block
-    private void addEntry(File file, T entry) {
-        if (entry != null) {
+    private void addEntry(File file, Collection<T> entrylist) {
+        for (T entry : entrylist) {
             log.info("Adding monitored entry for: " + file);
             String name = entry.getName();
             if (name != null) {
@@ -214,13 +216,15 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
     // Assumes in synchronized block
     private void removeEntry(File file) {
         log.info("Removing monitored entry for: " + file);
-        T entry = entries.get(file);
-        if (entry != null) {
-            String name = entry.getName();
-            if (name != null) {
-                entryIndex.remove(name);
+        for (Iterator<T> i = entries.getAll(file); i.hasNext();) {
+            T entry = i.next();
+            if (entry != null) {
+                String name = entry.getName();
+                if (name != null) {
+                    entryIndex.remove(name);
+                }
+                entries.remove(file);
             }
-            entries.remove(file);
         }
     }
     
