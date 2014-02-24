@@ -1,0 +1,28 @@
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix qb:      <http://purl.org/linked-data/cube#> .
+@prefix dct:     <http://purl.org/dc/terms/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+
+@prefix eg:  <http://www.epimorphics.com/test/dsapi/sprint3/search/> .
+@prefix data:  <http://www.epimorphics.com/test/dsapi/sprint3/search/data> .
+
+
+data:1 a eg:Obs; eg:label "Somerset"; rdfs:label "otherplace"; eg:resource data:Somerset; eg:value 1 .
+data:2 a eg:Obs; eg:label "Somerset"; rdfs:label "otherplace"; eg:resource data:Somerset; eg:value 2 .
+data:3 a eg:Obs; eg:label "Somerset levels"; rdfs:label "someplace"; eg:resource data:Levels; eg:value 3 .
+data:4 a eg:Obs; eg:label "Maidenhead"; rdfs:label "someplace"; eg:resource data:Maidenhead; eg:value 4 .
+data:5 a eg:Obs; eg:label "Maidenhead"; rdfs:label "someplace"; eg:resource data:Maidenhead; eg:value 5 .
+data:6 a eg:Obs; eg:label "Maidenhead"; rdfs:label "someplace"; eg:resource data:Maidenhead; eg:value 6 .
+data:7 a eg:Obs; eg:label "Thornbury"; rdfs:label "someplace"; eg:resource data:Thornbury; eg:value 7 .
+data:8 a eg:Obs; eg:label "Thornbury"; rdfs:label "someplace"; eg:resource data:Thornbury; eg:value 8 .
+data:9 a eg:Obs; eg:label "Thornbury"; rdfs:label "someplace"; eg:resource data:Thornbury; eg:value 9 .
+data:10 a eg:Obs; eg:label "Thornbury"; rdfs:label "someplace"; eg:resource data:Thornbury; eg:value 10 .
+
+
+data:Somerset rdfs:label "Somerset" .
+data:Maidenhead rdfs:label "Maidenhead" .
+data:Thornbury rdfs:label "Thornbury" .
+data:Levels rdfs:label "Somerset levels" .

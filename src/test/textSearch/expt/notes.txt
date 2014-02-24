@@ -1,0 +1,3 @@
+$JENA_HOME/bin/tdbloader --loc=target/DB src/test/textSearch/expt/data.ttl
+
+java -cp $FUSEKI_HOME/fuseki-server.jar jena.textindexer --desc=src/test/textSearch/expt/asm.ttl
