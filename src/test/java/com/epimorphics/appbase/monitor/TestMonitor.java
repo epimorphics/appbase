@@ -35,6 +35,8 @@ public class TestMonitor {
     protected TMonitor monitor;
     protected File testDir;
     
+    private static final int MONITOR_CHECK_DELAY = 50;
+    
     @Before
     public void setup() throws IOException {
         testDir = Files.createTempDirectory("testmonitor").toFile();
@@ -57,7 +59,7 @@ public class TestMonitor {
         assertTrue( monitor.getEntries().isEmpty() );
         
         File fooFile = touchFile("foo", "foo1");
-        Thread.sleep(20);
+        Thread.sleep(MONITOR_CHECK_DELAY);
         
         Collection<TestInstance> entries = monitor.getEntries();
         assertEquals(1, entries.size());
@@ -68,7 +70,7 @@ public class TestMonitor {
         assertEquals("foo1", fooInst.getMessage());
         
         touchFile("bar", "bar1");
-        Thread.sleep(20);
+        Thread.sleep(MONITOR_CHECK_DELAY);
         
         entries = monitor.getEntries();
         assertEquals(2, entries.size());
@@ -77,7 +79,7 @@ public class TestMonitor {
         assertEquals(fooCheck, fooInst);
         
         touchFile("foo", "foo2");
-        Thread.sleep(20);
+        Thread.sleep(MONITOR_CHECK_DELAY);
         entries = monitor.getEntries();
         assertEquals(2, entries.size());
         TestUtil.testArray(entryNames(entries), new String[]{"foo2", "bar1"});
@@ -86,7 +88,7 @@ public class TestMonitor {
         assertEquals("foo2", fooCheck.getMessage());
         
         fooFile.delete();
-        Thread.sleep(20);
+        Thread.sleep(MONITOR_CHECK_DELAY);
         entries = monitor.getEntries();
         assertEquals(1, entries.size());
         TestUtil.testArray(entryNames(entries), new String[]{"bar1"});
