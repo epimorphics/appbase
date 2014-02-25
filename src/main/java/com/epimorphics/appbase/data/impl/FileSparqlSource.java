@@ -85,6 +85,8 @@ public class FileSparqlSource extends BaseSparqlSource implements SparqlSource {
         dataset = DatasetFactory.createMem();
         if (indexSpec != null) {
             Directory dir = new RAMDirectory();
+            // We have a choice of a single index of all predicates or separate indexes, could make this configurable
+            // Currently default to a single joint index
             EntityDefinition entDef = new EntityDefinition("uri", "text", RDFS.label.asNode()) ;
             for (String spec : indexSpec.split(",")) {
                 String uri = getApp().getPrefixes().expandPrefix(spec.trim());
@@ -95,6 +97,15 @@ public class FileSparqlSource extends BaseSparqlSource implements SparqlSource {
                     }
                 }
             }
+            // Alterantive would be
+//            for (String spec : indexSpec.split(",")) {
+//                String uri = getApp().getPrefixes().expandPrefix(spec.trim());
+//                if ( ! uri.equals("default") ) {
+//                    Node predicate = NodeFactory.createURI(uri);
+//                    entDef.set(NameUtils.safeName(predicate.getURI()), predicate);
+//                }
+//            }
+            
             dataset = TextDatasetFactory.createLucene(dataset, dir, entDef) ;
         }
         for (String fname : fileSpec.split(",")) {

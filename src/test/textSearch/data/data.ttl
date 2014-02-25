@@ -6,8 +6,8 @@
 @prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
 @prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
 
-@prefix eg:  <http://www.epimorphics.com/test/dsapi/sprint3/search/> .
-@prefix data:  <http://www.epimorphics.com/test/dsapi/sprint3/search/data> .
+@prefix eg:  <http://www.epimorphics.com/test/search/> .
+@prefix data:  <http://www.epimorphics.com/test/search/data> .
 
 
 data:1 a eg:Obs; eg:label "Somerset"; rdfs:label "otherplace"; eg:resource data:Somerset; eg:value 1 .
