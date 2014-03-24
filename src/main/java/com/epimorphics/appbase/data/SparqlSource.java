@@ -46,4 +46,9 @@ public interface SparqlSource {
      * Excecute a construct query
      */
     public Graph construct(String query);
+    
+    /**
+     * A local name for the source (the component name in the configuratio)
+     */
+    public String getName();
 }
