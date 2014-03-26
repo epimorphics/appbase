@@ -39,16 +39,16 @@ import com.hp.hpl.jena.util.OneToManyMap;
  * once the first time any access method is used or by an explicit refresh().
  * After that only an explicit refresh() will cause a directory scan.
  * </p><p>
- * In development mode then by default the directory is scanned everyone 
+ * In development mode then by default the directory is scanned every 
  * 2 seconds to check for changes, this is configurable.
  * </p>
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
 
-// Note: It might be useful to have a mode where the check is only done if you
+// Note: It might be useful to have a mode where the check is only done 
 // when an access method is used more than 2 seconds after the last check. 
 // Has the advantage that in a system where you aren't using the monitor work isn't
-// being done. As the disadvantage that you take the scan hit at exactly the time you
+// being done. Has the disadvantage that you take the scan hit at exactly the time you
 // want a result. No support for this at present.
 
 public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentBase implements Runnable, Startup {

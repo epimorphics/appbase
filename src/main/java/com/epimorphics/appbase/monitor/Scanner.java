@@ -37,7 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Scans a directory to detect an files that have been added, changed or removed.
+ * Scans a directory to detect any files that have been added, changed or removed.
  * 
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
