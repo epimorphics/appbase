@@ -12,6 +12,7 @@ package com.epimorphics.appbase.data.impl;
 import java.util.Iterator;
 
 import com.epimorphics.appbase.core.ComponentBase;
+import com.epimorphics.appbase.data.ClosableResultSet;
 import com.epimorphics.appbase.data.SparqlSource;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Triple;
@@ -38,6 +39,11 @@ public abstract class BaseSparqlSource extends ComponentBase implements SparqlSo
         } finally { 
             finish(qexec);
         }
+    }
+
+    @Override
+    public ClosableResultSet streamableSelect(String query) {
+        return new SSResultSet(this, query);
     }
 
     @Override

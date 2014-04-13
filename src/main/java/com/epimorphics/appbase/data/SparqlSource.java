@@ -21,11 +21,17 @@ import com.hp.hpl.jena.query.ResultSet;
 public interface SparqlSource {
     
     /**
-     * Execute a sparql select query. It is up to the implementation
-     * to ensure appropriate read locks around the data source. This
-     * might typically mean that the result set is copied rather than streamed.
+     * Execute a sparql select query returning a local, safe copy of the results.
+     * Any associated transaction will have been closed.
      */
     public ResultSet select(String query);
+    
+    /**
+     * Execute a sparql select query returning a possibly streamable result set.
+     * The result set must be closed to free any associated resources (e.g. an HTTP connection
+     * to a remote source) and release any read transaction.
+     */
+    public ClosableResultSet streamableSelect(String query);
 
     /**
      * Fetch the result of a full specified describe query

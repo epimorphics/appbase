@@ -19,6 +19,7 @@ import java.util.List;
 import org.junit.Test;
 
 import com.epimorphics.appbase.util.SQueryUtil;
+import com.epimorphics.util.PrefixUtils;
 import com.epimorphics.util.TestUtil;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -136,6 +137,18 @@ public class TestSource extends BaseSourceTest {
         });
     }
     
+    @Test
+    public void testStreamableSelect() {
+        String query = PrefixUtils.expandQuery("SELECT ?x WHERE {test:i1 a ?x}", app.getPrefixes());
+        ClosableResultSet results = ssource.streamableSelect(query);
+        try {
+            assertTrue(results.hasNext());
+            assertEquals(ResourceFactory.createResource(TEST_NS + "Sample"), results.next().getResource("x"));
+            assertFalse(results.hasNext());
+        } finally {
+            results.close();
+        }
+    }
     
     private void checkLabel(DatasetGraph dsg, String iN, String label) {
         Node i1 = NodeFactory.createURI(TEST_NS + iN);
