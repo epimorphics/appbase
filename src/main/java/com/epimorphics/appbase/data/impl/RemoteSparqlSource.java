@@ -62,7 +62,7 @@ public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource
             QueryEngineHTTP hs = (QueryEngineHTTP) s;
             hs.setSelectContentType(contentType);
         }
-        return QueryExecutionFactory.sparqlService(endpoint, queryString);
+        return s;
     }
 
     @Override
