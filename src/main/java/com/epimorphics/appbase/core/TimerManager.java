@@ -18,12 +18,12 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
 public class TimerManager {
-
     public static ScheduledExecutorService theTimer;
     
     public synchronized static ScheduledExecutorService get() {
         if (theTimer == null) {
-            theTimer = new ScheduledThreadPoolExecutor(1);
+            ScheduledThreadPoolExecutor timer = new ScheduledThreadPoolExecutor(1);
+            theTimer = timer;
         }
         return theTimer;
     }

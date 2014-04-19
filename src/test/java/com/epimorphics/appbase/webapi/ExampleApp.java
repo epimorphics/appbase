@@ -10,7 +10,6 @@
 package com.epimorphics.appbase.webapi;
 
 import java.io.File;
-import java.net.URL;
 
 import org.apache.catalina.startup.Tomcat;
 

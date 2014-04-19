@@ -1,0 +1,39 @@
+/******************************************************************
+ * File:        Action.java
+ * Created by:  Dave Reynolds
+ * Created on:  18 Apr 2014
+ * 
+ * (c) Copyright 2014, Epimorphics Limited
+ *
+ *****************************************************************/
+
+package com.epimorphics.appbase.tasks;
+
+
+import com.epimorphics.appbase.monitor.ConfigInstance;
+import com.epimorphics.tasks.ProgressReporter;
+
+/**
+ * A processing block that will be run asynchronously, reporting progress as it goes.
+ */
+public interface Action extends ConfigInstance {
+
+    /**
+     * Return a name for this action
+     */
+    public String getName();
+    
+    /**
+     * Run the action. This will normally be called from a separate worker thread.
+     * 
+     * @param parameters configuration parameters, both static and run specific
+     * @param monitor the progress monitor through which the result can be reported.
+     */
+    public void run(BindingEnv parameters, ProgressReporter monitor);
+    
+    /**
+     * Return the maximum time (in milliseconds) this action should be allowed to run.
+     * Return -1 if there's no limit.
+     */
+    public int getTimeout();
+}

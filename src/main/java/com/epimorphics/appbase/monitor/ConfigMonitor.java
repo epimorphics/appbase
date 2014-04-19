@@ -11,6 +11,7 @@ package com.epimorphics.appbase.monitor;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -199,6 +200,22 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
                 }
             }
         }
+    }
+    
+    /**
+     * Manually register an an instance, bypassing the loading from file.
+     * Uses the name of the instance as the implicit filename but the file needed not
+     * (and should not) exist. 
+     */
+    public synchronized void register(T item) {
+        addEntry( new File(item.getName()), Collections.singleton(item));
+    }
+
+    /**
+     * Remove a manually registered instance.
+     */
+    public synchronized void unregister(T item) {
+        removeEntry( new File(item.getName()) );
     }
     
     // Assumes in synchronized block
