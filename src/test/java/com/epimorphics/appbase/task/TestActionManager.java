@@ -9,17 +9,21 @@
 
 package com.epimorphics.appbase.task;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import com.epimorphics.appbase.tasks.Action;
 import com.epimorphics.appbase.tasks.ActionManager;
-import com.epimorphics.appbase.tasks.BindingEnv;
 import com.epimorphics.tasks.ProgressMessage;
-import com.epimorphics.tasks.SimpleProgressMonitor;
+import com.epimorphics.tasks.ProgressMonitorReporter;
 
 public class TestActionManager {
 
@@ -29,8 +33,8 @@ public class TestActionManager {
         ActionManager am = new ActionManager();
         am.register(action);
         
-        ActionManager.ActionExecution ae1 = am.runAction(action, new BindingEnv("message=Test message,count=2"));
-        ActionManager.ActionExecution ae2 = am.runAction(action, new BindingEnv("message=Test message long,count=50"));
+        ActionManager.ActionExecution ae1 = am.runAction(action, createParams("message=Test message,count=2"));
+        ActionManager.ActionExecution ae2 = am.runAction(action, createParams("message=Test message long,count=50"));
 
         assertEquals(2, am.listActiveExecutions().size());
         
@@ -55,12 +59,32 @@ public class TestActionManager {
         assertEquals(ae2, am.getExecution(ae2.getId()));
     }
     
-    private void dumpState(ActionManager.ActionExecution ae) {
-        SimpleProgressMonitor monitor = ae.getMonitor();
+    public static void dumpState(ActionManager.ActionExecution ae) {
+        ProgressMonitorReporter monitor = ae.getMonitor();
         for (ProgressMessage msg : monitor.getMessages()) {
             System.out.println(msg.toString());
         }
         System.out.println(monitor.toString());
         System.out.println("Duration: " + ae.getDuration());
     }
+    
+    public static Map<String,Object> createParams(String bindings) {
+        Map<String, Object> params = new HashMap<>();
+        if (bindings.trim().isEmpty()) {
+            return params;
+        }
+        for (String binding : bindings.split(",")) {
+            String[] pair = binding.split("=");
+            String key = pair[0].trim();
+            String value = pair[1].trim();
+            try {
+                int vint = Integer.parseInt(value);
+                params.put(key, vint);
+            } catch (NumberFormatException e) {
+                params.put(key, value);
+            }
+        }
+        return params;
+    }
+    
 }

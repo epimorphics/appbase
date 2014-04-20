@@ -106,6 +106,13 @@ public class AppConfig implements ServletContextListener {
     }
     
     /**
+     * Set the global default app
+     */
+    public void setDefaultApp(App app) {
+        defaultApp = app;
+    }
+    
+    /**
      * Return the app with the given name
      */
     public static App getApp(String appName) {

@@ -10,18 +10,16 @@
 package com.epimorphics.appbase.tasks;
 
 
+import java.util.Map;
+
+import com.epimorphics.appbase.core.Named;
 import com.epimorphics.appbase.monitor.ConfigInstance;
-import com.epimorphics.tasks.ProgressReporter;
+import com.epimorphics.tasks.ProgressMonitorReporter;
 
 /**
  * A processing block that will be run asynchronously, reporting progress as it goes.
  */
-public interface Action extends ConfigInstance {
-
-    /**
-     * Return a name for this action
-     */
-    public String getName();
+public interface Action extends ConfigInstance, Named {
     
     /**
      * Run the action. This will normally be called from a separate worker thread.
@@ -29,7 +27,7 @@ public interface Action extends ConfigInstance {
      * @param parameters configuration parameters, both static and run specific
      * @param monitor the progress monitor through which the result can be reported.
      */
-    public void run(BindingEnv parameters, ProgressReporter monitor);
+    public void run(Map<String, Object> parameters, ProgressMonitorReporter monitor);
     
     /**
      * Return the maximum time (in milliseconds) this action should be allowed to run.

@@ -9,44 +9,38 @@
 
 package com.epimorphics.appbase.task;
 
+import java.util.Map;
+
+
 import com.epimorphics.appbase.tasks.Action;
-import com.epimorphics.appbase.tasks.BindingEnv;
-import com.epimorphics.tasks.ProgressReporter;
+import com.epimorphics.appbase.tasks.impl.BaseAction;
+import com.epimorphics.tasks.ProgressMonitorReporter;
+import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.NAME_KEY;
 
 /**
  * Used for testing the action sub-system
  */
-public class DummyAction implements Action {
-    protected String name = "DummyAction";
+public class DummyAction extends BaseAction implements Action {
 
     @Override
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public int getTimeout() {
+        return 50;
     }
 
     @Override
-    public void run(BindingEnv parameters, ProgressReporter monitor) {
-        monitor.report(getName() + " started");
-        monitor.report("" + parameters.get("message"));
-        for (int i = 1; i < ((Number)parameters.get("count", 0)).intValue(); i++){
+    protected void doRun(Map<String, Object> parameters,
+            ProgressMonitorReporter monitor) {
+        monitor.report( getStringParameter(parameters, NAME_KEY) + " started");
+        monitor.report( getStringParameter(parameters, "message", "no message") );
+        for (int i = 1; i < getIntParameter(parameters, "count", 1); i++) {
             try {
-                Thread.sleep(100);
+                Thread.sleep(10);
             } catch (InterruptedException e) {
                 return;
             }
             monitor.report("" + parameters.get("message"));
         }
-        monitor.report(getName() + " finished");
-        
-    }
-
-    @Override
-    public int getTimeout() {
-        return 500;
+        monitor.report(getStringParameter(parameters, NAME_KEY) + " finished");
     }
 
 }

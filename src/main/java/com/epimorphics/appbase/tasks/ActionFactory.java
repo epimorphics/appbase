@@ -36,9 +36,11 @@ public class ActionFactory {
         return Collections.emptyList();
     }
     
-    public static void registry(Factorylet factory) {
+    public static void register(Factorylet factory) {
         factories.add(factory);
     }
     
-    // TODO some baseline factories
+    static {
+        register( new ActionJsonFactorylet() );
+    }
 }

@@ -26,8 +26,10 @@ import java.util.concurrent.TimeUnit;
 
 import com.epimorphics.appbase.core.TimerManager;
 import com.epimorphics.appbase.monitor.ConfigMonitor;
+import com.epimorphics.tasks.ProgressMonitorReporter;
 import com.epimorphics.tasks.SimpleProgressMonitor;
 import com.epimorphics.tasks.TaskState;
+import com.epimorphics.util.EpiException;
 
 /**
  * Controller which tracks available actions, executes actions
@@ -36,9 +38,9 @@ import com.epimorphics.tasks.TaskState;
  */
 public class ActionManager extends ConfigMonitor<Action> {
     protected static final int DEFAULT_HISTORY_SIZE = 500;
-    private static final int MAX_THREADS = 10;
-    private static final int CORE_THREADS = 2;
-    private static final int QUEUE_DEPTH = 5;
+    private static final int MAX_THREADS = 20;
+    private static final int CORE_THREADS = 10;
+    private static final int QUEUE_DEPTH = 10;
     private static final int KEEPALIVE = 1000;
     
     // Table of available actions provided by super class
@@ -55,6 +57,21 @@ public class ActionManager extends ConfigMonitor<Action> {
     
     public void setMaxHistory(int maxHistory) {
         this.maxHistory = maxHistory;
+    }
+    
+    /**
+     * Set ActionFactory entries
+     * @param factories commas separate list of class names for factorylets
+     */
+    public void setFactories(String factories) {
+        for (String factoryName : factories.split(",")) {
+            try {
+                ActionFactory.Factorylet factory = (ActionFactory.Factorylet) Class.forName(factoryName).newInstance();
+                ActionFactory.register(factory);
+            } catch (Exception e) {
+                throw new EpiException("Problem instantiating action factory", e);
+            }
+        }
     }
     
     @Override
@@ -96,7 +113,7 @@ public class ActionManager extends ConfigMonitor<Action> {
      * @param parameters configuration and runtime parameters
      * @return a future which can be used to wait for the action to complete or timeout
      */
-    public ActionExecution runAction(Action action, BindingEnv parameters) {
+    public ActionExecution runAction(Action action, Map<String, Object> parameters) {
         ActionExecution ae = new ActionExecution(action, parameters);
         recordExecution(ae);
         ae.start();
@@ -109,7 +126,7 @@ public class ActionManager extends ConfigMonitor<Action> {
      * @param parameters configuration and runtime parameters
      * @return a future which can be used to wait for the action to complete or timeout
      */
-    public ActionExecution runAction(String actionName, BindingEnv parameters) {
+    public ActionExecution runAction(String actionName, Map<String, Object> parameters) {
         return runAction( get(actionName),  parameters);
     }
     
@@ -119,14 +136,14 @@ public class ActionManager extends ConfigMonitor<Action> {
      */
     public class ActionExecution implements Runnable {
         protected Action action;
-        protected BindingEnv parameters;
+        protected Map<String, Object> parameters;
         protected long startTime;
         protected long finishTime = 0;
         protected SimpleProgressMonitor monitor;
         protected String id = UUID.randomUUID().toString();
         protected Future<?> future;
         
-        public ActionExecution(Action action, BindingEnv parameters) {
+        public ActionExecution(Action action, Map<String, Object> parameters) {
             this.parameters = parameters;
             monitor = new SimpleProgressMonitor();
             this.action = action;
@@ -144,7 +161,7 @@ public class ActionManager extends ConfigMonitor<Action> {
             return finishTime;
         }
 
-        public SimpleProgressMonitor getMonitor() {
+        public ProgressMonitorReporter getMonitor() {
             return monitor;
         }
 
@@ -216,7 +233,7 @@ public class ActionManager extends ConfigMonitor<Action> {
         }
         
         protected void condMarkTerminated(String message) {
-            SimpleProgressMonitor monitor = getMonitor();
+            ProgressMonitorReporter monitor = getMonitor();
             if (monitor.getState() != TaskState.Terminated) {
                 monitor.report(message);
                 monitor.failed();

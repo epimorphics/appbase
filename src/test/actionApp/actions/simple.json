@@ -1,0 +1,14 @@
+[
+  {
+    "@name" : "messageThrice",
+    "@type" : "simple",
+    "@javaclass" : "com.epimorphics.appbase.task.DummyAction",
+    "count" : 3
+  },
+  {
+    "@name" : "helloThrice",
+    "@type" : "simple",
+    "@base" : "messageThrice",
+    "message" : "Hello"
+  }
+]
