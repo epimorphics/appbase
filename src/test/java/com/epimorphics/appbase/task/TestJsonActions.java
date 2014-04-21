@@ -17,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.After;
@@ -102,6 +103,26 @@ public class TestJsonActions {
         for (int i = 0; i < 3; i++) {
             assertTrue( messages.get(i).getMessage().matches("par [123]") );
         }
+    }
+    
+    @Test
+    public void testEvents() {
+        RecordingAction.reset();
+        List<ActionExecution> aes = new ArrayList<>();
+        aes.addAll( am.fireEvent("test/foo", createParams("")) );
+        aes.addAll( am.fireEvent("miss/foo", createParams("")) );
+        aes.addAll( am.fireEvent("test/bar", createParams("")) );
+        for (ActionExecution ae : aes) {
+            ae.waitForCompletion();
+        }
+        List<String> firings = RecordingAction.getMessages();
+        assertEquals(2, firings.size());
+        assertTrue( 
+                (firings.get(0).equals("fired - test/foo") && firings.get(1).equals("fired - test/bar")) 
+                ||
+                (firings.get(0).equals("fired - test/bar") && firings.get(1).equals("fired - test/foo")) 
+                );
+        RecordingAction.reset();
     }
     
     private ActionExecution runAction(String actionName, String args) {

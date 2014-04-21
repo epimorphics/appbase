@@ -41,6 +41,12 @@ public interface Action extends ConfigInstance, Named {
     public int getTimeout();
     
     /**
+     * Return a trigger which should be used to fire this action.
+     * Returns null if there is no associated trigger
+     */
+    public ActionTrigger getTrigger();
+    
+    /**
      * Return an action that should be called if this action fails or times out
      * (or null if there is no such action)
      */

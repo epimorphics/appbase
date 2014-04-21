@@ -44,5 +44,10 @@
       {"@javaclass" : "com.epimorphics.appbase.task.PrintAction", "message" : "par 2"},
       {"@javaclass" : "com.epimorphics.appbase.task.PrintAction", "message" : "par 3"}
     ]
+  },{
+    "@name" : "triggerTest",
+    "@javaclass" : "com.epimorphics.appbase.task.RecordingAction",
+    "@trigger" : "test/.*",
+    "message" : "fired"
   }
 ]

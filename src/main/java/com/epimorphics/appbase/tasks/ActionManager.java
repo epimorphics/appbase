@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -65,6 +66,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
     protected Set<ActionExecution> currentExecutions = new HashSet<>();
     protected Map<String, ActionExecution> executionIndex = new HashMap<String, ActionExecution>();
     protected Deque<ActionExecution> executionHistory = new ArrayDeque<>(DEFAULT_HISTORY_SIZE);
+    protected Set<Action> triggerableActions = new HashSet<>();
 
     protected ThreadPoolExecutor executor = new ThreadPoolExecutor(CORE_THREADS, MAX_THREADS, KEEPALIVE, TimeUnit.MILLISECONDS, 
             new ArrayBlockingQueue<Runnable>(QUEUE_DEPTH));
@@ -93,6 +95,23 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
             } catch (IOException e) {
                 // ignore, we are shutting down anyway
             }
+        }
+    }
+    
+    // Trap any triggerable actions
+    @Override
+    protected void doAddEntry(Action entry) {
+        super.doAddEntry(entry);
+        if (entry.getTrigger() != null) {
+            triggerableActions.add(entry);
+        }
+    }
+    
+    @Override
+    protected void doRemoveEntry(Action entry) {
+        super.doRemoveEntry(entry);
+        if (entry.getTrigger() != null) {
+            triggerableActions.remove(entry);
         }
     }
     
@@ -177,6 +196,20 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
      */
     public ActionExecution runAction(String actionName, Map<String, Object> parameters) {
         return runAction( get(actionName),  parameters);
+    }
+    
+    /**
+     * Send an event which will trigger any matching actions.
+     */
+    public List<ActionExecution> fireEvent(String event, Map<String, Object> parameters) {
+        parameters.put( ActionTrigger.TRIGGER_KEY, event);
+        List<ActionExecution> executions = new ArrayList<>();
+        for (Action action : triggerableActions) {
+            if (action.getTrigger().matches(event, parameters)) {
+                executions.add( runAction(action, parameters) );
+            }
+        }
+        return executions;
     }
     
     /**
@@ -273,8 +306,8 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
          */
         public void cancel(String message) {
             if ( ! future.isDone() ) {
-                future.cancel(true);
                 condMarkTerminated(message);
+                future.cancel(true);
             }
         }
         

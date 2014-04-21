@@ -222,10 +222,7 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
     private void addEntry(File file, Collection<T> entrylist) {
         for (T entry : entrylist) {
             log.info("Adding monitored entry for: " + file);
-            String name = entry.getName();
-            if (name != null) {
-                entryIndex.put(name, entry);
-            }
+            doAddEntry(entry);
             entries.put(file, entry);
         }
     }
@@ -236,13 +233,23 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
         for (Iterator<T> i = entries.getAll(file); i.hasNext();) {
             T entry = i.next();
             if (entry != null) {
-                String name = entry.getName();
-                if (name != null) {
-                    entryIndex.remove(name);
-                }
+                doRemoveEntry(entry);
                 entries.remove(file);
             }
         }
     }
     
+    protected void doAddEntry(T entry) {
+        String name = entry.getName();
+        if (name != null) {
+            entryIndex.put(name, entry);
+        }
+    }
+
+    protected void doRemoveEntry(T entry) {
+        String name = entry.getName();
+        if (name != null) {
+            entryIndex.remove(name);
+        }
+    }
 }

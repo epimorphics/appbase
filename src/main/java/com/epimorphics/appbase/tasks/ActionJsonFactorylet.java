@@ -29,6 +29,7 @@ import com.epimorphics.appbase.tasks.impl.BaseAction;
 import com.epimorphics.appbase.tasks.impl.CompoundAction;
 import com.epimorphics.appbase.tasks.impl.JavaAction;
 import com.epimorphics.appbase.tasks.impl.ParallelAction;
+import com.epimorphics.appbase.tasks.impl.RegexTrigger;
 import com.epimorphics.appbase.tasks.impl.SequenceAction;
 import com.epimorphics.appbase.tasks.impl.WrappedAction;
 import com.epimorphics.util.EpiException;
@@ -50,6 +51,7 @@ import com.epimorphics.util.EpiException;
  *   <li><code>@javaclass</code> - name of a javaclass that implements the base action, alternative to @base for simple actions</li>
  *   <li><code>@actions</code> - array of actions which make up a sequence or parallel action</li>
  *   <li><code>@onError</code> - action to be invoke if this or any component actions fail</li>
+ *   <li><code>@trigger</code> - regex which, if it matches an event, triggers the action</li>
  * </ul>
  * <p>All other keys are take to be configuration parameters for the action.</p>
  * 
@@ -64,6 +66,7 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
     public static final String JAVACLASS_KEY   = "@javaclass";
     public static final String ACTIONS_KEY     = "@actions";
     public static final String ON_ERROR_KEY    = "@onError";
+    public static final String TRIGGER_KEY     = "@trigger";
 
     public static final String SIMPLE_TYPE    = "simple";
     public static final String SEQUENCE_TYPE    = "sequence";
@@ -79,6 +82,7 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
         ALLOWED_KEYS.add(JAVACLASS_KEY);
         ALLOWED_KEYS.add(ACTIONS_KEY);
         ALLOWED_KEYS.add(ON_ERROR_KEY);
+        ALLOWED_KEYS.add(TRIGGER_KEY);
     }
     
     @Override
@@ -153,6 +157,8 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
                     action.setConfig(key, parseActionRef( spec.get(key) ));
                 } else if (key.equals(ACTIONS_KEY)) {
                     // already handled
+                } else if (key.equals(TRIGGER_KEY)) {
+                    action.setTrigger( new RegexTrigger( getString(spec, key, ".*") ) );
                 } else {
                     action.setConfig(key, getValue(spec, key));
                 }

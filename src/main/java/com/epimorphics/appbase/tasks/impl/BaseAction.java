@@ -20,6 +20,7 @@ import java.util.Map;
 import com.epimorphics.appbase.core.AppConfig;
 import com.epimorphics.appbase.tasks.Action;
 import com.epimorphics.appbase.tasks.ActionManager;
+import com.epimorphics.appbase.tasks.ActionTrigger;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 import com.epimorphics.util.EpiException;
 
@@ -29,6 +30,7 @@ import com.epimorphics.util.EpiException;
 public abstract class BaseAction implements Action {
     protected Map<String, Object> configuration = new HashMap<String, Object>();
     protected Action onError;
+    protected ActionTrigger trigger;
 
     public BaseAction() {
     }
@@ -154,6 +156,15 @@ public abstract class BaseAction implements Action {
         } else {
             throw new EpiException("Unexpected type for bound action (should be String or Action): " + action);
         }
+    }
+    
+    @Override
+    public ActionTrigger getTrigger() {
+        return trigger;
+    }
+    
+    public void setTrigger(ActionTrigger trigger) {
+        this.trigger = trigger;
     }
     
     @Override
