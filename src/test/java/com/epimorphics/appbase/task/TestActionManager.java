@@ -48,12 +48,12 @@ public class TestActionManager {
         
         ae2.waitForCompletion();
 //        dumpState(ae2);
+        Thread.sleep(10);  // Allow ActionManager to see the timeout and update the action state list
         messages = ae2.getMonitor().getMessages();
         assertTrue(messages.size() < 50);
         assertTrue(messages.get(messages.size() - 1).toString().endsWith("timeout"));
         assertFalse(ae2.getMonitor().succeeded());
             
-        Thread.sleep(10);  // Allow ActionManager to see the timeout and update the action state list
         assertEquals(0, am.listActiveExecutions().size());
 
         assertEquals(ae1, am.getExecution(ae1.getId()));

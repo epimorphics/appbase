@@ -22,6 +22,11 @@ import com.epimorphics.tasks.ProgressMonitorReporter;
 public interface Action extends ConfigInstance, Named {
     
     /**
+     * Resolve any late-bound action bindings using the given ActionManager
+     */
+    public void resolve(ActionManager am);
+    
+    /**
      * Run the action. This will normally be called from a separate worker thread.
      * 
      * @param parameters configuration parameters, both static and run specific
@@ -37,8 +42,7 @@ public interface Action extends ConfigInstance, Named {
     
     /**
      * Return an action that should be called if this action fails or times out
-     * when run on the given set of parameters (or null if there is no such action)
-     * @return an action name (String) or Action
+     * (or null if there is no such action)
      */
-    public Object getOnError(Map<String, Object> parameters);
+    public Action getOnError();
 }

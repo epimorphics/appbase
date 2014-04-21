@@ -59,7 +59,7 @@ public class NestedProgressReporter implements ProgressMonitorReporter {
     }
 
     @Override
-    public synchronized void failed() {
+    public synchronized void setFailed() {
         succeeded = false;
         setState( TaskState.Terminated );
     }

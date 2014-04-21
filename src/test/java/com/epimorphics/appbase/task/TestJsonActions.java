@@ -61,18 +61,41 @@ public class TestJsonActions {
     @Test
     public void testErrorHander() throws InterruptedException {
         ActionExecution ae = runAction("testErrorHandler", "");
+//        dumpState(ae);
         ProgressMonitorReporter pm = ae.getMonitor();
         assertFalse(pm.succeeded());
-        assertEquals(4, pm.getMessages().size());
+        assertEquals(2, pm.getMessages().size());
         assertTrue( pm.getMessages().get(0).getMessage().contains("Forcing error from CreateErrorAction") );
-        assertEquals( "Error detected", pm.getMessages().get(2).getMessage() );
+        assertEquals( "Error detected", pm.getMessages().get(1).getMessage() );
 
         ae = runAction("testErrorTimeout", "");
         Thread.sleep(10);  // Allow time out processing to complete, more robust way?
         pm = ae.getMonitor();
         assertFalse(pm.succeeded());
         List<ProgressMessage> messages = pm.getMessages();
-        assertEquals( "Timeout detected", messages.get(messages.size() - 2).getMessage());
+        assertEquals( "Timeout detected", messages.get(messages.size() - 1).getMessage());
+    }
+    
+    @Test
+    public void testCompoundflows() throws InterruptedException {
+        ActionExecution ae = runAction("sequenceTest", "");
+        ProgressMonitorReporter pm = ae.getMonitor();
+        assertTrue(pm.succeeded());
+        List<ProgressMessage> messages = pm.getMessages();
+        assertEquals(3, messages.size());
+        assertEquals("sequence 1", messages.get(0).getMessage());
+        assertEquals("sequence 2", messages.get(1).getMessage());
+        assertEquals("sequence 3", messages.get(2).getMessage());
+
+        ae = runAction("parTest", "");
+//        dumpState(ae);
+        pm = ae.getMonitor();
+        assertTrue(pm.succeeded());
+        messages = pm.getMessages();
+        assertEquals(3, messages.size());
+        for (int i = 0; i < 3; i++) {
+            assertTrue( messages.get(i).getMessage().matches("par [123]") );
+        }
     }
     
     private ActionExecution runAction(String actionName, String args) {

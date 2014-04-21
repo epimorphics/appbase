@@ -26,7 +26,10 @@ import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.atlas.json.JsonValue;
 
 import com.epimorphics.appbase.tasks.impl.BaseAction;
+import com.epimorphics.appbase.tasks.impl.CompoundAction;
 import com.epimorphics.appbase.tasks.impl.JavaAction;
+import com.epimorphics.appbase.tasks.impl.ParallelAction;
+import com.epimorphics.appbase.tasks.impl.SequenceAction;
 import com.epimorphics.appbase.tasks.impl.WrappedAction;
 import com.epimorphics.util.EpiException;
 
@@ -129,7 +132,17 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
                 action = new WrappedAction();
             }
         } else {
-            // TODO other cases
+            CompoundAction flow = type.equals(SEQUENCE_TYPE) ? new SequenceAction() : new ParallelAction();
+            JsonValue av = spec.get(ACTIONS_KEY);
+            if (av.isArray()) {
+                Iterator<JsonValue> i = av.getAsArray().iterator();
+                while (i.hasNext()) {
+                    flow.addComponent( parseActionRef(i.next()) );
+                }
+            } else {
+                flow.addComponent( parseActionRef(av) );
+            }
+            action = flow;
         }
         for (String key : spec.keySet()) {
             if (key.startsWith("@")) {
@@ -137,12 +150,9 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
                     throw new EpiException("Error parsing action specifcation, " + key + " is not a legal reserved key");
                 }
                 if (key.equals(ON_ERROR_KEY)) {
-                    JsonValue errv = spec.get(key);
-                    if (errv.isString()) {
-                        action.setConfig(key, errv.getAsString().value());
-                    } else if (errv.isObject()) {
-                        action.setConfig(key, parseAction(errv.getAsObject()));
-                    }
+                    action.setConfig(key, parseActionRef( spec.get(key) ));
+                } else if (key.equals(ACTIONS_KEY)) {
+                    // already handled
                 } else {
                     action.setConfig(key, getValue(spec, key));
                 }
@@ -151,6 +161,16 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
             }
         }
         return action;
+    }
+    
+    private Object parseActionRef(JsonValue value) {
+        if (value.isString()) {
+            return value.getAsString().value();
+        } else if (value.isObject()) {
+            return parseAction( value.getAsObject() );
+        } else {
+            throw new EpiException("Illegal action reference (should be string or nested object): " + value);
+        }
     }
 
     private String getString(JsonObject o, String key, String deflt) {

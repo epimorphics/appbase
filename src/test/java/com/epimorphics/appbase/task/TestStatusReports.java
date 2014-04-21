@@ -29,7 +29,7 @@ public class TestStatusReports {
         SimpleProgressMonitor monitor = new SimpleProgressMonitor();
         monitor.setState(TaskState.Running);
         monitor.setProgress(42);
-        monitor.setSuccess(true);
+//        monitor.setSuccess(true);
         monitor.report("message 1");
         monitor.report("message 2");
         

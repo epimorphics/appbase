@@ -28,6 +28,7 @@ import com.epimorphics.util.EpiException;
  */
 public abstract class BaseAction implements Action {
     protected Map<String, Object> configuration = new HashMap<String, Object>();
+    protected Action onError;
 
     public BaseAction() {
     }
@@ -134,10 +135,27 @@ public abstract class BaseAction implements Action {
     }
     
     @Override
-    public Object getOnError(Map<String, Object> parameters) {
-        return getParameter(parameters, ON_ERROR_KEY);
+    public Action getOnError() {
+        return onError;
+    }
+    
+    @Override
+    public void resolve(ActionManager am) {
+        onError = resolveAction(am, getConfig(ON_ERROR_KEY)); 
     }
 
+    protected Action resolveAction(ActionManager am, Object action) {
+        if (action == null) {
+            return null;
+        } else if (action instanceof String) {
+            return am.get((String)action);
+        } else if (action instanceof Action) {
+            return (Action)action;
+        } else {
+            throw new EpiException("Unexpected type for bound action (should be String or Action): " + action);
+        }
+    }
+    
     @Override
     public void run(Map<String, Object> parameters, ProgressMonitorReporter monitor) {
         doRun(parameters, monitor);

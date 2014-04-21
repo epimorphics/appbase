@@ -115,7 +115,19 @@ public class ActionManager extends ConfigMonitor<Action> {
      * @return a future which can be used to wait for the action to complete or timeout
      */
     public ActionExecution runAction(Action action, Map<String, Object> parameters) {
-        ActionExecution ae = new ActionExecution(action, parameters);
+        return runAction(action, parameters, new SimpleProgressMonitor());
+    }
+    
+    /**
+     * Start the action running as a background thread
+     * @param action the action
+     * @param parameters configuration and runtime parameters
+     * @param an external progress monitor to use
+     * @return a future which can be used to wait for the action to complete or timeout
+     */
+    public ActionExecution runAction(Action action, Map<String, Object> parameters, ProgressMonitorReporter monitor) {
+        action.resolve(this);
+        ActionExecution ae = new ActionExecution(action, parameters, monitor);
         recordExecution(ae);
         ae.start();
         return ae;
@@ -140,13 +152,17 @@ public class ActionManager extends ConfigMonitor<Action> {
         protected Map<String, Object> parameters;
         protected long startTime;
         protected long finishTime = 0;
-        protected SimpleProgressMonitor monitor;
+        protected ProgressMonitorReporter monitor;
         protected String id = UUID.randomUUID().toString();
         protected Future<?> future;
         
         public ActionExecution(Action action, Map<String, Object> parameters) {
+            this(action, parameters, new SimpleProgressMonitor());
+        }
+        
+        public ActionExecution(Action action, Map<String, Object> parameters, ProgressMonitorReporter monitor) {
             this.parameters = parameters;
-            monitor = new SimpleProgressMonitor();
+            this.monitor = monitor;
             this.action = action;
         }
         
@@ -181,6 +197,7 @@ public class ActionManager extends ConfigMonitor<Action> {
         @Override
         public void run() {
             startTime = System.currentTimeMillis();
+            monitor.setState(TaskState.Running);
             startTimeout();
             try {
                 action.run(parameters, monitor);
@@ -192,7 +209,9 @@ public class ActionManager extends ConfigMonitor<Action> {
             }
             finishTime = System.currentTimeMillis();
             recordEndOfExecution(this);
-            condMarkTerminated("Thread died before completion, cause unknown");
+            if (monitor.getState() != TaskState.Terminated) {
+                condMarkTerminated("Thread died before completion, cause unknown");
+            }
         }
         
         private Future<?> start() {
@@ -238,18 +257,11 @@ public class ActionManager extends ConfigMonitor<Action> {
             ProgressMonitorReporter monitor = getMonitor();
             if (monitor.getState() != TaskState.Terminated) {
                 monitor.report(message);
-                monitor.failed();
+                monitor.setFailed();
             }
-            Object onError = action.getOnError(parameters);
+            Action onError = action.getOnError();
             if (onError != null) {
-                if (onError instanceof String) {
-                    onError = get((String)onError);
-                }
-                if (onError instanceof Action) {
-                    ((Action)onError).run(Collections.EMPTY_MAP, new NestedProgressReporter(monitor));
-                } else {
-                    throw new EpiException("Illegal onError action must be a string or Action: " + onError);
-                }
+                onError.run(Collections.EMPTY_MAP, new NestedProgressReporter(monitor));
             }
         }
         

@@ -15,9 +15,7 @@
     "@name" : "testErrorHandler",
     "@base" : "causeError",
     "@onError" : {
-        "@name" : "errorMessage",
-        "@javaclass" : "com.epimorphics.appbase.task.DummyAction",
-        "count" : 1,
+        "@javaclass" : "com.epimorphics.appbase.task.PrintAction",
         "message" : "Error detected"
     }
   },{
@@ -27,10 +25,24 @@
     "message" : "ping",
     "@timeout" : 40,
     "@onError" : {
-        "@name" : "errorMessage",
-        "@javaclass" : "com.epimorphics.appbase.task.DummyAction",
-        "count" : 1,
+        "@javaclass" : "com.epimorphics.appbase.task.PrintAction",
         "message" : "Timeout detected"
     }
+  },{
+    "@name" : "sequenceTest",
+    "@type" : "sequence",
+    "@actions" : [
+      {"@javaclass" : "com.epimorphics.appbase.task.PrintAction", "message" : "sequence 1"},
+      {"@javaclass" : "com.epimorphics.appbase.task.PrintAction", "message" : "sequence 2"},
+      {"@javaclass" : "com.epimorphics.appbase.task.PrintAction", "message" : "sequence 3"}
+    ]
+  },{
+    "@name" : "parTest",
+    "@type" : "parallel",
+    "@actions" : [
+      {"@javaclass" : "com.epimorphics.appbase.task.PrintAction", "message" : "par 1"},
+      {"@javaclass" : "com.epimorphics.appbase.task.PrintAction", "message" : "par 2"},
+      {"@javaclass" : "com.epimorphics.appbase.task.PrintAction", "message" : "par 3"}
+    ]
   }
 ]
