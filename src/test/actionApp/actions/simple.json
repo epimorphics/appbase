@@ -4,11 +4,33 @@
     "@type" : "simple",
     "@javaclass" : "com.epimorphics.appbase.task.DummyAction",
     "count" : 3
-  },
-  {
+  },{
     "@name" : "helloThrice",
-    "@type" : "simple",
     "@base" : "messageThrice",
     "message" : "Hello"
+  },{
+    "@name" : "causeError",
+    "@javaclass" : "com.epimorphics.appbase.task.CreateErrorAction"
+  },{
+    "@name" : "testErrorHandler",
+    "@base" : "causeError",
+    "@onError" : {
+        "@name" : "errorMessage",
+        "@javaclass" : "com.epimorphics.appbase.task.DummyAction",
+        "count" : 1,
+        "message" : "Error detected"
+    }
+  },{
+    "@name" : "testErrorTimeout",
+    "@javaclass" : "com.epimorphics.appbase.task.DummyAction",
+    "count" : 50,
+    "message" : "ping",
+    "@timeout" : 40,
+    "@onError" : {
+        "@name" : "errorMessage",
+        "@javaclass" : "com.epimorphics.appbase.task.DummyAction",
+        "count" : 1,
+        "message" : "Timeout detected"
+    }
   }
 ]

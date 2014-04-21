@@ -39,7 +39,7 @@ import com.epimorphics.util.EpiException;
  * <p> 
  * Each action specification can use the follow keywords:</p>
  * <ul>
- *   <li><code>@type</code> - the type of action, "simple", "sequence", "parallel"</li>
+ *   <li><code>@type</code> - the type of action, "simple", "sequence", "parallel", can omit if type is simple</li>
  *   <li><code>@name</code> - a name for the action</li>
  *   <li><code>@description</code> - optional description</li>
  *   <li><code>@timeout</code> - optional timeout value in milliseconds</li>
@@ -137,7 +137,12 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
                     throw new EpiException("Error parsing action specifcation, " + key + " is not a legal reserved key");
                 }
                 if (key.equals(ON_ERROR_KEY)) {
-                    // TODO
+                    JsonValue errv = spec.get(key);
+                    if (errv.isString()) {
+                        action.setConfig(key, errv.getAsString().value());
+                    } else if (errv.isObject()) {
+                        action.setConfig(key, parseAction(errv.getAsObject()));
+                    }
                 } else {
                     action.setConfig(key, getValue(spec, key));
                 }

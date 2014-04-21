@@ -11,20 +11,23 @@ package com.epimorphics.appbase.tasks.impl;
 
 import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.DESCRIPTION_KEY;
 import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.NAME_KEY;
+import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.ON_ERROR_KEY;
 import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.TIMEOUT_KEY;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import com.epimorphics.appbase.core.AppConfig;
 import com.epimorphics.appbase.tasks.Action;
+import com.epimorphics.appbase.tasks.ActionManager;
 import com.epimorphics.tasks.ProgressMonitorReporter;
+import com.epimorphics.util.EpiException;
 
 /**
  * Base class for implementing generic, configurable actions.
  */
 public abstract class BaseAction implements Action {
     protected Map<String, Object> configuration = new HashMap<String, Object>();
-    protected Action onError;
 
     public BaseAction() {
     }
@@ -120,13 +123,24 @@ public abstract class BaseAction implements Action {
             return deflt;
         }
     }
+    
+    public Action getActionNamed(String name) {
+        ActionManager am = AppConfig.getApp().getA(ActionManager.class);
+        Action a = am.get(name);
+        if (a == null) {
+            throw new EpiException("Can't find the action named: " + name);
+        }
+        return a;
+    }
+    
+    @Override
+    public Object getOnError(Map<String, Object> parameters) {
+        return getParameter(parameters, ON_ERROR_KEY);
+    }
 
     @Override
     public void run(Map<String, Object> parameters, ProgressMonitorReporter monitor) {
         doRun(parameters, monitor);
-        if ( ! monitor.succeeded() && onError != null ) {
-            onError.run(parameters, monitor);
-        }
     }
     
     protected abstract void doRun(Map<String, Object> parameters, ProgressMonitorReporter monitor);

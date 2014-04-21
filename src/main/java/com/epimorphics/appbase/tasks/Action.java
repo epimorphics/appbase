@@ -34,4 +34,11 @@ public interface Action extends ConfigInstance, Named {
      * Return -1 if there's no limit.
      */
     public int getTimeout();
+    
+    /**
+     * Return an action that should be called if this action fails or times out
+     * when run on the given set of parameters (or null if there is no such action)
+     * @return an action name (String) or Action
+     */
+    public Object getOnError(Map<String, Object> parameters);
 }

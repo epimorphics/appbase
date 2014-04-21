@@ -44,7 +44,12 @@ public class WrappedAction extends BaseAction implements Action {
     public void doRun(Map<String, Object> parameters, ProgressMonitorReporter monitor) {
         Map<String, Object> call = new HashMap<>( configuration );
         call.putAll(parameters);
-        getAction().run(call, monitor);
+        try {
+            getAction().run(call, monitor);
+        } catch (Exception e) {
+            monitor.report("Exception: " + e);
+            monitor.failed();
+        }
     }
 
 }

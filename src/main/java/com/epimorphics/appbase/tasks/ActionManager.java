@@ -13,6 +13,7 @@ import java.io.File;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -232,11 +233,23 @@ public class ActionManager extends ConfigMonitor<Action> {
             }
         }
         
+        @SuppressWarnings("unchecked")
         protected void condMarkTerminated(String message) {
             ProgressMonitorReporter monitor = getMonitor();
             if (monitor.getState() != TaskState.Terminated) {
                 monitor.report(message);
                 monitor.failed();
+            }
+            Object onError = action.getOnError(parameters);
+            if (onError != null) {
+                if (onError instanceof String) {
+                    onError = get((String)onError);
+                }
+                if (onError instanceof Action) {
+                    ((Action)onError).run(Collections.EMPTY_MAP, new NestedProgressReporter(monitor));
+                } else {
+                    throw new EpiException("Illegal onError action must be a string or Action: " + onError);
+                }
             }
         }
         
