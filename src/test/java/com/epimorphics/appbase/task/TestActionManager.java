@@ -48,7 +48,7 @@ public class TestActionManager {
         
         ae2.waitForCompletion();
 //        dumpState(ae2);
-        Thread.sleep(10);  // Allow ActionManager to see the timeout and update the action state list
+        Thread.sleep(50);  // Allow ActionManager to see the timeout and update the action state list, more robust method?
         messages = ae2.getMonitor().getMessages();
         assertTrue(messages.size() < 50);
         assertTrue(messages.get(messages.size() - 1).toString().endsWith("timeout"));

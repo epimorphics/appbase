@@ -10,10 +10,14 @@
 package com.epimorphics.appbase.tasks;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,6 +29,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.epimorphics.appbase.core.Shutdown;
 import com.epimorphics.appbase.core.TimerManager;
 import com.epimorphics.appbase.monitor.ConfigMonitor;
 import com.epimorphics.tasks.ProgressMonitorReporter;
@@ -35,9 +43,17 @@ import com.epimorphics.util.EpiException;
 /**
  * Controller which tracks available actions, executes actions
  * and tracks ongoing and recently completed executions.
- * Monitors a configurable directory - see ConfigMonitor for configuration options.
+ * Monitors a configurable directory - see ConfigMonitor for configuration options for that.
+ * <p>Additional configuration options:</p>
+ * <ul>
+ * <li>maxHistory - how many completed ActionExecutions to retain in memory</li>
+ * <li>factories - comma-separated list of javaclass names for ActionFactory factorylets to use for parsing configuration files</li>
+ * <li>logDirectory - file name for a separate log of all actions, actions will still be included in the webapp log</li>
+ * </ul>
  */
-public class ActionManager extends ConfigMonitor<Action> {
+public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
+    static Logger log = LoggerFactory.getLogger(ActionManager.class);
+    
     protected static final int DEFAULT_HISTORY_SIZE = 500;
     private static final int MAX_THREADS = 20;
     private static final int CORE_THREADS = 10;
@@ -55,9 +71,29 @@ public class ActionManager extends ConfigMonitor<Action> {
     
     // Configuration options beyond base ConfigMonitor
     protected int maxHistory = DEFAULT_HISTORY_SIZE;
+    protected FileWriter actionLog;
     
     public void setMaxHistory(int maxHistory) {
         this.maxHistory = maxHistory;
+    }
+    
+    public void setLogDirectory(String logdir) {
+        try {
+            actionLog = new FileWriter( asFile(logdir), true);
+        } catch (IOException e) {
+            throw new EpiException("Problem opening action log file: " + logdir, e);
+        }
+    }
+    
+    @Override
+    public void shutdown() {
+        if (actionLog != null) {
+            try {
+                actionLog.close();
+            } catch (IOException e) {
+                // ignore, we are shutting down anyway
+            }
+        }
     }
     
     /**
@@ -196,6 +232,7 @@ public class ActionManager extends ConfigMonitor<Action> {
         
         @Override
         public void run() {
+            log(true);
             startTime = System.currentTimeMillis();
             monitor.setState(TaskState.Running);
             startTimeout();
@@ -212,6 +249,7 @@ public class ActionManager extends ConfigMonitor<Action> {
             if (monitor.getState() != TaskState.Terminated) {
                 condMarkTerminated("Thread died before completion, cause unknown");
             }
+            log(false);
         }
         
         private Future<?> start() {
@@ -242,6 +280,7 @@ public class ActionManager extends ConfigMonitor<Action> {
         
         public void timeout() {
             cancel("Terminated due to timeout");
+            log(false);
         }
         
         public void waitForCompletion() {
@@ -262,6 +301,26 @@ public class ActionManager extends ConfigMonitor<Action> {
             Action onError = action.getOnError();
             if (onError != null) {
                 onError.run(Collections.EMPTY_MAP, new NestedProgressReporter(monitor));
+            }
+        }
+        
+        protected void log(boolean start) {
+            StringBuffer msg = new StringBuffer();
+            msg.append( String.format("Action(%s):%s ", action.getName(), start ? "started" : "finished") );
+            if (start) {
+                msg.append( parameters.toString() );
+            } else {
+                msg.append( monitor.succeeded() ? "succeeded" : "failed" );
+                msg.append( String.format(" %dms", getDuration()) );
+            }
+            log.info(msg.toString());
+            if (actionLog != null) {
+                String dateStr = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format( new Date() );
+                try {
+                    actionLog.write(dateStr + " " + msg + "\n");
+                } catch (IOException e) {
+                    log.error("Problem write to action log", e);
+                }
             }
         }
         
