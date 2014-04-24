@@ -10,7 +10,9 @@
 package com.epimorphics.appbase.data;
 
 import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.query.DatasetAccessor;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.update.UpdateRequest;
 
 /**
  * Signature for a SPARQL data source. Provides an abstraction for both local datasets
@@ -54,7 +56,25 @@ public interface SparqlSource {
     public Graph construct(String query);
     
     /**
-     * A local name for the source (the component name in the configuratio)
+     * A local name for the source (the component name in the configuration)
      */
     public String getName();
+    
+    /**
+     * Perform an SPARQL update if the source allows this, throw a run
+     * time exception if not.
+     */
+    public void update(UpdateRequest update);
+    
+    /**
+     * Return true of the source supports update
+     */
+    public boolean isUpdateable();
+    
+    /**
+     * Return an accessor through which graph level updates
+     * can be performed (equivalent to access to the RESTful graph store API)
+     * Returns null of no such update is supported
+     */
+    public DatasetAccessor getAccessor();
 }

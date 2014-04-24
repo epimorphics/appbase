@@ -28,6 +28,7 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
+import com.hp.hpl.jena.update.UpdateFactory;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class TestSource extends BaseSourceTest {
@@ -148,6 +149,21 @@ public class TestSource extends BaseSourceTest {
         } finally {
             results.close();
         }
+    }
+    
+    @Test
+    public void testUpdate() {
+        assertTrue( ssource.isUpdateable() );
+        String update = "" +
+        		"PREFIX test: <http://www.epimorphics.com/vocabs/test/> \n" +
+        		"DELETE {?x test:string ?s}\n" +
+        		"INSERT {?x test:string 'new string'}\n" +
+        		"WHERE {?x test:num 42}";
+        ssource.update( UpdateFactory.create(update) );
+        
+        WNode v = getNode("test:test").getPropertyValue("test:string");
+        assertNotNull(v);
+        assertEquals("new string", v.getLabel());
     }
     
     private void checkLabel(DatasetGraph dsg, String iN, String label) {

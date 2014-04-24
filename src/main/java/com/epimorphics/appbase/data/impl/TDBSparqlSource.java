@@ -21,6 +21,8 @@ import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.SparqlSource;
 import com.epimorphics.util.EpiException;
 import com.hp.hpl.jena.query.Dataset;
+import com.hp.hpl.jena.query.DatasetAccessor;
+import com.hp.hpl.jena.query.DatasetAccessorFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -28,6 +30,10 @@ import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.ReadWrite;
 import com.hp.hpl.jena.tdb.TDB;
 import com.hp.hpl.jena.tdb.TDBFactory;
+import com.hp.hpl.jena.update.GraphStore;
+import com.hp.hpl.jena.update.GraphStoreFactory;
+import com.hp.hpl.jena.update.UpdateExecutionFactory;
+import com.hp.hpl.jena.update.UpdateRequest;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 /**
@@ -41,6 +47,8 @@ public class TDBSparqlSource extends BaseSparqlSource implements SparqlSource {
     protected File textIndex;
     protected Dataset dataset;
     protected boolean isUnionDefault;
+    protected GraphStore graphStore;
+    protected DatasetAccessor accessor;
     
     public void setLocation(String loc) {
         tdbDir = asFile(loc);
@@ -86,6 +94,34 @@ public class TDBSparqlSource extends BaseSparqlSource implements SparqlSource {
     protected void finish(QueryExecution qexec) {
         qexec.close() ;
         dataset.end();
+    }
+
+    @Override
+    public void update(UpdateRequest update) {
+        dataset.begin(ReadWrite.WRITE);
+        UpdateExecutionFactory.create(update, getGraphStore()).execute();        
+        dataset.commit();
+    }
+
+    @Override
+    public boolean isUpdateable() {
+        return true;
+    }
+
+
+    @Override
+    public DatasetAccessor getAccessor() {
+        if (accessor == null) {
+            accessor = DatasetAccessorFactory.create(dataset);
+        }
+        return accessor;
+    }
+    
+    protected GraphStore getGraphStore() {
+        if (graphStore == null) {
+            graphStore = GraphStoreFactory.create(dataset);
+        }
+        return graphStore;
     }
 
 }

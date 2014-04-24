@@ -26,6 +26,8 @@ import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.query.Dataset;
+import com.hp.hpl.jena.query.DatasetAccessor;
+import com.hp.hpl.jena.query.DatasetAccessorFactory;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
@@ -34,12 +36,16 @@ import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.sparql.util.Closure;
+import com.hp.hpl.jena.update.GraphStore;
+import com.hp.hpl.jena.update.GraphStoreFactory;
+import com.hp.hpl.jena.update.UpdateExecutionFactory;
+import com.hp.hpl.jena.update.UpdateRequest;
 import com.hp.hpl.jena.util.FileManager;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 /**
  * SparqlSource which serves a set of files from a single union
- * memory model, read only.
+ * memory model.
  * 
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
@@ -49,6 +55,8 @@ public class FileSparqlSource extends BaseSparqlSource implements SparqlSource {
     protected String fileSpec = "";
     protected String indexSpec = null;
     protected Dataset dataset;
+    protected GraphStore graphStore;
+    protected DatasetAccessor accessor;
     
     /**
      * Configuration call to set file or directories from which to load,
@@ -166,5 +174,33 @@ public class FileSparqlSource extends BaseSparqlSource implements SparqlSource {
         qexec.close() ;
         dataset.getLock().leaveCriticalSection();
     }
+
+    @Override
+    public void update(UpdateRequest update) {
+        dataset.getLock().enterCriticalSection(true);
+        UpdateExecutionFactory.create(update, getGraphStore()).execute();
+        dataset.getLock().leaveCriticalSection();
+    }
+
+    @Override
+    public boolean isUpdateable() {
+        return true;
+    }
+
+    @Override
+    public DatasetAccessor getAccessor() {
+        if (accessor == null) {
+            accessor = DatasetAccessorFactory.create(dataset);
+        }
+        return accessor;
+    }
+    
+    protected GraphStore getGraphStore() {
+        if (graphStore == null) {
+            graphStore = GraphStoreFactory.create(dataset);
+        }
+        return graphStore;
+    }
+    
     
 }
