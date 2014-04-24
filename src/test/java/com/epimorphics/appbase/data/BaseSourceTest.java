@@ -40,21 +40,21 @@ public abstract class BaseSourceTest {
         PrefixService prefixes = new PrefixService();
         prefixes.setPrefixFile( "src/test/data/prefixes.ttl" );
         app.addComponent("prefixes", prefixes);
-        prefixes.startup(app);
+//        prefixes.startup(app);
         
         FileSparqlSource ss = new FileSparqlSource();
         ss.setFiles( getTestFileDir() );
 //        ss.setTextIndex("default");
         ss.setTextIndex("rdfs:label, skos:altLabel, skos:prefLabel");
-        ss.startup(app);
         ssource = ss;
         
         source = new WSource();
         source.setName(SOURCE_NAME);
         source.setSource(ss);
-        source.startup(app);
-        
+
         app.addComponent(SOURCE_NAME, source);
+        app.addComponent("ssource", ss);
+        app.startup();
     }
     
     public WNode getNode(String id) {

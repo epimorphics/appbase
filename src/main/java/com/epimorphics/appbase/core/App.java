@@ -166,6 +166,7 @@ public class App {
      */
     public void addComponent(String name, Object component) {
         components.put(name, component);
+        orderedComponents.add(component);
     }
     
     /**

@@ -61,4 +61,8 @@ public class ComponentBase implements Startup, Named {
         return app;
     }
     
+    @Override
+    public String toString() {
+        return this.getName() + ":" + this.getClass().getName();
+    }
 }

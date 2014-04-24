@@ -20,9 +20,10 @@ import org.apache.lucene.store.FSDirectory;
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.SparqlSource;
 import com.epimorphics.util.EpiException;
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.DatasetAccessor;
-import com.hp.hpl.jena.query.DatasetAccessorFactory;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -44,27 +45,43 @@ import com.hp.hpl.jena.vocabulary.RDFS;
  */
 public class TDBSparqlSource extends BaseSparqlSource implements SparqlSource {
     protected File tdbDir;
-    protected File textIndex;
-    protected Dataset dataset;
+    protected File textIndex;      
+    protected String indexSpec = null;
+    protected Dataset dataset;  // TODO shoudl this be a thread local?
     protected boolean isUnionDefault;
     protected GraphStore graphStore;
     protected DatasetAccessor accessor;
     
     public void setLocation(String loc) {
         tdbDir = asFile(loc);
-        if (!tdbDir.exists() || !tdbDir.canRead()) {
-            throw new EpiException("Configured location for TDB source is not accessible: " + loc);
-        }
+        // Allow TDB to create the directory if it doesn't exist
+//        if (!tdbDir.exists() || !tdbDir.canRead()) {
+//            throw new EpiException("Configured location for TDB source is not accessible: " + loc);
+//        }
     }
     
+    /**
+     * Set a directory from which the text index can be obtained
+     */
     public void setIndex(String index) {
         textIndex = asFile(index);
+    }
+
+    /**
+     * Configuration text indexing of the loaded data.
+     * Value should be "default" (to index rdfs:label) or a comma-separated list of predicates to index. These can
+     * use curies with the prefixes as defined in the application's prefix service.
+     * Index will always include rdfs:label.
+     */
+    public void setTextIndex(String spec) {
+        this.indexSpec = spec;
     }
     
     public void setUnionDefault(boolean flag) {
         isUnionDefault = flag;
     }
     
+    @Override
     public void startup(App app) {
         super.startup(app);
         dataset = TDBFactory.createDataset( tdbDir.getPath() );
@@ -72,6 +89,17 @@ public class TDBSparqlSource extends BaseSparqlSource implements SparqlSource {
             try {
                 Directory dir = FSDirectory.open(textIndex);
                 EntityDefinition entDef = new EntityDefinition("uri", "text", RDFS.label.asNode()) ;
+                if (indexSpec != null) {
+                    for (String spec : indexSpec.split(",")) {
+                        String uri = getApp().getPrefixes().expandPrefix(spec.trim());
+                        if ( ! uri.equals("default") ) {
+                            Node predicate = NodeFactory.createURI(uri);
+                            if (!predicate.equals(RDFS.label.asNode())) {
+                                entDef.set("text", predicate);
+                            }
+                        }
+                    }
+                }
                 dataset = TextDatasetFactory.createLucene(dataset, dir, entDef) ;            
             } catch (IOException e) {
                 throw new EpiException("Failed to create jena-text lucence index area", e);
@@ -112,7 +140,7 @@ public class TDBSparqlSource extends BaseSparqlSource implements SparqlSource {
     @Override
     public DatasetAccessor getAccessor() {
         if (accessor == null) {
-            accessor = DatasetAccessorFactory.create(dataset);
+            accessor = new TransactionalDatasetAccessor(dataset);
         }
         return accessor;
     }
