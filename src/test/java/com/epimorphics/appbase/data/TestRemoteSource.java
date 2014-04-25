@@ -38,7 +38,7 @@ public class TestRemoteSource {
      *   fuseki-server --update --mem --port=4040 /test
      * </pre>
      */
-    // Not an @Begin because we don't want it to run if the test is suppressed
+    // Not an @Before because we don't want it to run if the test is suppressed
     protected void setup() {
         app = new App("remote source test");
         RemoteSparqlSource source = new RemoteSparqlSource();
