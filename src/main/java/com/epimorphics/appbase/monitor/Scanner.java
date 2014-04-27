@@ -133,7 +133,7 @@ public class Scanner {
             storedChecksums.remove(file);
         }
 
-        if (!results.isEmpty())
+        if (! results.isEmpty())
             log.debug(" ... found " + results.size() + " changes");
         return results;
     }
@@ -221,7 +221,9 @@ public class Scanner {
                     // TODO split into block reads so that very large fingerprintLengths don't blow memory
                     byte[] buffer = new byte[fingerprintLength];
                     int len = is.read(buffer, 0, fingerprintLength);
-                    crc.update(buffer, 0, len);
+                    if (len != -1) {
+                        crc.update(buffer, 0, len);
+                    }
                     is.close();
                 } catch (IOException e) {
                     // Ignore 

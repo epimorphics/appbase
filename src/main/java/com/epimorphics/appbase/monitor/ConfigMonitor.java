@@ -57,11 +57,12 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
     
     protected boolean initialized = false;
     protected boolean productionMode = false;
-    protected boolean waitForStable = false;
+    protected boolean waitForStable = true;
     protected int scanInterval = 2 * 1000;  // 2 seconds
     protected Scanner scanner;
     protected int fingerprintLength = 0;
     protected ScheduledFuture<?> scanTask;
+    protected File scanDir;
     
     protected OneToManyMap<File, T> entries = new OneToManyMap<>();
     protected Map<String, T> entryIndex = new HashMap<>();
@@ -79,7 +80,7 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
      * Set the directory to be monitored
      */
     public void setDirectory(String dir) {
-        File scanDir = asFile(dir);
+        scanDir = asFile(dir);
         scanner = new Scanner(scanDir);
         scanner.setFingerprintLength(fingerprintLength);
     }
@@ -100,10 +101,9 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
     /**
      * A scan may detect a change in a file while the change is still happening.
      * This can result in attempting to configure from an incomplete file. 
-     * For development use is this rarely a problem since the next scan will
-     * will find the file has changed again and update the config.
-     * If this is a problem, e.g. live scanning is being used in a production setting,
-     * then set the waitForStable flag to true (default is false).
+     * To avoid this then by default the scanner waits until two scans have given
+     * a consistent checksum, which means that typically the latency is twice the scan interval.
+     * Turn of this check by setting waitForStable to false.
      */
     public void setWaitForStable(boolean wait) {
         waitForStable = wait;
@@ -173,7 +173,7 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
     }
     
     public void run() {
-        doScan(waitForStable);
+        doScan(!waitForStable);
     }
     
     protected abstract Collection<T> configure(File file);

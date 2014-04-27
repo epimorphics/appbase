@@ -35,17 +35,20 @@ public class TestMonitor {
     protected TMonitor monitor;
     protected File testDir;
     
-    private static final int MONITOR_CHECK_DELAY = 50;
+    private static final int MONITOR_CHECK_DELAY = 15;
+    private static final int NTRIES = 20;
     
     @Before
     public void setup() throws IOException {
         testDir = Files.createTempDirectory("testmonitor").toFile();
         app = new App("TestMonitor");
-        app.startup();
+
         monitor = new TMonitor();
         monitor.setDirectory(testDir.getPath());
         monitor.setFileSampleLength(1000);
-        monitor.startup(app);
+
+        app.addComponent("monitor", monitor);
+        app.startup();
     }
     
     @After
@@ -59,7 +62,7 @@ public class TestMonitor {
         assertTrue( monitor.getEntries().isEmpty() );
         
         File fooFile = touchFile("foo", "foo1");
-        Thread.sleep(MONITOR_CHECK_DELAY);
+        waitFor("foo", true);
         
         Collection<TestInstance> entries = monitor.getEntries();
         assertEquals(1, entries.size());
@@ -70,7 +73,7 @@ public class TestMonitor {
         assertEquals("foo1", fooInst.getMessage());
         
         touchFile("bar", "bar1");
-        Thread.sleep(MONITOR_CHECK_DELAY);
+        waitFor("bar", true);
         
         entries = monitor.getEntries();
         assertEquals(2, entries.size());
@@ -79,7 +82,7 @@ public class TestMonitor {
         assertEquals(fooCheck, fooInst);
         
         touchFile("foo", "foo2");
-        Thread.sleep(MONITOR_CHECK_DELAY);
+        Thread.sleep(MONITOR_CHECK_DELAY * NTRIES);  // Not sure how better wait for change detection
         entries = monitor.getEntries();
         assertEquals(2, entries.size());
         TestUtil.testArray(entryNames(entries), new String[]{"foo2", "bar1"});
@@ -88,7 +91,7 @@ public class TestMonitor {
         assertEquals("foo2", fooCheck.getMessage());
         
         fooFile.delete();
-        Thread.sleep(MONITOR_CHECK_DELAY);
+        waitFor("foo", false);
         entries = monitor.getEntries();
         assertEquals(1, entries.size());
         TestUtil.testArray(entryNames(entries), new String[]{"bar1"});
@@ -133,6 +136,17 @@ public class TestMonitor {
         public String getMessage() {
             return message;
         }
+    }
+    
+    protected void waitFor(String file, boolean present) throws InterruptedException {
+        for (int t = 0; t < NTRIES; t++) {
+            Thread.sleep(MONITOR_CHECK_DELAY);
+            TestInstance m = monitor.get(file);
+            if ( (present && m != null) || (!present && m == null) ) {
+                return;
+            }
+        }
+        assertTrue("Failed to detected " + (present ? "addition" : "removal") + " of " + file, false);
     }
     
     public static class TMonitor extends ConfigMonitor<TestInstance> {
