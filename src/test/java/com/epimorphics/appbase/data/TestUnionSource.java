@@ -43,23 +43,23 @@ public class TestUnionSource {
         DatasetAccessor accessor = source.getAccessor();
         accessor.add(TEST + "g1", createGraph("graph1"));
         accessor.add(TEST + "g2", createGraph("graph2"));
-        TestUtil.testArray(checkGraphs(), new String[]{"graph1", "graph2"});
+        TestUtil.testArray(checkGraphs(source), new String[]{"graph1", "graph2"});
         
         accessor.putModel(TEST + "g1", createGraph("graph1-b"));
-        TestUtil.testArray(checkGraphs(), new String[]{"graph1-b", "graph2"});
+        TestUtil.testArray(checkGraphs(source), new String[]{"graph1-b", "graph2"});
         
         accessor.deleteModel(TEST + "g2");
-        TestUtil.testArray(checkGraphs(), new String[]{"graph1-b"});
+        TestUtil.testArray(checkGraphs(source), new String[]{"graph1-b"});
     }
     
-    protected Model createGraph(String marker) {
+    public static Model createGraph(String marker) {
         Model m = ModelFactory.createDefaultModel();
         m.createResource(TEST + "i")
             .addProperty(RDFS.label, marker);
         return m;
     }
     
-    protected List<String> checkGraphs() {
+    public static List<String> checkGraphs(SparqlSource source) {
         ResultSet rs = source.select("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?label WHERE {[] rdfs:label ?label}");
         List<String> results = new ArrayList<>();
         while (rs.hasNext()) {

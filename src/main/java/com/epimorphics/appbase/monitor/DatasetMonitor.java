@@ -15,6 +15,7 @@ import java.util.Collections;
 
 import org.apache.jena.riot.RDFDataMgr;
 
+import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.SparqlSource;
 import com.epimorphics.util.EpiException;
 import com.hp.hpl.jena.query.DatasetAccessor;
@@ -28,25 +29,34 @@ import com.hp.hpl.jena.rdf.model.Model;
 public class DatasetMonitor extends ConfigMonitor<DatasetMonitor.MonitoredGraph> {
     protected SparqlSource source;
     protected DatasetAccessor accessor;
+    protected String baseDir;
     
     public void setSparqlSource(SparqlSource source) {
         this.source = source;
     }
     
+    @Override
+    public void startup(App app) {
+        super.startup(app);
+        baseDir = scanDir.getPath() + File.separatorChar;
+    }
+    
     public class MonitoredGraph implements ConfigInstance {
-        File file;
+        String name;
+        String path;
 
         public MonitoredGraph(File file) {
-            this.file = file;
+            path = file.getPath();
+            name = "file:" + (path.startsWith(baseDir) ? path.substring(baseDir.length()): file.getName());
         }
         
         @Override
         public String getName() {
-            return "file:" + file.getName();
+            return name;
         }
         
         public String getFilepath() {
-            return file.getPath();
+            return path;
         }
     }
 
@@ -57,14 +67,14 @@ public class DatasetMonitor extends ConfigMonitor<DatasetMonitor.MonitoredGraph>
     
     @Override
     protected void doAddEntry(MonitoredGraph entry) {
-        super.doAddEntry(entry);
         Model model = RDFDataMgr.loadModel( entry.getFilepath() );
         getAccessor().putModel(entry.getName(), model);
+        super.doAddEntry(entry);
     }
 
     protected void doRemoveEntry(MonitoredGraph entry) {
-        super.doRemoveEntry(entry);
         getAccessor().deleteModel( entry.getName() );
+        super.doRemoveEntry(entry);
     }
 
     protected DatasetAccessor getAccessor() {
