@@ -12,6 +12,7 @@ package com.epimorphics.appbase.monitor;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.regex.Pattern;
 
 import org.apache.jena.riot.RDFDataMgr;
 
@@ -59,10 +60,17 @@ public class DatasetMonitor extends ConfigMonitor<DatasetMonitor.MonitoredGraph>
             return path;
         }
     }
-
+    
+    protected static final Pattern filePattern = Pattern.compile(".*\\.(ttl|rdf|owl|nt|n3)");
+    
     @Override
     protected Collection<MonitoredGraph> configure(File file) {
-        return Collections.singletonList(new MonitoredGraph(file));
+        if ( filePattern.matcher(file.getName()).matches() ) {
+            return Collections.singletonList(new MonitoredGraph(file));            
+        } else {
+            return Collections.emptyList();
+        }
+        
     }
     
     @Override
