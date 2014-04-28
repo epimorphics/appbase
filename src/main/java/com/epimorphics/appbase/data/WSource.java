@@ -252,6 +252,19 @@ public class WSource extends ComponentBase {
         return get( asNode(nspec) );
     }
     
+    /**
+     * Return a wrapped version of the given list of nodes. These will include
+     * whatever cached description is already available but will not
+     * itself invoke a new query.
+     */
+    public List<WNode> getNodes(List<Object> nspec) {
+        List<WNode> results = new ArrayList<>( nspec.size() );
+        for (Object s : nspec) {
+            results.add( getNode(s) );
+        }
+        return results;
+    }
+    
     // -- Text search -------------------------
     
 
