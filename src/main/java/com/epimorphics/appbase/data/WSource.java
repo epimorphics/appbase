@@ -65,6 +65,12 @@ public class WSource extends ComponentBase {
         cache = new LRUMap(size);
     }
     
+    public void resetCache() {
+        synchronized (cache) {
+            cache.clear();
+        }
+    }
+    
     /**
      * Run a SPARQL query on the data source.
      * 
