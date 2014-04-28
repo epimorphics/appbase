@@ -257,7 +257,7 @@ public class WSource extends ComponentBase {
      * whatever cached description is already available but will not
      * itself invoke a new query.
      */
-    public List<WNode> getNodes(List<Object> nspec) {
+    public List<WNode> getNodes(List<?> nspec) {
         List<WNode> results = new ArrayList<>( nspec.size() );
         for (Object s : nspec) {
             results.add( getNode(s) );
