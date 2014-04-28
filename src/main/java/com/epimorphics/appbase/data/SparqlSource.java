@@ -9,6 +9,8 @@
 
 package com.epimorphics.appbase.data;
 
+import java.util.List;
+
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.query.DatasetAccessor;
 import com.hp.hpl.jena.query.ResultSet;
@@ -35,6 +37,15 @@ public interface SparqlSource {
      */
     public ClosableResultSet streamableSelect(String query);
 
+    /**
+     * Execute a sparql select query returning a list of values for a single project variable in the query.
+     * Useful to avoid a redundant copy of a ResultSet out of the transaction.
+     * @param query the query to issue
+     * @param varname the name of the variable to be returned, must one of the projected variables in the query
+     * @param cls the class of values expected (Literal, Resource or RDFNode)
+     */
+    public <T> List<T> selectVar(String query, String varname, Class<T> cls);
+    
     /**
      * Fetch the result of a full specified describe query
      */

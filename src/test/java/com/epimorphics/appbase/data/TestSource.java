@@ -124,7 +124,17 @@ public class TestSource extends BaseSourceTest {
     
     @Test
     public void testQuery() {
-        List<Literal> literals = SQueryUtil.selectLiteralVar("x", "SELECT ?x WHERE {test:i1 ?p ?x}", ssource, app.getPrefixes());
+        String q = "SELECT ?x WHERE {test:i1 ?p ?x}";
+        List<Literal> literals = SQueryUtil.selectLiteralVar("x", q, ssource, app.getPrefixes());
+        TestUtil.testArray(literals, new Literal[]{
+                ResourceFactory.createPlainLiteral("name"),
+                ResourceFactory.createPlainLiteral("rdfs label"),
+                ResourceFactory.createPlainLiteral("Alt label"),
+                ResourceFactory.createPlainLiteral("Pref label"),
+        });
+        
+        q = PrefixUtils.expandQuery(q, app.getPrefixes());
+        literals = ssource.selectVar(q, "x", Literal.class);
         TestUtil.testArray(literals, new Literal[]{
                 ResourceFactory.createPlainLiteral("name"),
                 ResourceFactory.createPlainLiteral("rdfs label"),

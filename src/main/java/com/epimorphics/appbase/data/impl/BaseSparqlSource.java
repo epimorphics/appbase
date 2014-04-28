@@ -10,10 +10,12 @@
 package com.epimorphics.appbase.data.impl;
 
 import java.util.Iterator;
+import java.util.List;
 
 import com.epimorphics.appbase.core.ComponentBase;
 import com.epimorphics.appbase.data.ClosableResultSet;
 import com.epimorphics.appbase.data.SparqlSource;
+import com.epimorphics.appbase.util.SQueryUtil;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.mem.GraphMem;
@@ -36,6 +38,16 @@ public abstract class BaseSparqlSource extends ComponentBase implements SparqlSo
         QueryExecution qexec = start(queryString);
         try {
             return ResultSetFactory.makeRewindable( qexec.execSelect() );
+        } finally { 
+            finish(qexec);
+        }
+    }
+
+    @Override
+    public <T> List<T> selectVar(String queryString, String varname, Class<T> cls) {
+        QueryExecution qexec = start(queryString);
+        try {
+            return SQueryUtil.resultsFor(qexec.execSelect(), varname, cls);
         } finally { 
             finish(qexec);
         }
