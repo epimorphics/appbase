@@ -38,8 +38,8 @@ public class DatasetMonitor extends ConfigMonitor<DatasetMonitor.MonitoredGraph>
     
     @Override
     public void startup(App app) {
-        super.startup(app);
         baseDir = scanDir.getPath() + File.separatorChar;
+        super.startup(app);
     }
     
     public class MonitoredGraph implements ConfigInstance {
