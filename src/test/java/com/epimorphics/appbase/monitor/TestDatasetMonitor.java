@@ -9,14 +9,13 @@
 
 package com.epimorphics.appbase.monitor;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.junit.After;
@@ -28,8 +27,6 @@ import com.epimorphics.appbase.data.SparqlSource;
 import com.epimorphics.appbase.data.TestUnionSource;
 import com.epimorphics.appbase.data.impl.UnionDatasetSparqlSource;
 import com.epimorphics.appbase.monitor.DatasetMonitor.MonitoredGraph;
-import com.epimorphics.appbase.monitor.TestMonitor.TMonitor;
-import com.epimorphics.appbase.monitor.TestMonitor.TestInstance;
 import com.epimorphics.util.FileUtil;
 import com.epimorphics.util.TestUtil;
 import com.hp.hpl.jena.query.ResultSet;
@@ -47,7 +44,6 @@ public class TestDatasetMonitor {
     @Before
     public void setup() throws IOException {
         testDir = Files.createTempDirectory("testmonitor").toFile();
-        System.out.println(testDir);
         app = new App("TestMonitor");
         
         source = new UnionDatasetSparqlSource();

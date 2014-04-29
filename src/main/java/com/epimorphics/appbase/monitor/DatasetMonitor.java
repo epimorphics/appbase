@@ -46,6 +46,7 @@ public class DatasetMonitor extends ConfigMonitor<DatasetMonitor.MonitoredGraph>
         if (wsource == null) {
             wsource = new WSource();
             wsource.setSource(source);
+            wsource.startup( getApp() );
         }
         return wsource;
     }

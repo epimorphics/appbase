@@ -12,15 +12,13 @@ package com.epimorphics.appbase.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.epimorphics.rdfutil.NodeUtil;
 import com.epimorphics.rdfutil.RDFUtil;
 import com.epimorphics.util.EpiException;
 import com.epimorphics.vocabs.SKOS;
-import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.mem.GraphMem;
+import com.hp.hpl.jena.graph.impl.CollectionGraph;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -170,7 +168,7 @@ public class WNode {
         if (node.equals(RDF.nil.asNode())) {
             return true;
         }
-        Graph g = ensureDescribed(); 
+        NodeDescription g = getDescription();
         return g.contains(node, RDF.first.asNode(), Node.ANY) && g.contains(node, RDF.rest.asNode(), Node.ANY);
     }
 
@@ -180,39 +178,27 @@ public class WNode {
      */
     public List<WNode> asList() {
         List<WNode> list = new ArrayList<>();
-        Graph g = ensureDescribed();
+        NodeDescription d = getDescription();
         Node current = node;
         while (current != null && ! current.equals(RDF.nil.asNode())) {
-            list.add( getNode( NodeUtil.getPropertyValue(current, RDF.first.asNode(), g) ) );
-            current = NodeUtil.getPropertyValue(current, RDF.rest.asNode(), g);
+            list.add( getNode( d.getPropertyValue(current, RDF.first.asNode()) ) );
+            current = d.getPropertyValue(current, RDF.rest.asNode());
         }
         return list;
     }
     
     // -- Label and description access -------------------------------
     
-    protected Graph ensureLabelled() {
-        if (description == null || !description.hasLabels()) {
-            if (node.isURI()) {
-                source.ensureLabeled(this);
-            }
-            if (description == null) {
-                description = new NodeDescription(node, new GraphMem());
-            }
-        }
-        return description.getGraph();
-    }
-    
-    protected Graph ensureDescribed() {
-        if (description == null || !description.isFullDescription()) {
+    protected NodeDescription getDescription() {
+        if (description == null) {
             if (node.isURI()) {
                 source.ensureDescribed(this);
             }
             if (description == null) {
-                description = new NodeDescription(node, new GraphMem());
+                description = new NodeDescription(node, new CollectionGraph());
             }
         }
-        return description.getGraph();
+        return description;
     }
     
     public static final Node[] labelProps = { SKOS.prefLabel.asNode(), SKOS.altLabel.asNode(), 
@@ -226,8 +212,7 @@ public class WNode {
         if (isLiteral()) {
             return asLiteral().getLexicalForm();
         }
-        ensureLabelled();
-        String label = description.getStringValue(labelProps);
+        String label = getDescription().getStringValue(labelProps);
         return label == null ? defaultLabel() : label;
     }
     
@@ -249,30 +234,33 @@ public class WNode {
         if (isLiteral()) {
             return asLiteral().getLexicalForm();
         }
-        ensureLabelled();
-        String label = description.getLangMatchValue(language, labelProps);
+        String label = getDescription().getLangMatchValue(language, labelProps);
         return label == null ? defaultLabel() : label;
     }
         
-    protected boolean isDescribed(boolean fully) {
+    public boolean isDescribed() {
         if (!isURIResource()) {
             return true;
         }
-        if (description == null) {
-            return false;
-        }
-        return fully ? description.isFullDescription() : description.hasLabels() ;
+        return description != null;
     }
     
-    protected void setDescription(NodeDescription description) {
+    public void setDescription(NodeDescription description) {
         this.description = description;
+    }
+    
+    /**
+     * Clear the cache description which will force future calls
+     * to 
+     */
+    public void resetDescription() {
+        description = null;
     }
     
     // -- property values -----------
     
     public WNode getPropertyValue(Object prop) {
-        Graph g = ensureDescribed();
-        return getNode( NodeUtil.getPropertyValue(node, asNode(prop), g) );
+        return getNode( getDescription().getPropertyValue( asNode(prop) ) );
     }
     
     protected Node asNode(Object prop) {
@@ -290,14 +278,12 @@ public class WNode {
     }
  
     public boolean hasResourceValue(Object prop, Object value) {
-        Graph g = ensureDescribed();
-        return g.contains(node, asNode(prop), asNode(value));
+        return getDescription().contains(node, asNode(prop), asNode(value));
     }
     
     public List<WNode> listPropertyValues(Object prop) {
-        Graph g = ensureDescribed();
         List<WNode> values = new ArrayList<>();
-        ExtendedIterator<Triple> i = g.find(node, asNode(prop), Node.ANY);
+        ExtendedIterator<Triple> i = getDescription().find(node, asNode(prop), Node.ANY);
         while (i.hasNext()) {
             values.add( getNode( i.next().getObject() ) );
         }
@@ -306,9 +292,8 @@ public class WNode {
     }
     
     public List<PropertyValue> listProperties() {
-        Graph g = ensureDescribed();
         PropertyValueSet values = new PropertyValueSet();
-        ExtendedIterator<Triple> i = g.find(node, Node.ANY, Node.ANY);
+        ExtendedIterator<Triple> i = getDescription().find(node, Node.ANY, Node.ANY);
         while (i.hasNext()) {
             Triple t = i.next();
             values.add( getNode(t.getPredicate()), getNode(t.getObject()) );
@@ -329,13 +314,15 @@ public class WNode {
     
     /**
      * Return the set of nodes which point this one via a specific property
+     * Reconsults the source, even if there is a local description cache.
      */
     public List<WNode> listInLinks(Object prop) {
         return connectedNodes( "^<" + asNode(prop).getURI() + ">" );
     }
     
     /**
-     * Return all nodes which are connected to this one via a SPARQL property path
+     * Return all nodes which are connected to this one via a SPARQL property path.
+     * Reconsults the source, even if there is a local description cache.
      */
     public List<WNode> connectedNodes(String path) {
         if (!isURIResource()) return null;
@@ -348,7 +335,8 @@ public class WNode {
     }
     
     /**
-     * Return all the nodes which point this one via any property
+     * Return all the nodes which point this one via any property.
+     * Reconsults the source, even if there is a local description cache.
      */
     public List<PropertyValue> listInLinks() {
         if (!isURIResource()) return null;

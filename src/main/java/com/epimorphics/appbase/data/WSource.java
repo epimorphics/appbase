@@ -18,7 +18,6 @@ import java.util.Map;
 import org.apache.commons.collections.map.LRUMap;
 
 import com.epimorphics.appbase.core.ComponentBase;
-import com.epimorphics.appbase.data.NodeDescription.Coverage;
 import com.epimorphics.appbase.data.impl.WResultSetWrapper;
 import com.epimorphics.rdfutil.QueryUtil;
 import com.epimorphics.util.EpiException;
@@ -101,7 +100,7 @@ public class WSource extends ComponentBase {
      * This batch call may be cheaper than repeated calls to the nodes themselves.
      */
     public List<WNode> describe(List<WNode> resources) {
-        describeList(resources, true);
+        describeList(resources);
         return resources;
     }
     
@@ -111,7 +110,7 @@ public class WSource extends ComponentBase {
      */
     public WResultSet describe(WResultSet results) {
         WResultSet ans = results.copy();
-        describe( needDescribing(ans, true) );
+        describe( needDescribing(ans) );
         return ans;
     }
     
@@ -120,18 +119,22 @@ public class WSource extends ComponentBase {
      * may be returned from a cache or may result in a new query to the 
      * underlying source.
      * This batch call may be cheaper than repeated calls to the nodes themselves.
+     * <p>
+     * The distinction between labelled and fully described nodes has been removed as overally 
+     * complex so this is now equivlent to a describe.
+     * </p>
      */
     public List<WNode> label(List<WNode> resources) {
-        describeList(resources, false);
+        describeList(resources);
         return resources;
     }
     
-    protected List<WNode> needDescribing(WResultSet results, boolean needFull) {
+    protected List<WNode> needDescribing(WResultSet results) {
         List<WNode> ans = new ArrayList<>();
         for (WQuerySolution row : results) {
             for (String var : row.varNames()) {
                 WNode wn = row.get(var);
-                if ( ! wn.isDescribed(needFull) ) {
+                if ( ! wn.isDescribed() ) {
                     ans.add(wn);
                 }
             }
@@ -139,13 +142,13 @@ public class WSource extends ComponentBase {
         return ans;
     }
     
-    protected void describeList(List<WNode> nodes, boolean needFull) {
+    protected void describeList(List<WNode> nodes) {
         List<WNode> batch = new ArrayList<>();
         synchronized (cache) {
             for (WNode node : nodes) {
-                if ( ! node.isDescribed(needFull) ) {
+                if ( ! node.isDescribed() ) {
                     NodeDescription nd = cache.get(node);
-                    if (nd != null && (needFull ? nd.isFullDescription() : nd.hasLabels())) {
+                    if (nd != null) {
                         node.setDescription(nd);
                     } else {
                         batch.add(node);
@@ -156,11 +159,7 @@ public class WSource extends ComponentBase {
         if (!batch.isEmpty()) {
             WNode[] batchArray = new WNode[ batch.size() ];
             batchArray = batch.toArray(batchArray);
-            if (needFull) {
-                ensureDescribed(batchArray);
-            } else {
-                ensureLabeled(batchArray);
-            }
+            ensureDescribed(batchArray);
         }
     }
     
@@ -170,7 +169,7 @@ public class WSource extends ComponentBase {
      */
     public WResultSet label(WResultSet results) {
         WResultSet ans = results.copy();
-        label( needDescribing(ans, false) );
+        label( needDescribing(ans) );
         return ans;
     }
     
@@ -181,7 +180,10 @@ public class WSource extends ComponentBase {
         }
         return description;
     }
-    
+
+    /**
+     * @deprecated
+     */
     protected void ensureLabeled(WNode... nodes) {
         final String labelQuery = "    OPTIONAL {?uri skos:prefLabel ?skos_prefLabel}\n"
                 + "    OPTIONAL {?uri skos:altLabel ?skos_altLabel}\n"
@@ -193,7 +195,7 @@ public class WSource extends ComponentBase {
                 Node n = wnode.asNode();
                 Graph g = dsg.getGraph(n);
                 if (g != null) {
-                    NodeDescription nd = new NodeDescription(n, g, Coverage.LABEL);
+                    NodeDescription nd = new NodeDescription(n, g);
                     cache.put(n, nd);
                     wnode.setDescription(nd);
                 }
@@ -208,7 +210,7 @@ public class WSource extends ComponentBase {
                 WNode wnode = nodes[i];
                 Node n = wnode.asNode();
                 Graph g = graphs[i];
-                NodeDescription nd = new NodeDescription(n, g, Coverage.FULL);
+                NodeDescription nd = new NodeDescription(n, g);
                 cache.put(n, nd);
                 wnode.setDescription(nd);
             }
@@ -357,6 +359,18 @@ public class WSource extends ComponentBase {
         }
         return views;
     }
+
+    protected String makeViewQuery(String queryBody, String... uris) {
+        StringBuffer query = new StringBuffer();
+        query.append("SELECT * WHERE {    VALUES ?uri {\n");
+        for (String uri : uris) {
+            query.append("<" + uri + "> ");
+        }
+        query.append("    }\n");
+        query.append(queryBody);
+        query.append("}");
+        return query.toString();
+    }
     
     // not sure if the follow batch queries are really needed any more ...
     
@@ -370,18 +384,6 @@ public class WSource extends ComponentBase {
      */
     public  Map<WNode, OneToManyMap<String, WNode>> getViews(String queryBody, String... uris) {
         return getView( makeViewQuery(queryBody, uris), "uri");
-    }
-
-    protected String makeViewQuery(String queryBody, String... uris) {
-        StringBuffer query = new StringBuffer();
-        query.append("SELECT * WHERE {    VALUES ?uri {\n");
-        for (String uri : uris) {
-            query.append("<" + uri + "> ");
-        }
-        query.append("    }\n");
-        query.append(queryBody);
-        query.append("}");
-        return query.toString();
     }
     
     /**

@@ -9,6 +9,7 @@
 
 package com.epimorphics.appbase.data;
 
+import com.epimorphics.rdfutil.NodeUtil;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -22,38 +23,49 @@ import com.hp.hpl.jena.util.iterator.ExtendedIterator;
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
 public class NodeDescription {
-    public static  enum Coverage {CUSTOM, LABEL, FULL};
-    
-    protected Coverage coverage;
     protected Graph description;
     protected Node root;
 
-    public NodeDescription(Node root, Graph description, Coverage coverage) {
+    public NodeDescription(Node root, Graph description) {
         this.description = description;
-        this.coverage = coverage;
         this.root = root;
     }
+
+    // Subset of Graph interface needed for clients
     
-    /**
-     * Constructor. Assumes the provided description is a full description of the node.
+    /** 
+        Answer true iff the graph contains a triple matching (s, p, o).
+        s/p/o may be concrete or fluid. Equivalent to find(s,p,o).hasNext,
+        but an implementation is expected to optimise this in easy cases.
+    */
+    public boolean contains( Node s, Node p, Node o ) {
+        return description.contains(s, p, o);
+    }
+    
+    /** 
+        Answer true iff the graph contains a triple that t matches; t may be
+        fluid.
+    */
+    public boolean contains( Triple t ) {
+        return description.contains(t);
+    }
+    
+    /** Returns an iterator over Triple.
      */
-    public NodeDescription(Node root, Graph description) {
-        this(root, description, Coverage.FULL);
+    public ExtendedIterator<Triple> find(Node s,Node p,Node o) {
+        return description.find(s, p, o);
     }
     
-    public boolean hasLabels() {
-        return coverage == Coverage.LABEL || coverage == Coverage.FULL;
-    }
-    
-    public boolean isFullDescription() {
-        return coverage == Coverage.FULL;
-    }
-    
-    public Graph getGraph() {
-        return description;
-    }
-    
+
     // -- Utility functions to make it easier to work with Nodes ----
+    
+    public Node getPropertyValue(Node prop) {
+        return NodeUtil.getPropertyValue(root, prop, description);
+    }
+    
+    public Node getPropertyValue(Node subject, Node prop) {
+        return NodeUtil.getPropertyValue(subject, prop, description);
+    }
     
     /**
      * Return the lexical value of the first literal-valued property in the list of properties.
