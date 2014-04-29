@@ -18,6 +18,7 @@ import org.apache.jena.riot.RDFDataMgr;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.SparqlSource;
+import com.epimorphics.appbase.data.WSource;
 import com.epimorphics.util.EpiException;
 import com.hp.hpl.jena.query.DatasetAccessor;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -31,9 +32,22 @@ public class DatasetMonitor extends ConfigMonitor<DatasetMonitor.MonitoredGraph>
     protected SparqlSource source;
     protected DatasetAccessor accessor;
     protected String baseDir;
+    protected WSource  wsource;
     
     public void setSparqlSource(SparqlSource source) {
         this.source = source;
+    }
+
+    public SparqlSource getSource() {
+        return source;
+    }
+    
+    public WSource getWsource() {
+        if (wsource == null) {
+            wsource = new WSource();
+            wsource.setSource(source);
+        }
+        return wsource;
     }
     
     @Override
@@ -78,11 +92,13 @@ public class DatasetMonitor extends ConfigMonitor<DatasetMonitor.MonitoredGraph>
         Model model = RDFDataMgr.loadModel( entry.getFilepath() );
         getAccessor().putModel(entry.getName(), model);
         super.doAddEntry(entry);
+        if (wsource != null) wsource.resetCache();
     }
 
     protected void doRemoveEntry(MonitoredGraph entry) {
         getAccessor().deleteModel( entry.getName() );
         super.doRemoveEntry(entry);
+        if (wsource != null) wsource.resetCache();
     }
 
     protected DatasetAccessor getAccessor() {
