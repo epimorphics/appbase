@@ -10,6 +10,7 @@
 package com.epimorphics.appbase.data;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -22,6 +23,7 @@ import java.util.List;
 public class PropertyValue implements Comparable<PropertyValue> {
     protected WNode prop;
     protected List<WNode> values;
+    protected boolean sorted = false;
     
     public PropertyValue(WNode prop) {
         this.prop = prop;
@@ -35,6 +37,11 @@ public class PropertyValue implements Comparable<PropertyValue> {
     }
 
     public List<WNode> getValues() {
+        return values;
+    }
+
+    public List<WNode> getSortedValues() {
+        Collections.sort(values);
         return values;
     }
 

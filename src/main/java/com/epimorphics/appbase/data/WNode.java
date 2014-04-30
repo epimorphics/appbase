@@ -43,7 +43,7 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 // Implementation works at Node/Graph level to avoid requiring a model for
 // every description in the cache. This may be premature optimization.
 
-public class WNode {
+public class WNode implements Comparable<WNode> {
     protected WSource source;
     protected Node node;
     protected NodeDescription description;
@@ -363,6 +363,26 @@ public class WNode {
     @Override
     public int hashCode() {
         return node.hashCode();
+    }
+
+    @Override
+    public int compareTo(WNode other) {
+        if (node.isLiteral()) {
+            if (other.node.isLiteral()){
+                return node.getLiteralLexicalForm().compareTo( other.node.getLiteralLexicalForm() );                
+            } else {
+                return -1;
+            }
+        }
+        if (node.isURI()) {
+            if (other.node.isURI()) {
+                return node.getURI().compareTo(other.node.getURI());
+            } else {
+                return 1;
+            }
+        } else {
+            return 0;
+        }
     }
     
 }
