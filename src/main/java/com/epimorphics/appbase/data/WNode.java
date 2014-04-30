@@ -348,9 +348,11 @@ public class WNode {
         return values.getOrderedValues();
     }
     
-    // listInLinks listInLinks(object)
-    // listConnectedNodes
-
+    @Override
+    public String toString() {
+        return node.toString();
+    }
+    
     // -- equality support based solely no underlying Node -------------------
     
     @Override
@@ -362,4 +364,5 @@ public class WNode {
     public int hashCode() {
         return node.hashCode();
     }
+    
 }
