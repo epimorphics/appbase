@@ -28,10 +28,10 @@ public class JavaAction extends BaseAction implements Action {
     }
     
     @Override
-    public void doRun(Map<String, Object> parameters, ProgressMonitorReporter monitor) {
+    public Map<String, Object> doRun(Map<String, Object> parameters, ProgressMonitorReporter monitor) {
         Map<String, Object> call = new HashMap<>( configuration );
         call.putAll(parameters);
-        baseAction.run(call, monitor);
+        return baseAction.run(call, monitor);
     }
 
 }

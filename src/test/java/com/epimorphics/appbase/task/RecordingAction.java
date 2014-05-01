@@ -10,6 +10,7 @@
 package com.epimorphics.appbase.task;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -33,9 +34,10 @@ public class RecordingAction extends BaseAction {
     }
 
     @Override
-    protected void doRun(Map<String, Object> parameters, ProgressMonitorReporter monitor) {
+    protected Map<String, Object> doRun(Map<String, Object> parameters, ProgressMonitorReporter monitor) {
         synchronized (messages) {
             messages.add( getStringParameter(parameters, "message") + " - " + getStringParameter(parameters, "@trigger") );
         }
+        return Collections.emptyMap();
     }
 }

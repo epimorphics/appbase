@@ -168,15 +168,15 @@ public abstract class BaseAction implements Action {
     }
     
     @Override
-    public void run(Map<String, Object> parameters, ProgressMonitorReporter monitor) {
-        doRun(parameters, monitor);
+    public Map<String, Object> run(Map<String, Object> parameters, ProgressMonitorReporter monitor) {
+        return doRun(parameters, monitor);
     }
     
-    protected abstract void doRun(Map<String, Object> parameters, ProgressMonitorReporter monitor);
+    protected abstract Map<String, Object> doRun(Map<String, Object> parameters, ProgressMonitorReporter monitor);
  
     /**
      * Merge a set of configurations for a base action into this configuration,
-     * no overriding any current settings
+     * not overriding any current settings
      */
     public void mergeBaseConfiguration(Action base) {
         if (base instanceof BaseAction) {
@@ -187,5 +187,14 @@ public abstract class BaseAction implements Action {
                 }
             }
         }
+    }
+    
+    /**
+     * Return a new map which merges the two argument maps with the extra values overriding any equivalently named params.
+     */
+    public static Map<String, Object> merge(Map<String, Object> params, Map<String, Object> extra) {
+        Map<String, Object> result = new HashMap<>( params );
+        result.putAll(extra);
+        return result;
     }
 }

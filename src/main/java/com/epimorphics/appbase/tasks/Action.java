@@ -31,8 +31,9 @@ public interface Action extends ConfigInstance, Named {
      * 
      * @param parameters configuration parameters, both static and run specific
      * @param monitor the progress monitor through which the result can be reported.
+     * @retun optional key/value map of action results
      */
-    public void run(Map<String, Object> parameters, ProgressMonitorReporter monitor);
+    public Map<String, Object> run(Map<String, Object> parameters, ProgressMonitorReporter monitor);
     
     /**
      * Return the maximum time (in milliseconds) this action should be allowed to run.

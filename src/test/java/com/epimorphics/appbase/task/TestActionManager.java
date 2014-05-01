@@ -45,6 +45,7 @@ public class TestActionManager {
         assertTrue(messages.get(messages.size() - 1).toString().endsWith("finished"));
         assertEquals(1, am.listActiveExecutions().size());
         assertTrue(ae1.getMonitor().succeeded());
+        assertEquals("Message: Test message", ae1.getResult().get("result"));
         
         ae2.waitForCompletion();
 //        dumpState(ae2);

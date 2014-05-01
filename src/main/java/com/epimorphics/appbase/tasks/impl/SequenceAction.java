@@ -9,6 +9,7 @@
 
 package com.epimorphics.appbase.tasks.impl;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.epimorphics.appbase.tasks.NestedProgressReporter;
@@ -20,18 +21,21 @@ import com.epimorphics.tasks.ProgressMonitorReporter;
 public class SequenceAction extends CompoundAction {
 
     @Override
-    protected void doRun(Map<String, Object> parameters, ProgressMonitorReporter monitor) {
+    protected Map<String, Object> doRun(Map<String, Object> parameters, ProgressMonitorReporter monitor) {
+        Map<String, Object> result = new HashMap<String, Object>();
         int n = componentActions.length;
         for (int i = 0; i < n; i++) {
             NestedProgressReporter prog = new NestedProgressReporter(monitor);
-            componentActions[i].run(parameters, prog);
+            parameters = merge(parameters, result);
+            result = componentActions[i].run(parameters, prog);
             if (! prog.succeeded()) {
                 monitor.setFailed();
-                return;
+                return result;
             }
             monitor.setProgress((int)Math.floor(100*i/n));
         }
         monitor.setSucceeded();
+        return result;
     }
     
 }

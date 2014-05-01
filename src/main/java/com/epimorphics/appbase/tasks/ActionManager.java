@@ -202,6 +202,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
      * Send an event which will trigger any matching actions.
      */
     public List<ActionExecution> fireEvent(String event, Map<String, Object> parameters) {
+        logEvent(event, parameters);
         parameters.put( ActionTrigger.TRIGGER_KEY, event);
         List<ActionExecution> executions = new ArrayList<>();
         for (Action action : triggerableActions) {
@@ -210,6 +211,40 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
             }
         }
         return executions;
+    }
+    
+    /**
+     * Send event signalling the start of an action
+     */
+    public List<ActionExecution> actionStartEvent(Action action, Map<String, Object> parameters) {
+        return fireEvent("action:" + action.getName() + ":started", parameters);
+    }
+    
+    /**
+     * Send event signalling the end of an action
+     */
+    public List<ActionExecution> actionEndEvent(ActionExecution ae, Map<String, Object> result) {
+        String msg = String.format("action:%s:finished %s %d", 
+                ae.getAction().getName(), 
+                ae.getMonitor().succeeded() ? "succeeded" : "failed", 
+                ae.getDuration());
+        return fireEvent(msg, result);
+    }
+    
+    /**
+     * Log an event
+     */
+    protected void logEvent(String event, Map<String, Object>parameters) {
+        String msg = event + " " + parameters;
+        log.info(msg);
+        if (actionLog != null) {
+            String dateStr = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format( new Date() );
+            try {
+                actionLog.write(dateStr + " " + msg + "\n");
+            } catch (IOException e) {
+                log.error("Problem write to action log", e);
+            }
+        }
     }
     
     /**
@@ -224,6 +259,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
         protected ProgressMonitorReporter monitor;
         protected String id = UUID.randomUUID().toString();
         protected Future<?> future;
+        protected Map<String, Object> result;
         
         public ActionExecution(Action action, Map<String, Object> parameters) {
             this(action, parameters, new SimpleProgressMonitor());
@@ -263,14 +299,19 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
             }
         }
         
+        public Map<String, Object> getResult() {
+            return result;
+        }
+
+        
         @Override
         public void run() {
-            log(true);
+            actionStartEvent(action, parameters);
             startTime = System.currentTimeMillis();
             monitor.setState(TaskState.Running);
             startTimeout();
             try {
-                action.run(parameters, monitor);
+                result = action.run(parameters, monitor);
                 if (monitor.getState() != TaskState.Terminated) {
                     monitor.setSucceeded();
                 }
@@ -282,7 +323,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
             if (monitor.getState() != TaskState.Terminated) {
                 condMarkTerminated("Thread died before completion, cause unknown");
             }
-            log(false);
+            actionEndEvent(this, result);
         }
         
         private Future<?> start() {
@@ -313,7 +354,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
         
         public void timeout() {
             cancel("Terminated due to timeout");
-            log(false);
+            actionEndEvent(this, result);
         }
         
         public void waitForCompletion() {
@@ -334,26 +375,6 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
             Action onError = action.getOnError();
             if (onError != null) {
                 onError.run(Collections.EMPTY_MAP, new NestedProgressReporter(monitor));
-            }
-        }
-        
-        protected void log(boolean start) {
-            StringBuffer msg = new StringBuffer();
-            msg.append( String.format("Action(%s):%s ", action.getName(), start ? "started" : "finished") );
-            if (start) {
-                msg.append( parameters.toString() );
-            } else {
-                msg.append( monitor.succeeded() ? "succeeded" : "failed" );
-                msg.append( String.format(" %dms", getDuration()) );
-            }
-            log.info(msg.toString());
-            if (actionLog != null) {
-                String dateStr = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format( new Date() );
-                try {
-                    actionLog.write(dateStr + " " + msg + "\n");
-                } catch (IOException e) {
-                    log.error("Problem write to action log", e);
-                }
             }
         }
         

@@ -21,7 +21,7 @@ import com.epimorphics.util.EpiException;
 public class CreateErrorAction extends BaseAction {
 
     @Override
-    protected void doRun(Map<String, Object> parameters,
+    protected Map<String, Object> doRun(Map<String, Object> parameters,
             ProgressMonitorReporter monitor) {
         throw new EpiException("Forcing error from CreateErrorAction");
     }

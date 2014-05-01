@@ -9,6 +9,7 @@
 
 package com.epimorphics.appbase.task;
 
+import java.util.Collections;
 import java.util.Map;
 
 
@@ -28,19 +29,21 @@ public class DummyAction extends BaseAction implements Action {
     }
 
     @Override
-    protected void doRun(Map<String, Object> parameters,
+    protected Map<String, Object> doRun(Map<String, Object> parameters,
             ProgressMonitorReporter monitor) {
         monitor.report( getStringParameter(parameters, NAME_KEY) + " started");
-        monitor.report( getStringParameter(parameters, "message", "no message") );
+        String msg = getStringParameter(parameters, "message", "no message");
+        monitor.report( msg );
         for (int i = 1; i < getIntParameter(parameters, "count", 1); i++) {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
-                return;
+                return Collections.emptyMap();
             }
             monitor.report("" + parameters.get("message"));
         }
         monitor.report(getStringParameter(parameters, NAME_KEY) + " finished");
+        return Collections.singletonMap("result", (Object)("Message: " + msg));
     }
 
 }

@@ -9,6 +9,7 @@
 
 package com.epimorphics.appbase.tasks.impl;
 
+import java.util.Collections;
 import java.util.Map;
 
 import com.epimorphics.appbase.tasks.ActionManager;
@@ -26,7 +27,7 @@ public class ParallelAction extends CompoundAction {
     }
 
     @Override
-    protected void doRun(Map<String, Object> parameters,
+    protected Map<String, Object> doRun(Map<String, Object> parameters,
             ProgressMonitorReporter monitor) {
         int n = componentActions.length;
         ActionExecution[] aes = new ActionExecution[n];
@@ -43,6 +44,7 @@ public class ParallelAction extends CompoundAction {
             }
         }
         monitor.setSuccess( !failed );
+        return Collections.emptyMap();
     }
 
 }
