@@ -58,6 +58,10 @@ public class ComponentBase implements Startup, Named {
     }
     
     public App getApp() {
+        if (app == null) {
+            // Only applies if this component hasn't be formally configured and so has missed out on startup actions
+            app = AppConfig.getApp();
+        }
         return app;
     }
     
