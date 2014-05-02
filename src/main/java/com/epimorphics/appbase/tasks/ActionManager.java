@@ -203,11 +203,12 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
      */
     public List<ActionExecution> fireEvent(String event, Map<String, Object> parameters) {
         logEvent(event, parameters);
-        parameters.put( ActionTrigger.TRIGGER_KEY, event);
         List<ActionExecution> executions = new ArrayList<>();
         for (Action action : triggerableActions) {
             if (action.getTrigger().matches(event, parameters)) {
-                executions.add( runAction(action, parameters) );
+                Map<String, Object> callParams = new HashMap<>(parameters);
+                callParams.put( ActionTrigger.TRIGGER_KEY, event);
+                executions.add( runAction(action, callParams) );
             }
         }
         return executions;
