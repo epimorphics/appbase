@@ -40,6 +40,7 @@ import com.epimorphics.tasks.ProgressMonitorReporter;
 import com.epimorphics.tasks.SimpleProgressMonitor;
 import com.epimorphics.tasks.TaskState;
 import com.epimorphics.util.EpiException;
+import com.epimorphics.util.FileUtil;
 
 /**
  * Controller which tracks available actions, executes actions
@@ -79,11 +80,13 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
         this.maxHistory = maxHistory;
     }
     
-    public void setLogDirectory(String logdir) {
+    public void setLogFile(String logf) {
         try {
-            actionLog = new FileWriter( asFile(logdir), true);
+            File logF = asFile(logf);
+            FileUtil.ensureDir( logF.getParentFile().getPath() );
+            actionLog = new FileWriter( logF, true);
         } catch (IOException e) {
-            throw new EpiException("Problem opening action log file: " + logdir, e);
+            throw new EpiException("Problem opening action log file: " + logf, e);
         }
     }
     
@@ -242,8 +245,9 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
             String dateStr = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format( new Date() );
             try {
                 actionLog.write(dateStr + " " + msg + "\n");
+                actionLog.flush();
             } catch (IOException e) {
-                log.error("Problem write to action log", e);
+                log.error("Problem writing to action log", e);
             }
         }
     }
