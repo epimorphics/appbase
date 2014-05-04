@@ -65,6 +65,14 @@ public class ResourceView implements Comparable<ResourceView> {
         return root;
     }
     
+    public Resource getRoot() {
+        return root;
+    }
+    
+    public Model getModel() {
+        return root.getModel();
+    }
+    
     /**
      * Return a label for the resource, chosen from a built in set of plausible label properties
      */

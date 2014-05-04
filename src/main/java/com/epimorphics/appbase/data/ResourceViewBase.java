@@ -9,6 +9,7 @@
 
 package com.epimorphics.appbase.data;
 
+import com.epimorphics.util.PrefixUtils;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -71,6 +72,10 @@ public class ResourceViewBase extends ResourceView {
      */
     protected Graph fetchDescription(SparqlSource source, String uri) {
         return source.describeAll(uri);
+    }
+    
+    protected static String expand(SparqlSource source, String query, String uri) {
+        return PrefixUtils.expandQuery(query.replaceAll("\\%s", uri), source.getPrefixes());
     }
  
 }
