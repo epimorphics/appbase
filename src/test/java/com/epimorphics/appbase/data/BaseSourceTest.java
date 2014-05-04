@@ -52,6 +52,7 @@ public abstract class BaseSourceTest {
         source.setName(SOURCE_NAME);
         source.setSource(ss);
 
+        app.addComponent("prefixes", prefixes);
         app.addComponent(SOURCE_NAME, source);
         app.addComponent("ssource", ss);
         app.startup();

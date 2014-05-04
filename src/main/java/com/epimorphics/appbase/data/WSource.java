@@ -39,7 +39,7 @@ import com.hp.hpl.jena.util.OneToManyMap;
 
 /**
  * A wrapped SPARQL source, designed for easy use from UI scripting.
- * Uses app-wide prefix configuration to expand queries, provides caching
+ * Uses app-wide prefix configuration to expand queries, provides optional caching
  * of resource descriptions to simplify use of remote sources.
  * 
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
@@ -59,13 +59,21 @@ public class WSource extends ComponentBase {
         this.source = source;
     }
     
+    /**
+     * Sets the size of the WNode cache, set to zero to suppress caching
+     * @param size
+     */
     @SuppressWarnings("unchecked")
-    public void setCacheSize(int size) {
-        cache = new LRUMap(size);
+    public synchronized void setCacheSize(int size) {
+        if (size == 0) {
+            cache = null;
+        } else {
+            cache = new LRUMap(size);
+        }
     }
     
-    public void resetCache() {
-        synchronized (cache) {
+    public synchronized void resetCache() {
+        if (cache != null) {
             cache.clear();
         }
     }
@@ -144,10 +152,10 @@ public class WSource extends ComponentBase {
     
     protected void describeList(List<WNode> nodes) {
         List<WNode> batch = new ArrayList<>();
-        synchronized (cache) {
+        synchronized (this) {
             for (WNode node : nodes) {
                 if ( ! node.isDescribed() ) {
-                    NodeDescription nd = cache.get(node);
+                    NodeDescription nd = cache == null ? null : cache.get(node);
                     if (nd != null) {
                         node.setDescription(nd);
                     } else {
@@ -175,8 +183,10 @@ public class WSource extends ComponentBase {
     
     protected NodeDescription describe(Node node) {
         NodeDescription description = new NodeDescription(node, source.describeAll(node.getURI()));
-        synchronized (cache) {
-            cache.put(node, description);
+        synchronized (this) {
+            if (cache != null) {
+                cache.put(node, description);
+            }
         }
         return description;
     }
@@ -190,13 +200,15 @@ public class WSource extends ComponentBase {
                 + "    OPTIONAL {?uri rdfs:label ?rdfs_label}\n"
                 + "    OPTIONAL {?uri foaf:name ?foaf_name}\n";
         DatasetGraph dsg = constructViews(labelQuery, urisForNodes(nodes));
-        synchronized (cache) {
+        synchronized (this) {
             for (WNode wnode : nodes) {
                 Node n = wnode.asNode();
                 Graph g = dsg.getGraph(n);
                 if (g != null) {
                     NodeDescription nd = new NodeDescription(n, g);
-                    cache.put(n, nd);
+                    if (cache != null) {
+                        cache.put(n, nd);
+                    }
                     wnode.setDescription(nd);
                 }
             }
@@ -205,13 +217,15 @@ public class WSource extends ComponentBase {
     
     protected void ensureDescribed(WNode... nodes) {
         Graph[] graphs = source.describeEach(urisForNodes(nodes));
-        synchronized (cache) {
+        synchronized (this) {
             for (int i = 0; i < nodes.length; i++) {
                 WNode wnode = nodes[i];
                 Node n = wnode.asNode();
                 Graph g = graphs[i];
                 NodeDescription nd = new NodeDescription(n, g);
-                cache.put(n, nd);
+                if (cache != null) {
+                    cache.put(n, nd);
+                }
                 wnode.setDescription(nd);
             }
         }
@@ -238,14 +252,12 @@ public class WSource extends ComponentBase {
      * whatever cached description is already available but will not
      * itself invoke a new query.
      */
-    public WNode get(Node node) {
+    public synchronized WNode get(Node node) {
         if (node == null) return null;
         if (node.isURI()) {
-            synchronized (cache) {
-                NodeDescription nd = cache.get(node);
-                if (nd != null) {
-                    return new WNode(this, node, nd);
-                }
+            NodeDescription nd = cache == null ? null : cache.get(node);
+            if (nd != null) {
+                return new WNode(this, node, nd);
             }
         }
         return new WNode(this, node);

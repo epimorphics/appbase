@@ -14,6 +14,7 @@ import java.util.List;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.query.DatasetAccessor;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.shared.PrefixMapping;
 import com.hp.hpl.jena.update.UpdateRequest;
 
 /**
@@ -88,4 +89,10 @@ public interface SparqlSource {
      * Returns null of no such update is supported
      */
     public DatasetAccessor getAccessor();
+    
+    /**
+     * Return a set of prefix mappings to use with this source. 
+     * Typically default or app wide mappings
+     */
+    public PrefixMapping getPrefixes();
 }

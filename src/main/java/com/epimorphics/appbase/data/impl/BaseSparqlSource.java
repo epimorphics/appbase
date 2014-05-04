@@ -24,6 +24,7 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.ResultSetFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.shared.PrefixMapping;
 import com.hp.hpl.jena.sparql.util.Closure;
 
 /**
@@ -112,4 +113,8 @@ public abstract class BaseSparqlSource extends ComponentBase implements SparqlSo
     abstract protected QueryExecution start(String queryString);
     
     abstract protected void finish(QueryExecution qexec);
+    
+    public PrefixMapping getPrefixes() {
+        return getApp().getPrefixes();
+    }
 }
