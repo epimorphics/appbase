@@ -138,6 +138,14 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
     }
     
     /**
+     * Test whether a configured object of this name exists in the monitor
+     */
+    public synchronized boolean has(String name) {
+        init();
+        return entryIndex.containsKey(name);
+    }
+    
+    /**
      * Force a manual scan of the directory
      */
     public void refresh() {
