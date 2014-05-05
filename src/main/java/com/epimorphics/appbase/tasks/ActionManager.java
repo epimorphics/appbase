@@ -220,14 +220,14 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
     /**
      * Send event signalling the start of an action
      */
-    public List<ActionExecution> actionStartEvent(Action action, Map<String, Object> parameters) {
+    protected List<ActionExecution> actionStartEvent(Action action, Map<String, Object> parameters) {
         return fireEvent("action:" + action.getName() + ":started", parameters);
     }
     
     /**
      * Send event signalling the end of an action
      */
-    public List<ActionExecution> actionEndEvent(ActionExecution ae, Map<String, Object> result) {
+    protected List<ActionExecution> actionEndEvent(ActionExecution ae, Map<String, Object> result) {
         String msg = String.format("action:%s:finished %s %d", 
                 ae.getAction().getName(), 
                 ae.getMonitor().succeeded() ? "succeeded" : "failed", 

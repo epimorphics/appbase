@@ -116,6 +116,31 @@ public class ResourceView implements Comparable<ResourceView> {
             return null;
         }
     }
+
+    protected Resource asResource(Object res) {
+        if (res instanceof String) {
+            Model m = root.getModel();
+            return m.createResource( m.expandPrefix((String)res) );
+        } else if (res instanceof Resource) {
+            return (Resource)res;
+        } else {
+            return null;
+        }
+    }
+    
+    /**
+     * Return true if the view root has a value of the given property
+     */
+    public boolean hasProperty(Object prop) {
+        return root.hasProperty( asProperty(prop) );
+    }
+    
+    /**
+     * Return true if the view root has the given resource value for the property.
+     */
+    public boolean hasResourceValue(Object prop, Object resource) {
+        return root.hasProperty(asProperty(prop), asResource(resource));
+    }
     
     /**
      * Return a string value for the property of null if there is none
