@@ -17,6 +17,7 @@ import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.TIMEOUT_KEY;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.core.AppConfig;
 import com.epimorphics.appbase.tasks.Action;
 import com.epimorphics.appbase.tasks.ActionManager;
@@ -31,6 +32,7 @@ public abstract class BaseAction implements Action {
     protected Map<String, Object> configuration = new HashMap<String, Object>();
     protected Action onError;
     protected ActionTrigger trigger;
+    protected App app;
 
     public BaseAction() {
     }
@@ -49,6 +51,15 @@ public abstract class BaseAction implements Action {
 
     public Object getConfig(String key) {
         return configuration.get(key);
+    }
+
+    public App getApp() {
+        return app;
+    }
+
+    @Override
+    public void setApp(App app) {
+        this.app = app;
     }
 
     public String getStringConfig(String key, String deflt) {

@@ -12,6 +12,7 @@ package com.epimorphics.appbase.tasks.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.tasks.Action;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 
@@ -21,6 +22,12 @@ import com.epimorphics.tasks.ProgressMonitorReporter;
  */
 public class JavaAction extends BaseAction implements Action {
     protected Action baseAction;
+
+    @Override
+    public void setApp(App app) {
+        this.app = app;
+        baseAction.setApp(app);
+    }
 
     public void setAction(String classname) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         baseAction = (Action)Class.forName(classname).newInstance();
