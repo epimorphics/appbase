@@ -15,6 +15,7 @@ import java.util.List;
 
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.query.DatasetAccessor;
 import com.hp.hpl.jena.query.DatasetFactory;
 import com.hp.hpl.jena.sparql.core.DatasetGraph;
 import com.hp.hpl.jena.sparql.core.DatasetGraphMap;
@@ -69,6 +70,14 @@ public class UnionDatasetSparqlSource extends DatasetSparqlSource {
             setDefaultGraph( new GraphUnionRead(this, graphs) );
         }
 
+    }
+
+    @Override
+    public DatasetAccessor getAccessor() {
+        if (accessor == null) {
+            accessor = new LockingDatasetAccessor(dataset);
+        }
+        return accessor;
     }
 
 }
