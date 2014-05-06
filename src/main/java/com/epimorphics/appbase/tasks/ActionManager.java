@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.epimorphics.appbase.core.Shutdown;
 import com.epimorphics.appbase.core.TimerManager;
 import com.epimorphics.appbase.monitor.ConfigMonitor;
+import com.epimorphics.tasks.ProgressMessage;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 import com.epimorphics.tasks.SimpleProgressMonitor;
 import com.epimorphics.tasks.TaskState;
@@ -75,20 +76,43 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
     
     // Configuration options beyond base ConfigMonitor
     protected int maxHistory = DEFAULT_HISTORY_SIZE;
+    protected File logF;
     protected FileWriter actionLog;
-    
+    protected File traceDir = null;
+
+    /**
+     * Configure the maximum number of past executions which are retain for review, default is 500
+     */
     public void setMaxHistory(int maxHistory) {
         this.maxHistory = maxHistory;
     }
-    
+
+    /**
+     * Configure a log file to which events (e.g. action start/end) will be logged
+     */
     public void setLogFile(String logf) {
         try {
-            File logF = asFile(logf);
+            logF = asFile(logf);
             FileUtil.ensureDir( logF.getParentFile().getPath() );
             actionLog = new FileWriter( logF, true);
         } catch (IOException e) {
             throw new EpiException("Problem opening action log file: " + logf, e);
         }
+    }
+    
+    /**
+     * Configure a directory to which traces of action of executions will be recorded
+     */
+    public void setTraceDir(String dir) {
+        traceDir = asFile(dir);
+        FileUtil.ensureDir(traceDir.getPath());
+        if (! traceDir.isDirectory() || ! traceDir.canWrite() ) {
+            throw new EpiException("Problem accessing trace directory: " + dir);
+        }
+    }
+    
+    public String getTraceDir() {
+        return traceDir == null ? null : traceDir.getPath();
     }
     
     @Override
@@ -136,7 +160,12 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
     
     @Override
     protected Collection<Action> configure(File file) {
-        return ActionFactory.configure(file);
+        try {
+            return ActionFactory.configure(file);
+        } catch (Throwable e) {
+            log.error("Problem loading config file: " + file, e);
+            return Collections.emptyList();
+        }
     }
 
     protected synchronized void recordExecution(ActionExecution ae) {
@@ -242,10 +271,21 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
      * Send event signalling the end of an action
      */
     protected List<ActionExecution> actionEndEvent(ActionExecution ae, Map<String, Object> result) {
+        String success = ae.getMonitor().succeeded() ? "succeeded" : "failed";
+        if (traceDir != null) {
+            try {
+                FileWriter fw = new FileWriter( new File(traceDir, "trace-" + ae.getId()) );
+                for (ProgressMessage message : ae.getMonitor().getMessages()) {
+                    fw.write(message.toString() + "\n");
+                }
+                fw.write( String.format("** Action %s %s in %d milliseconds\n", ae.getAction().getName(), success, ae.getDuration()) );
+                fw.close();
+            } catch (IOException e) {
+                log.error("Failed to write action trace", e);
+            }
+        }
         String msg = String.format("action:%s:finished %s %d", 
-                ae.getAction().getName(), 
-                ae.getMonitor().succeeded() ? "succeeded" : "failed", 
-                ae.getDuration());
+                ae.getAction().getName(), success, ae.getDuration());
         return fireEvent(msg, result);
     }
     
@@ -261,6 +301,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
                 actionLog.write(dateStr + " " + msg + "\n");
                 actionLog.flush();
             } catch (IOException e) {
+                // TODO try reopening?
                 log.error("Problem writing to action log", e);
             }
         }

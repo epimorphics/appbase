@@ -91,10 +91,14 @@ public class DatasetMonitor extends ConfigMonitor<DatasetMonitor.MonitoredGraph>
     
     @Override
     protected void doAddEntry(MonitoredGraph entry) {
-        Model model = RDFDataMgr.loadModel( entry.getFilepath() );
-        getAccessor().putModel(entry.getName(), model);
-        super.doAddEntry(entry);
-        if (wsource != null) wsource.resetCache();
+        try {
+            Model model = RDFDataMgr.loadModel( entry.getFilepath() );
+            getAccessor().putModel(entry.getName(), model);
+            super.doAddEntry(entry);
+            if (wsource != null) wsource.resetCache();
+        } catch (Throwable t) {
+            log.error("Failed add monitored graph: " + entry.getName(), t);
+        }
     }
 
     protected void doRemoveEntry(MonitoredGraph entry) {

@@ -190,21 +190,26 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
         Set<FileRecord> changes = scanner.scan(returnImmediately);
         synchronized (this) {
             for ( Scanner.FileRecord change : changes ) {
-                File file = change.file;
-                switch(change.state) {
-                case NEW:
-                    addEntry(file, configure(file) );
-                    break;
-                    
-                case MODIFIED:
-                    Collection<T> entrylist = configure(file);
-                    removeEntry( file );
-                    addEntry(file, entrylist);
-                    break;
-                    
-                case DELETED:
-                    removeEntry( file );
-                    break;
+                try {
+                    File file = change.file;
+                    switch(change.state) {
+                    case NEW:
+                        addEntry(file, configure(file) );
+                        break;
+                        
+                    case MODIFIED:
+                        Collection<T> entrylist = configure(file);
+                        removeEntry( file );
+                        addEntry(file, entrylist);
+                        break;
+                        
+                    case DELETED:
+                        removeEntry( file );
+                        break;
+                    }
+                } catch (Exception e) {
+                    // Absorb problems here and log otherwise the scanner can be left part configured
+                    log.error("Problem loading scanned changes", e);
                 }
             }
         }
