@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -164,6 +165,19 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
      */
     public synchronized Collection<ActionExecution> listActiveExecutions() {
         return new ArrayList<>( currentExecutions );
+    }
+    
+    /**
+     * Return the last N executions, whether or not completed
+     */
+    public synchronized Collection<ActionExecution> listRecentExecutions(int n) {
+        n = Math.max(n, executionHistory.size());
+        List<ActionExecution> results = new ArrayList<>(n);
+        Iterator<ActionExecution> it = executionHistory.descendingIterator();
+        for (int i = 0; i < n && it.hasNext(); i++) {
+            results.add( it.next() );
+        }
+        return results;
     }
     
     /**
