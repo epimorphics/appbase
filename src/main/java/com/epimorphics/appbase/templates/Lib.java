@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -217,17 +218,29 @@ public class Lib {
      * Pretty print a datetime literal.
      * Returns null if it is not a date time
      */
-    public String printDatetime(Object node) {
-        Literal l = asDateTime(node);
-        if (l != null) {
-            Calendar c = ((XSDDateTime)l.getValue()).asCalendar();
-            return new SimpleDateFormat("d MMM yyyy HH:mm:ss.SSS").format(c.getTime());
+    public String printDatetime(String format, Object node) {
+        Date d = asDateTime(node);
+        if (d != null) {
+            return new SimpleDateFormat(format).format(d);
         }
         return null;
     }
 
-    private Literal asDateTime(Object node) {
-        RDFNode n;
+    /**
+     * Pretty print a datetime literal.
+     * Returns null if it is not a date time
+     */
+    public String printDatetime(Object node) {
+        return printDatetime("d MMM yyyy HH:mm:ss.SSS", node);
+    }
+
+    private Date asDateTime(Object node) {
+        RDFNode n = null;
+        if (node instanceof Date) {
+            return (Date)node;
+        } else if (node instanceof Long) {
+            return new Date( (Long)node );
+        }
         if (node instanceof RDFNodeWrapper) {
             n = ((RDFNodeWrapper)node).asRDFNode();
         } else if (node instanceof RDFNode) {
@@ -239,7 +252,8 @@ public class Lib {
             Literal l = n.asLiteral();
             RDFDatatype dt = l.getDatatype();
             if (XSDDateType.XSDdateTime.equals(dt)) {
-                return l;
+                Calendar c = ((XSDDateTime)l.getValue()).asCalendar();
+                return c.getTime();
             }
         }
         return null;
