@@ -18,6 +18,7 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.sparql.util.Closure;
 
 /**
  * Provide convenience access functions for a Resource in some associated model. 
@@ -74,6 +75,14 @@ public class ResourceView implements Comparable<ResourceView> {
     }
     
     /**
+     * Return a model containing a subset of the view that just describes the root resource.
+     * Useful when the view might be part of some larger view.
+     */
+    public Model getMinimalModel() {
+        return Closure.closure(root, false);
+    }
+    
+    /**
      * Return a label for the resource, chosen from a built in set of plausible label properties
      */
     public String getLabel() {
@@ -91,7 +100,7 @@ public class ResourceView implements Comparable<ResourceView> {
     }
     
     /**
-     * Return a description for the resource, chosen from a built in set of plausible descriptio properties
+     * Return a description for the resource, chosen from a built in set of plausible description properties
      */
     public String getDescription() {
         return RDFUtil.getDescription(root);
