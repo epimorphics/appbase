@@ -170,7 +170,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
     /**
      * Return the last N executions, whether or not completed
      */
-    public synchronized Collection<ActionExecution> listRecentExecutions(int n) {
+    public synchronized List<ActionExecution> listRecentExecutions(int n) {
         n = Math.max(n, executionHistory.size());
         List<ActionExecution> results = new ArrayList<>(n);
         Iterator<ActionExecution> it = executionHistory.descendingIterator();
@@ -334,7 +334,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
                 if (monitor.getState() != TaskState.Terminated) {
                     monitor.setSucceeded();
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 condMarkTerminated("Exception: " + e);
             }
             finishTime = System.currentTimeMillis();
