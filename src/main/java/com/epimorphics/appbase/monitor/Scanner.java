@@ -157,6 +157,7 @@ public class Scanner {
                 long newChecksum = checksum(file);
                 lastChecksums.put(file, new Long(newChecksum));
                 // Only handle file when it does not change anymore and it has changed since last reported
+                log.debug( String.format("Checksums: new(%d), last(%d), stored(%d)", newChecksum, lastChecksum, storedChecksum) );
                 if ((newChecksum == lastChecksum || reportImmediately) && newChecksum != storedChecksum)
                 {
                     storedChecksums.put(file, new Long(newChecksum));
