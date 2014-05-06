@@ -90,8 +90,8 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
      * The default is 2 seconds. 
      * Not relevant in production mode.
      */
-    public void setScanInterval(int intervalInMS) {
-        scanInterval = intervalInMS;
+    public void setScanInterval(long intervalInMS) {
+        scanInterval = (int) intervalInMS;
         if (initialized && !productionMode) {
             stopScanning();
             startScanning();
