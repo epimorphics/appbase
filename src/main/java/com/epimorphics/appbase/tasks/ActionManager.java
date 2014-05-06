@@ -135,11 +135,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
     
     @Override
     protected Collection<Action> configure(File file) {
-        Collection<Action> actions = ActionFactory.configure(file);
-        for (Action action : actions) {
-            action.setApp( getApp() );
-        }
-        return actions;
+        return ActionFactory.configure(file);
     }
 
     protected synchronized void recordExecution(ActionExecution ae) {

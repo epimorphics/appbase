@@ -12,7 +12,6 @@ package com.epimorphics.appbase.tasks;
 
 import java.util.Map;
 
-import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.core.Named;
 import com.epimorphics.appbase.monitor.ConfigInstance;
 import com.epimorphics.tasks.ProgressMonitorReporter;
@@ -21,11 +20,6 @@ import com.epimorphics.tasks.ProgressMonitorReporter;
  * A processing block that will be run asynchronously, reporting progress as it goes.
  */
 public interface Action extends ConfigInstance, Named {
-    
-    /**
-     * Record the app containing this action. 
-     */
-    public void setApp(App app);
     
     /**
      * Resolve any late-bound action bindings using the given ActionManager

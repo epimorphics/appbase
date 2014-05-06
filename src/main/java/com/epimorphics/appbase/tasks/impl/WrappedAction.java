@@ -14,7 +14,6 @@ import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.BASE_KEY;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.tasks.Action;
 import com.epimorphics.appbase.tasks.ActionManager;
 import com.epimorphics.tasks.ProgressMonitorReporter;
@@ -25,12 +24,6 @@ import com.epimorphics.util.EpiException;
  */
 public class WrappedAction extends BaseAction implements Action {
     protected Action baseAction;
-
-    @Override
-    public void setApp(App app) {
-        this.app = app;
-        baseAction.setApp(app);
-    }
     
     @Override
     public void resolve(ActionManager am) {
