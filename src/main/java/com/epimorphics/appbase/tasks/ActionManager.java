@@ -300,6 +300,11 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
         if (actionLog != null) {
             String dateStr = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format( new Date() );
             try {
+                // TODO Use Directory watcher to make this more efficient?
+                if (!logF.exists()) {  
+                    // log file deleted while we were running?
+                    actionLog = new FileWriter( logF, true);
+                }
                 actionLog.write(dateStr + " " + msg + "\n");
                 actionLog.flush();
             } catch (IOException e) {
