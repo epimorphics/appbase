@@ -58,6 +58,8 @@ import com.epimorphics.util.FileUtil;
 public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
     static Logger log = LoggerFactory.getLogger(ActionManager.class);
     
+    public static final String ACTION_EXECUTION_PARAM = "actionExecutionID";
+    
     protected static final int DEFAULT_HISTORY_SIZE = 500;
     private static final int MAX_THREADS = 20;
     private static final int CORE_THREADS = 10;
@@ -326,7 +328,8 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
         }
         
         public ActionExecution(Action action, Map<String, Object> parameters, ProgressMonitorReporter monitor) {
-            this.parameters = parameters;
+            this.parameters = new HashMap<>( parameters );
+            this.parameters.put(ACTION_EXECUTION_PARAM, id);
             this.monitor = monitor;
             this.action = action;
         }
