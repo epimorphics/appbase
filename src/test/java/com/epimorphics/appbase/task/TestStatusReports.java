@@ -48,7 +48,7 @@ public class TestStatusReports {
         JsonArray messages = object.get("messages").getAsArray();
         assertEquals( 2,        messages.size());
         JsonObject m = messages.get(1).getAsObject();
-        assertEquals( "message 2",   m.get("message").getAsString().value());
+        assertEquals( "message 2",   m.get("raw_message").getAsString().value());
     }
 
 }
