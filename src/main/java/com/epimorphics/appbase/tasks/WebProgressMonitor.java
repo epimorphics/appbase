@@ -22,6 +22,8 @@ import org.apache.jena.atlas.json.JsonArray;
 import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.atlas.json.JsonValue;
 
+import com.epimorphics.json.JSFullWriter;
+import com.epimorphics.json.JSONWritable;
 import com.epimorphics.tasks.ProgressMessage;
 import com.epimorphics.tasks.ProgressMonitor;
 import com.epimorphics.tasks.TaskState;
@@ -68,7 +70,7 @@ public class WebProgressMonitor implements ProgressMonitor {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
-                // Ignore
+                return;
             }
             update();
         }
@@ -127,4 +129,31 @@ public class WebProgressMonitor implements ProgressMonitor {
         return getMessageList().size() > offset;
     }
 
+    @Override
+    public JSONWritable viewUpdatesSince(final int offset) {
+        return new JSONWritable() {
+            @Override
+            public void writeTo(JSFullWriter out) {
+                writeIncrement(out, offset);
+            }
+        };
+    }
+    
+    protected synchronized void writeIncrement(JSFullWriter out, int offset) {
+        out.startObject();
+        out.pair(STATE_FIELD, getState().toString());
+        out.pair(PROGRESS_FIELD, getProgress());
+        out.pair(SUCEEDED_FIELD, succeeded());
+        out.key(MESSAGES_FIELD);
+        out.startArray();
+        int len = messages.size();
+        for (int i = offset; i < len; i++) {
+            messages.get(i).writeTo(out);
+            if (i < len-1) {
+                out.arraySep();
+            }
+        }
+        out.finishArray();
+        out.finishObject();
+    }
 }

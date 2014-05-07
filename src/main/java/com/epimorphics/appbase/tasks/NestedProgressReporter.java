@@ -11,6 +11,7 @@ package com.epimorphics.appbase.tasks;
 
 import java.util.List;
 
+import com.epimorphics.json.JSONWritable;
 import com.epimorphics.tasks.ProgressMessage;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 import com.epimorphics.tasks.TaskState;
@@ -113,6 +114,11 @@ public class NestedProgressReporter implements ProgressMonitorReporter {
     @Override
     public void report(String message, int lineNumber) {
         wrapped.report(message, lineNumber);
+    }
+
+    @Override
+    public JSONWritable viewUpdatesSince(int offset) {
+        return wrapped.viewUpdatesSince(offset);
     }
     
 }
