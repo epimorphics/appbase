@@ -234,7 +234,7 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
     // Assumes in synchronized block
     private void addEntry(File file, Collection<T> entrylist) {
         for (T entry : entrylist) {
-            log.info("Adding monitored entry for: " + file);
+            log.info("Adding monitored entry " + entry.getName() + " from: " + file);
             doAddEntry(entry);
             entries.put(file, entry);
         }
@@ -242,7 +242,7 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
     
     // Assumes in synchronized block
     private void removeEntry(File file) {
-        log.info("Removing monitored entry for: " + file);
+        log.info("Removing monitored entry/entries for: " + file);
         for (Iterator<T> i = entries.getAll(file); i.hasNext();) {
             T entry = i.next();
             if (entry != null) {
