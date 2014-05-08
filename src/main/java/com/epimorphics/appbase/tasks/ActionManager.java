@@ -83,6 +83,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
     protected File logF;
     protected FileWriter actionLog;
     protected File traceDir = null;
+    protected File scriptDir = null;
 
     /**
      * Configure the maximum number of past executions which are retain for review, default is 500
@@ -117,6 +118,17 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
     
     public String getTraceDir() {
         return traceDir == null ? null : traceDir.getPath();
+    }
+    
+    /**
+     * Configure a directory which will hold shell scripts usable as actions.
+     */
+    public void setScriptDir(String dir) {
+        scriptDir = asFile(dir);
+    }
+    
+    public String getScriptDir() {
+        return scriptDir.getPath();
     }
     
     @Override

@@ -1,0 +1,26 @@
+[
+  {
+    "@name" : "helloScriptArgs",
+    "@type" : "script",
+    "@script" : "hello.sh",
+    "arg1" : "arg one",
+    "@args" : ["arg1", "arg2"]
+  },
+  {
+    "@name" : "helloJsonScript",
+    "@type" : "script",
+    "@script" : "hello.sh",
+    "@args" : "json"
+  },
+  {
+    "@name" : "helloJsonRefScript",
+    "@type" : "script",
+    "@script" : "helloJson.sh",
+    "@args" : "jsonRef"
+  },
+  {
+    "@name" : "failScript",
+    "@type" : "script",
+    "@script" : "fail.sh"
+  }
+]

@@ -30,8 +30,11 @@ import com.epimorphics.appbase.tasks.impl.CompoundAction;
 import com.epimorphics.appbase.tasks.impl.JavaAction;
 import com.epimorphics.appbase.tasks.impl.ParallelAction;
 import com.epimorphics.appbase.tasks.impl.RegexTrigger;
+import com.epimorphics.appbase.tasks.impl.ScriptAction;
 import com.epimorphics.appbase.tasks.impl.SequenceAction;
 import com.epimorphics.appbase.tasks.impl.WrappedAction;
+import com.epimorphics.appbase.tasks.impl.ScriptAction.ArgType;
+import com.epimorphics.json.JsonUtil;
 import com.epimorphics.util.EpiException;
 
 /**
@@ -67,6 +70,10 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
     public static final String ACTIONS_KEY     = "@actions";
     public static final String ON_ERROR_KEY    = "@onError";
     public static final String TRIGGER_KEY     = "@trigger";
+    public static final String SHELL_KEY     = "@shell";
+    public static final String SCRIPT_KEY     = "@script";
+    public static final String ARGS_KEY     = "@args";
+
 
     public static final String SIMPLE_TYPE    = "simple";
     public static final String SEQUENCE_TYPE    = "sequence";
@@ -83,6 +90,9 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
         ALLOWED_KEYS.add(ACTIONS_KEY);
         ALLOWED_KEYS.add(ON_ERROR_KEY);
         ALLOWED_KEYS.add(TRIGGER_KEY);
+        ALLOWED_KEYS.add(SHELL_KEY);
+        ALLOWED_KEYS.add(SCRIPT_KEY);
+        ALLOWED_KEYS.add(ARGS_KEY);
     }
     
     @Override
@@ -135,7 +145,30 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
             } else {
                 action = new WrappedAction();
             }
-        } else {
+        } else if (type.equals(ScriptAction.ACTION_TYPE)) {
+            ScriptAction a = new ScriptAction();
+            if (spec.hasKey(ARGS_KEY)) {
+                Object argsSpec = JsonUtil.fromJson( spec.get(ARGS_KEY) );
+                if (argsSpec.equals("json")) {
+                    a.setArgType(ArgType.json);
+                } else if (argsSpec.equals("jsonRef")) {
+                    a.setArgType(ArgType.jsonRef);
+                } else if (argsSpec instanceof List<?>) {
+                    List<String> args = new ArrayList<String>( ((List<?>)argsSpec).size() );
+                    for (Object arg : (List<?>)argsSpec) {
+                        if (arg instanceof String) {
+                            args.add( (String)arg );
+                        } else {
+                            throw new EpiException("Illegal @args value, should be a list of strings: " + argsSpec);
+                        }
+                    }
+                    a.setArgMap(args);
+                } else {
+                    throw new EpiException("Illegal @args value for script: " + argsSpec);
+                }
+            }
+            action = a;
+        } else if (type.equals(SEQUENCE_TYPE) || type.equals(PAR_TYPE)) {
             CompoundAction flow = type.equals(SEQUENCE_TYPE) ? new SequenceAction() : new ParallelAction();
             JsonValue av = spec.get(ACTIONS_KEY);
             if (av.isArray()) {
@@ -147,6 +180,8 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
                 flow.addComponent( parseActionRef(av) );
             }
             action = flow;
+        } else {
+            throw new EpiException("Action type not recognized: " + type);
         }
         for (String key : spec.keySet()) {
             if (key.startsWith("@")) {
@@ -155,7 +190,7 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
                 }
                 if (key.equals(ON_ERROR_KEY)) {
                     action.setConfig(key, parseActionRef( spec.get(key) ));
-                } else if (key.equals(ACTIONS_KEY)) {
+                } else if (key.equals(ACTIONS_KEY) || key.equals(ARGS_KEY) || key.equals(TYPE_KEY)) {
                     // already handled
                 } else if (key.equals(TRIGGER_KEY)) {
                     action.setTrigger( new RegexTrigger( getString(spec, key, ".*") ) );

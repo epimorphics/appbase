@@ -9,7 +9,7 @@
 
 package com.epimorphics.appbase.task;
 
-import static com.epimorphics.appbase.task.TestActionManager.*;
+import static com.epimorphics.appbase.task.TestActionManager.createParams;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -30,6 +30,7 @@ import com.epimorphics.appbase.tasks.Action;
 import com.epimorphics.appbase.tasks.ActionManager;
 import com.epimorphics.appbase.tasks.ActionManager.ActionExecution;
 import com.epimorphics.tasks.ProgressMessage;
+import com.epimorphics.tasks.ProgressMonitor;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 
 public class TestJsonActions {
@@ -46,7 +47,8 @@ public class TestJsonActions {
     
     @After
     public void shutdown() {
-        testapp.shutdown();
+        if (testapp != null)
+            testapp.shutdown();
     }
     
     @Test
@@ -124,6 +126,33 @@ public class TestJsonActions {
                 (firings.get(0).equals("fired - test/bar") && firings.get(1).equals("fired - test/foo")) 
                 );
         RecordingAction.reset();
+    }
+    
+    @Test
+    public void testScripts() {
+        // Explicit argument passing case
+        ActionExecution ae = runAction("helloScriptArgs", "arg2=arg two");
+        ProgressMonitor monitor = ae.getMonitor();
+        assertTrue(monitor.succeeded());
+        assertEquals("Hello from script: arg one arg two", monitor.getMessages().get(1).getMessage());
+        assertEquals("Lib called", monitor.getMessages().get(2).getMessage());
+        
+        // Inline json case
+        ae = runAction("helloJsonScript", "");
+        monitor = ae.getMonitor();
+        assertTrue(monitor.succeeded());
+        assertEquals("Hello from script: {", monitor.getMessages().get(1).getMessage().trim());
+        // Relies on json formatting
+        assertTrue( monitor.getMessages().get(2).getMessage().contains("\"@name\" : \"helloJsonScript\"") );
+
+        // Serialized json case
+        ae = runAction("helloJsonRefScript", "");
+        monitor = ae.getMonitor();
+        assertTrue(monitor.succeeded());
+        assertEquals("{", monitor.getMessages().get(1).getMessage().trim());
+        // Relies on json formatting
+        assertTrue( monitor.getMessages().get(2).getMessage().contains("\"@name\" : \"helloJsonRefScript\"") );
+        
     }
     
     private ActionExecution runAction(String actionName, String args) {
