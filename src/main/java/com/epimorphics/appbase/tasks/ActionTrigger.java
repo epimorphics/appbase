@@ -9,7 +9,7 @@
 
 package com.epimorphics.appbase.tasks;
 
-import java.util.Map;
+import org.apache.jena.atlas.json.JsonObject;
 
 /**
  * Interface for a object that tests an event to see if it
@@ -20,6 +20,6 @@ import java.util.Map;
 public interface ActionTrigger {
     public static final String TRIGGER_KEY = "@trigger";
 
-    public boolean matches(String trigger, Map<String, Object> parameters);
+    public boolean matches(String trigger, JsonObject parameters);
     
 }

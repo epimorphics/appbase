@@ -10,14 +10,14 @@
 package com.epimorphics.appbase.task;
 
 import static org.junit.Assert.assertEquals;
+import static com.epimorphics.json.JsonUtil.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.jena.atlas.json.JsonObject;
 import org.junit.Test;
 
 import com.epimorphics.appbase.tasks.Action;
@@ -45,7 +45,7 @@ public class TestActionManager {
         assertTrue(messages.get(messages.size() - 1).toString().endsWith("finished"));
         assertEquals(1, am.listActiveExecutions().size());
         assertTrue(ae1.getMonitor().succeeded());
-        assertEquals("Message: Test message", ae1.getResult().get("result"));
+        assertEquals("Message: Test message", getPath(ae1.getResult(), "result"));
         
         ae2.waitForCompletion();
 //        dumpState(ae2);
@@ -70,8 +70,8 @@ public class TestActionManager {
         System.out.println("Duration: " + ae.getDuration());
     }
     
-    public static Map<String,Object> createParams(String bindings) {
-        Map<String, Object> params = new HashMap<>();
+    public static JsonObject createParams(String bindings) {
+        JsonObject params = new JsonObject();
         if (bindings.trim().isEmpty()) {
             return params;
         }

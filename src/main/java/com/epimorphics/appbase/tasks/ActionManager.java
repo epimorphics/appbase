@@ -31,12 +31,14 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.jena.atlas.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.epimorphics.appbase.core.Shutdown;
 import com.epimorphics.appbase.core.TimerManager;
 import com.epimorphics.appbase.monitor.ConfigMonitor;
+import com.epimorphics.json.JsonUtil;
 import com.epimorphics.tasks.ProgressMessage;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 import com.epimorphics.tasks.SimpleProgressMonitor;
@@ -217,7 +219,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
      * @param parameters configuration and runtime parameters
      * @return a future which can be used to wait for the action to complete or timeout
      */
-    public ActionExecution runAction(Action action, Map<String, Object> parameters) {
+    public ActionExecution runAction(Action action, JsonObject parameters) {
         return runAction(action, parameters, new SimpleProgressMonitor());
     }
     
@@ -228,7 +230,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
      * @param an external progress monitor to use
      * @return a future which can be used to wait for the action to complete or timeout
      */
-    public ActionExecution runAction(Action action, Map<String, Object> parameters, ProgressMonitorReporter monitor) {
+    public ActionExecution runAction(Action action, JsonObject parameters, ProgressMonitorReporter monitor) {
         action.resolve(this);
         ActionExecution ae = new ActionExecution(action, parameters, monitor);
         recordExecution(ae);
@@ -242,20 +244,19 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
      * @param parameters configuration and runtime parameters
      * @return a future which can be used to wait for the action to complete or timeout
      */
-    public ActionExecution runAction(String actionName, Map<String, Object> parameters) {
+    public ActionExecution runAction(String actionName, JsonObject parameters) {
         return runAction( get(actionName),  parameters);
     }
     
     /**
      * Send an event which will trigger any matching actions.
      */
-    public List<ActionExecution> fireEvent(String event, Map<String, Object> parameters) {
+    public List<ActionExecution> fireEvent(String event, JsonObject parameters) {
         logEvent(event, parameters);
         List<ActionExecution> executions = new ArrayList<>();
         for (Action action : triggerableActions) {
             if (action.getTrigger().matches(event, parameters)) {
-                Map<String, Object> callParams = new HashMap<>(parameters);
-                callParams.put( ActionTrigger.TRIGGER_KEY, event);
+                JsonObject callParams = JsonUtil.makeJson(parameters, ActionTrigger.TRIGGER_KEY, event);
                 executions.add( runAction(action, callParams) );
             }
         }
@@ -265,14 +266,14 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
     /**
      * Send event signalling the start of an action
      */
-    protected List<ActionExecution> actionStartEvent(Action action, Map<String, Object> parameters) {
+    protected List<ActionExecution> actionStartEvent(Action action, JsonObject parameters) {
         return fireEvent("action:" + action.getName() + ":started", parameters);
     }
     
     /**
      * Send event signalling the end of an action
      */
-    protected List<ActionExecution> actionEndEvent(ActionExecution ae, Map<String, Object> result) {
+    protected List<ActionExecution> actionEndEvent(ActionExecution ae, JsonObject result) {
         String success = ae.getMonitor().succeeded() ? "succeeded" : "failed";
         if (traceDir != null) {
             try {
@@ -294,7 +295,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
     /**
      * Log an event
      */
-    protected void logEvent(String event, Map<String, Object>parameters) {
+    protected void logEvent(String event, JsonObject parameters) {
         String msg = event + " " + parameters;
         log.info(msg);
         if (actionLog != null) {
@@ -320,21 +321,20 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
      */
     public class ActionExecution implements Runnable {
         protected Action action;
-        protected Map<String, Object> parameters;
+        protected JsonObject parameters;
         protected long startTime;
         protected long finishTime = 0;
         protected ProgressMonitorReporter monitor;
         protected String id = UUID.randomUUID().toString();
         protected Future<?> future;
-        protected Map<String, Object> result;
+        protected JsonObject result;
         
-        public ActionExecution(Action action, Map<String, Object> parameters) {
+        public ActionExecution(Action action, JsonObject parameters) {
             this(action, parameters, new SimpleProgressMonitor());
         }
         
-        public ActionExecution(Action action, Map<String, Object> parameters, ProgressMonitorReporter monitor) {
-            this.parameters = new HashMap<>( parameters );
-            this.parameters.put(ACTION_EXECUTION_PARAM, id);
+        public ActionExecution(Action action, JsonObject parameters, ProgressMonitorReporter monitor) {
+            this.parameters = JsonUtil.makeJson(parameters, ACTION_EXECUTION_PARAM, id);
             this.monitor = monitor;
             this.action = action;
         }
@@ -367,7 +367,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
             }
         }
         
-        public Map<String, Object> getResult() {
+        public JsonObject getResult() {
             return result;
         }
 
@@ -433,7 +433,6 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
             }
         }
         
-        @SuppressWarnings("unchecked")
         protected void condMarkTerminated(String message) {
             ProgressMonitorReporter monitor = getMonitor();
             if (monitor.getState() != TaskState.Terminated) {
@@ -442,7 +441,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
             }
             Action onError = action.getOnError();
             if (onError != null) {
-                onError.run(Collections.EMPTY_MAP, new NestedProgressReporter(monitor));
+                onError.run(JsonUtil.EMPTY_OBJECT, new NestedProgressReporter(monitor));
             }
         }
         

@@ -9,8 +9,10 @@
 
 package com.epimorphics.appbase.task;
 
-import java.util.Collections;
-import java.util.Map;
+import static com.epimorphics.json.JsonUtil.EMPTY_OBJECT;
+import static com.epimorphics.json.JsonUtil.getStringValue;
+
+import org.apache.jena.atlas.json.JsonObject;
 
 import com.epimorphics.appbase.tasks.impl.BaseAction;
 import com.epimorphics.tasks.ProgressMonitorReporter;
@@ -18,11 +20,11 @@ import com.epimorphics.tasks.ProgressMonitorReporter;
 public class PrintAction extends BaseAction {
 
     @Override
-    protected Map<String, Object> doRun(Map<String, Object> parameters,
+    protected JsonObject doRun(JsonObject parameters,
             ProgressMonitorReporter monitor) {
-        monitor.report( getStringParameter(parameters, "message", "No message") );
+        monitor.report( getStringValue(parameters, "message", "No message") );
         monitor.succeeded();
-        return Collections.emptyMap();
+        return EMPTY_OBJECT;
     }
 
 }

@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.core.AppConfig;
+import com.epimorphics.appbase.tasks.Action;
 import com.epimorphics.appbase.tasks.ActionManager;
 import com.epimorphics.appbase.tasks.ActionManager.ActionExecution;
 import com.epimorphics.tasks.ProgressMessage;
@@ -126,7 +127,8 @@ public class TestJsonActions {
     }
     
     private ActionExecution runAction(String actionName, String args) {
-        assertNotNull( am.get(actionName) );
+        Action a = am.get(actionName);
+        assertNotNull( a ); 
         ActionExecution ae = am.runAction(actionName, createParams(args));
         ae.waitForCompletion();
         return ae;

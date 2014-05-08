@@ -121,7 +121,7 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
         }
     }
     
-    private Action parseAction(JsonObject spec) {
+    public static Action parseAction(JsonObject spec) {
         String type = getString(spec, TYPE_KEY, SIMPLE_TYPE);
         BaseAction action = null;
         if (type.equals(SIMPLE_TYPE)) {
@@ -169,17 +169,17 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
         return action;
     }
     
-    private Object parseActionRef(JsonValue value) {
+    private static Object parseActionRef(JsonValue value) {
         if (value.isString()) {
             return value.getAsString().value();
         } else if (value.isObject()) {
-            return parseAction( value.getAsObject() );
+            return value.getAsObject();
         } else {
             throw new EpiException("Illegal action reference (should be string or nested object): " + value);
         }
     }
 
-    private String getString(JsonObject o, String key, String deflt) {
+    private static String getString(JsonObject o, String key, String deflt) {
         JsonValue v = o.get(key);
         if (v == null) {
             return deflt;
@@ -191,7 +191,7 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
         throw new EpiException("Bad action specification, found '" + v + "' when expecting a string");
     }
 
-    private Object getValue(JsonObject o, String key) {
+    private static Object getValue(JsonObject o, String key) {
         JsonValue v = o.get(key);
         if (v == null) {
             return null;

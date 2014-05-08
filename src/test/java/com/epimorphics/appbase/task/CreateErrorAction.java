@@ -9,7 +9,7 @@
 
 package com.epimorphics.appbase.task;
 
-import java.util.Map;
+import org.apache.jena.atlas.json.JsonObject;
 
 import com.epimorphics.appbase.tasks.impl.BaseAction;
 import com.epimorphics.tasks.ProgressMonitorReporter;
@@ -21,7 +21,7 @@ import com.epimorphics.util.EpiException;
 public class CreateErrorAction extends BaseAction {
 
     @Override
-    protected Map<String, Object> doRun(Map<String, Object> parameters,
+    protected JsonObject doRun(JsonObject parameters,
             ProgressMonitorReporter monitor) {
         throw new EpiException("Forcing error from CreateErrorAction");
     }

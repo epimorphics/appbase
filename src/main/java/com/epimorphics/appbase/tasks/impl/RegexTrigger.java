@@ -9,8 +9,9 @@
 
 package com.epimorphics.appbase.tasks.impl;
 
-import java.util.Map;
 import java.util.regex.Pattern;
+
+import org.apache.jena.atlas.json.JsonObject;
 
 import com.epimorphics.appbase.tasks.ActionTrigger;
 
@@ -26,7 +27,7 @@ public class RegexTrigger implements ActionTrigger {
     }
     
     @Override
-    public boolean matches(String trigger, Map<String, Object> parameters) {
+    public boolean matches(String trigger, JsonObject parameters) {
         return matcher.matcher(trigger).matches();
     }
 

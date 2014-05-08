@@ -9,10 +9,10 @@
 
 package com.epimorphics.appbase.tasks.impl;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.jena.atlas.json.JsonObject;
 
 import com.epimorphics.appbase.tasks.NestedProgressReporter;
+import com.epimorphics.json.JsonUtil;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 
 /**
@@ -21,13 +21,12 @@ import com.epimorphics.tasks.ProgressMonitorReporter;
 public class SequenceAction extends CompoundAction {
 
     @Override
-    protected Map<String, Object> doRun(Map<String, Object> parameters, ProgressMonitorReporter monitor) {
-        Map<String, Object> result = new HashMap<String, Object>();
+    protected JsonObject doRun(JsonObject parameters, ProgressMonitorReporter monitor) {
+        JsonObject result = new JsonObject();
         int n = componentActions.length;
         for (int i = 0; i < n; i++) {
             NestedProgressReporter prog = new NestedProgressReporter(monitor);
-            parameters = merge(parameters, result);
-            result = componentActions[i].run(parameters, prog);
+            result = componentActions[i].run(JsonUtil.merge(parameters, result), prog);
             if (! prog.succeeded()) {
                 monitor.setFailed();
                 return result;

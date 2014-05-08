@@ -10,7 +10,7 @@
 package com.epimorphics.appbase.tasks;
 
 
-import java.util.Map;
+import org.apache.jena.atlas.json.JsonObject;
 
 import com.epimorphics.appbase.core.Named;
 import com.epimorphics.appbase.monitor.ConfigInstance;
@@ -33,7 +33,7 @@ public interface Action extends ConfigInstance, Named {
      * @param monitor the progress monitor through which the result can be reported.
      * @retun optional key/value map of action results
      */
-    public Map<String, Object> run(Map<String, Object> parameters, ProgressMonitorReporter monitor);
+    public JsonObject run(JsonObject parameters, ProgressMonitorReporter monitor);
     
     /**
      * Return the maximum time (in milliseconds) this action should be allowed to run.

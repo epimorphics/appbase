@@ -21,7 +21,7 @@ public class MapUtil {
 
     /**
      * Create a map.
-     * @param args alternative parameter names and parameter values
+     * @param args alternating parameter names and parameter values
      */
     public static Map<String, Object> makeMap(Object...args) {
         return makeMap(null, args);

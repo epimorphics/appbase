@@ -9,10 +9,13 @@
 
 package com.epimorphics.appbase.task;
 
+import static com.epimorphics.json.JsonUtil.EMPTY_OBJECT;
+import static com.epimorphics.json.JsonUtil.getStringValue;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+
+import org.apache.jena.atlas.json.JsonObject;
 
 import com.epimorphics.appbase.tasks.impl.BaseAction;
 import com.epimorphics.tasks.ProgressMonitorReporter;
@@ -34,10 +37,10 @@ public class RecordingAction extends BaseAction {
     }
 
     @Override
-    protected Map<String, Object> doRun(Map<String, Object> parameters, ProgressMonitorReporter monitor) {
+    protected JsonObject doRun(JsonObject parameters, ProgressMonitorReporter monitor) {
         synchronized (messages) {
-            messages.add( getStringParameter(parameters, "message") + " - " + getStringParameter(parameters, "@trigger") );
+            messages.add( getStringValue(parameters, "message", null) + " - " + getStringValue(parameters, "@trigger", null) );
         }
-        return Collections.emptyMap();
+        return EMPTY_OBJECT;
     }
 }

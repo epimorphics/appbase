@@ -9,12 +9,12 @@
 
 package com.epimorphics.appbase.tasks.impl;
 
-import java.util.Collections;
-import java.util.Map;
+import org.apache.jena.atlas.json.JsonObject;
 
 import com.epimorphics.appbase.tasks.ActionManager;
-import com.epimorphics.appbase.tasks.NestedProgressReporter;
 import com.epimorphics.appbase.tasks.ActionManager.ActionExecution;
+import com.epimorphics.appbase.tasks.NestedProgressReporter;
+import com.epimorphics.json.JsonUtil;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 
 public class ParallelAction extends CompoundAction {
@@ -27,7 +27,7 @@ public class ParallelAction extends CompoundAction {
     }
 
     @Override
-    protected Map<String, Object> doRun(Map<String, Object> parameters,
+    protected JsonObject doRun(JsonObject parameters,
             ProgressMonitorReporter monitor) {
         int n = componentActions.length;
         ActionExecution[] aes = new ActionExecution[n];
@@ -44,7 +44,7 @@ public class ParallelAction extends CompoundAction {
             }
         }
         monitor.setSuccess( !failed );
-        return Collections.emptyMap();
+        return JsonUtil.EMPTY_OBJECT;
     }
 
 }

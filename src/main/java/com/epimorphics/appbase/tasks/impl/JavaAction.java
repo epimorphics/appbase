@@ -9,10 +9,10 @@
 
 package com.epimorphics.appbase.tasks.impl;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.jena.atlas.json.JsonObject;
 
 import com.epimorphics.appbase.tasks.Action;
+import com.epimorphics.json.JsonUtil;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 
 /**
@@ -28,10 +28,8 @@ public class JavaAction extends BaseAction implements Action {
     }
     
     @Override
-    public Map<String, Object> doRun(Map<String, Object> parameters, ProgressMonitorReporter monitor) {
-        Map<String, Object> call = new HashMap<>( configuration );
-        call.putAll(parameters);
-        return baseAction.run(call, monitor);
+    public JsonObject doRun(JsonObject parameters, ProgressMonitorReporter monitor) {
+        return baseAction.run(JsonUtil.merge(configuration, parameters), monitor);
     }
 
 }

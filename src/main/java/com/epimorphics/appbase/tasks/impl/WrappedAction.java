@@ -11,11 +11,11 @@ package com.epimorphics.appbase.tasks.impl;
 
 import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.BASE_KEY;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.jena.atlas.json.JsonObject;
 
 import com.epimorphics.appbase.tasks.Action;
 import com.epimorphics.appbase.tasks.ActionManager;
+import com.epimorphics.json.JsonUtil;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 import com.epimorphics.util.EpiException;
 
@@ -37,10 +37,8 @@ public class WrappedAction extends BaseAction implements Action {
     }
     
     @Override
-    public Map<String, Object> doRun(Map<String, Object> parameters, ProgressMonitorReporter monitor) {
-        Map<String, Object> call = new HashMap<>( configuration );
-        call.putAll(parameters);
-        return baseAction.run(call, monitor);
+    public JsonObject doRun(JsonObject parameters, ProgressMonitorReporter monitor) {
+        return baseAction.run(JsonUtil.merge(configuration, parameters), monitor);
     }
 
 }

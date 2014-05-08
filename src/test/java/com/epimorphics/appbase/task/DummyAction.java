@@ -9,14 +9,17 @@
 
 package com.epimorphics.appbase.task;
 
-import java.util.Collections;
-import java.util.Map;
+import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.NAME_KEY;
+import static com.epimorphics.json.JsonUtil.EMPTY_OBJECT;
+import static com.epimorphics.json.JsonUtil.getIntValue;
+import static com.epimorphics.json.JsonUtil.getStringValue;
+import static com.epimorphics.json.JsonUtil.makeJson;
 
+import org.apache.jena.atlas.json.JsonObject;
 
 import com.epimorphics.appbase.tasks.Action;
 import com.epimorphics.appbase.tasks.impl.BaseAction;
 import com.epimorphics.tasks.ProgressMonitorReporter;
-import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.NAME_KEY;
 
 /**
  * Used for testing the action sub-system
@@ -29,21 +32,21 @@ public class DummyAction extends BaseAction implements Action {
     }
 
     @Override
-    protected Map<String, Object> doRun(Map<String, Object> parameters,
+    protected JsonObject doRun(JsonObject parameters,
             ProgressMonitorReporter monitor) {
-        monitor.report( getStringParameter(parameters, NAME_KEY) + " started");
-        String msg = getStringParameter(parameters, "message", "no message");
+        monitor.report( getStringValue(parameters, NAME_KEY, null) + " started");
+        String msg = getStringValue(parameters, "message", "no message");
         monitor.report( msg );
-        for (int i = 1; i < getIntParameter(parameters, "count", 1); i++) {
+        for (int i = 1; i < getIntValue(parameters, "count", 1); i++) {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
-                return Collections.emptyMap();
+                return EMPTY_OBJECT;
             }
             monitor.report("" + parameters.get("message"));
         }
-        monitor.report(getStringParameter(parameters, NAME_KEY) + " finished");
-        return Collections.singletonMap("result", (Object)("Message: " + msg));
+        monitor.report(getStringValue(parameters, NAME_KEY, null) + " finished");
+        return makeJson("result", "Message: " + msg);
     }
 
 }
