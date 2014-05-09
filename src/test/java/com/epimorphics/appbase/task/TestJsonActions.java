@@ -153,6 +153,10 @@ public class TestJsonActions {
         // Relies on json formatting
         assertTrue( monitor.getMessages().get(2).getMessage().contains("\"@name\" : \"helloJsonRefScript\"") );
         
+        // Failure detection
+        ae = runAction("failScript", "");
+        monitor = ae.getMonitor();
+        assertFalse(monitor.succeeded());
     }
     
     private ActionExecution runAction(String actionName, String args) {

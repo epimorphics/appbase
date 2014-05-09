@@ -26,6 +26,7 @@ import org.apache.jena.atlas.json.JsonObject;
 
 import com.epimorphics.appbase.tasks.Action;
 import com.epimorphics.appbase.tasks.ActionManager;
+import com.epimorphics.json.JsonUtil;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 import com.epimorphics.util.EpiException;
 
@@ -69,9 +70,9 @@ public class ScriptAction extends BaseAction implements Action  {
         
         monitor.report("Running script: " + script);
 
+        File argFile = null;
         try {
             ProcessBuilder scriptPB = null;
-            File argFile = null;
             switch (argType) {
             case json:
                 scriptPB = new ProcessBuilder(DEFAULT_SHELL, script, conf.toString());
@@ -114,16 +115,20 @@ public class ScriptAction extends BaseAction implements Action  {
             } else {
                 monitor.report("Script failed with status: " + status);
                 monitor.setFailed();
+                return JsonUtil.makeJson("errorStatus", status);
             }
-            if (argFile != null) {
-                argFile.delete();
-            }
+            
         } catch (IOException e) {
             monitor.report("Problem configuring script " + script  + ", " + e);
             monitor.setFailed();
+            
         } catch (InterruptedException e) {
             monitor.report("Script action " + script + " interrupted");
             monitor.setFailed();  // what does interruption really mean here?
+        } finally {
+            if (argFile != null) {
+                argFile.delete();
+            }
         }
         
         return EMPTY_OBJECT;
