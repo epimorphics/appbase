@@ -60,6 +60,7 @@ public class ResourceViewFactory {
     public static <T extends ResourceView> List<T> getViews(SparqlSource source, String describe, String select, Class<T> cls) { 
         Graph g = source.describe( PrefixUtils.expandQuery(describe, source.getPrefixes()) ); 
         Model m = ModelFactory.createModelForGraph(g);
+        m.setNsPrefixes( source.getPrefixes() );
         QueryExecution exec = QueryExecutionFactory.create(PrefixUtils.expandQuery(select, source.getPrefixes()), m);
         try {
             List<T> results = new ArrayList<>();

@@ -14,6 +14,13 @@ import java.util.List;
 
 import com.epimorphics.rdfutil.QueryUtil;
 import com.epimorphics.rdfutil.RDFUtil;
+import com.epimorphics.util.EpiException;
+import com.epimorphics.util.PrefixUtils;
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.query.ResultSetFactory;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -256,6 +263,66 @@ public class ResourceView implements Comparable<ResourceView> {
             result.add( new ResourceView(r) );
         }
         return result;
+    }
+
+    /**
+     * Return a list of resource values from a query over the local view. 
+     */
+    public List<Resource> getSelectedResources(String query) {
+        ResultSet rs = select(query);
+        List<Resource> results = new ArrayList<>();
+        List<String> varnames = rs.getResultVars();
+        if (varnames.isEmpty()) {
+            throw new EpiException("No result vars in query: " + query);
+        }
+        String var = varnames.get(0);
+        while (rs.hasNext()) {
+            QuerySolution row = rs.next();
+            results.add( row.getResource(var) );
+        }
+        return results;
+    }
+
+    /**
+     * Return a single resource value from a query over the local view or null if there are no matches 
+     */
+    public Resource getSelectedResource(String query) {
+        ResultSet rs = select(query);
+        List<String> varnames = rs.getResultVars();
+        if (varnames.isEmpty()) {
+            throw new EpiException("No result vars in query: " + query);
+        }
+        if (rs.hasNext()) {
+            return rs.next().getResource( varnames.get(0) );
+        } else {
+            return null;
+        }
+    }
+    
+    /**
+     * Run a query, expanding prefixes known to this view (which are normally those from the sparql source
+     */
+    public ResultSet select(String query) {
+        Model m = getModel();
+        QueryExecution exec = QueryExecutionFactory.create( PrefixUtils.expandQuery(query, m), m);
+        try {
+            return ResultSetFactory.makeRewindable( exec.execSelect() );
+        } finally {
+            exec.close();
+        }
+    }
+    
+    /**
+     * Run a query, expanding prefixes known to this view (which are normally those from the sparql source.
+     * Returns a single result row or null if there are no results
+     */
+    public QuerySolution selectOne(String query) {
+        ResultSet rs = select(query);
+        if (rs.hasNext()) {
+            return rs.next();
+        } else {
+            return null;
+        }
     }
 
     @Override
