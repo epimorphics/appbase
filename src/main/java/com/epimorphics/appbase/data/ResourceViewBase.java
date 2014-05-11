@@ -9,7 +9,10 @@
 
 package com.epimorphics.appbase.data;
 
-import com.epimorphics.util.PrefixUtils;
+import static com.epimorphics.util.PrefixUtils.expandQuery;
+
+import java.util.List;
+
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -29,6 +32,7 @@ import com.hp.hpl.jena.shared.PrefixMapping;
  * </p>
  */
 public class ResourceViewBase extends ResourceView {
+    protected SparqlSource source;
     
     /**
      * Construct as an empty view which will need to be init'ed before use
@@ -44,6 +48,7 @@ public class ResourceViewBase extends ResourceView {
     public ResourceViewBase(Resource root) {
         super(root);
     }
+    
 
     /**
      * Initialize the view given a source and a base URI.
@@ -56,6 +61,7 @@ public class ResourceViewBase extends ResourceView {
      * Initialize the view
      */
     public void init(SparqlSource source, String uri, PrefixMapping prefixes) {
+        this.source = source;
         Model model = ModelFactory.createModelForGraph( fetchDescription(source, uri) );
         if (prefixes == null) {
             prefixes = source.getPrefixes();
@@ -65,6 +71,14 @@ public class ResourceViewBase extends ResourceView {
         }
         root = model.getResource(uri);
     }
+    
+    public SparqlSource getSource() {
+        return source;
+    }
+
+    public void setSource(SparqlSource source) {
+        this.source = source;
+    }
 
     /**
      * Construct a suitable view of the resource from the given source.
@@ -73,9 +87,24 @@ public class ResourceViewBase extends ResourceView {
     protected Graph fetchDescription(SparqlSource source, String uri) {
         return source.describeAll(uri);
     }
-    
-    protected static String expand(SparqlSource source, String query, String uri) {
-        return PrefixUtils.expandQuery(query.replaceAll("\\%s", uri), source.getPrefixes());
-    }
  
+    /**
+     * Construct a list views related to this view. In the queries any occurance of the
+     * string ?this will be replaced by a reference to this resource.
+     * @param describe describe query to run on the sparql source to fetch sum of the required views
+     * @param query select query to run on the returned description to extract the intended resources
+     * @param viewType the type of resource view to construct
+     * @return a list of views of the requested type which share the underlying model returned by the describe
+     */
+    public <T extends ResourceViewBase> List<T> listViews(String describe, String query, Class<T> viewType) {
+        return ResourceViewFactory.getViews(source, injectURI(describe), injectURI(query), viewType);
+    }
+    
+    protected String injectURI(String q) {
+        return q.replaceAll("\\?this", "<" + getURI() + ">");
+    }
+    
+    protected String expand(String q, String uri) {
+        return expandQuery(q, source.getPrefixes()).replaceAll("\\?this", "<" + uri + ">");
+    }
 }

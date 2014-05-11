@@ -51,13 +51,13 @@ public class ResourceViewFactory {
     /**
      * Runs the describe query to retrieve a view of the data an returns a list of ResourceViews one for
      * each resource which matches the select query (applied to the retrieved view)
-     * @param source The source to query
+     * @param source the source to query
      * @param describe describe query to return all data of relevance for the view
      * @param select   select query to find those resources within the description that should be returned
      * @param cls The class of objects to return 
      * @return
      */
-    public static <T extends ResourceView> List<T> getViews(SparqlSource source, String describe, String select, Class<T> cls) { 
+    public static <T extends ResourceViewBase> List<T> getViews(SparqlSource source, String describe, String select, Class<T> cls) { 
         Graph g = source.describe( PrefixUtils.expandQuery(describe, source.getPrefixes()) ); 
         Model m = ModelFactory.createModelForGraph(g);
         m.setNsPrefixes( source.getPrefixes() );
@@ -65,14 +65,18 @@ public class ResourceViewFactory {
         try {
             List<T> results = new ArrayList<>();
             ResultSet rs = exec.execSelect();
+            String var = rs.getResultVars().get(0);
             while (rs.hasNext()) {
                 T result = cls.newInstance();
-                result.setRoot( rs.next().getResource("item") );
+                result.setRoot( rs.next().getResource(var) );
+                result.setSource(source);
                 results.add( result );
             }
             return results;
+        } catch (IndexOutOfBoundsException e) {
+            throw new EpiException("Select query must specify at least one result var: " + select);
         } catch (Exception e) {
-            throw new EpiException(e);
+            throw new EpiException("Problem instantiating view", e);
         } finally {
             exec.close();
         }
@@ -85,7 +89,7 @@ public class ResourceViewFactory {
      * @param cls The class of objects to return 
      * @return
      */
-    public static <T extends ResourceView> List<T> getViews(SparqlSource source, String select, Class<T> cls) { 
+    public static <T extends ResourceViewBase> List<T> getViews(SparqlSource source, String select, Class<T> cls) { 
         return getViews(source, select.replaceAll("(?i)SELECT", "DESCRIBE"), select, cls);
     }
     
@@ -97,8 +101,8 @@ public class ResourceViewFactory {
      * @param cls The class of objects to return 
      * @return
      */
-    public static List<ResourceView> getViews(SparqlSource source, String select) {
-        return getViews(source, select.replaceAll("(?i)SELECT", "DESCRIBE"), select, ResourceView.class);
+    public static List<ResourceViewBase> getViews(SparqlSource source, String select) {
+        return getViews(source, select.replaceAll("(?i)SELECT", "DESCRIBE"), select, ResourceViewBase.class);
     }
     
     
@@ -111,8 +115,8 @@ public class ResourceViewFactory {
      * @param cls The class of objects to return 
      * @return
      */
-    public static List<ResourceView> getViews(SparqlSource source, String describe, String select) {
-        return getViews(source, describe, select, ResourceView.class);
+    public static List<ResourceViewBase> getViews(SparqlSource source, String describe, String select) {
+        return getViews(source, describe, select, ResourceViewBase.class);
     }
 
 }

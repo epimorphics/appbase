@@ -21,12 +21,12 @@ public class TimeStamp {
     
     public static String makeTimestamp(long time) {
         disambig.compareAndSet(1000, 0);  // limit to 1000 distinct updates per ms
-        return new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-S").format( new Date(time) ) + disambig.getAndIncrement();
+        return new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-S-").format( new Date(time) ) + disambig.getAndIncrement();
     }
     
     public static String makeTimestamp() {
         disambig.compareAndSet(1000, 0);  // limit to 1000 distinct updates per ms
-        return new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-S").format( new Date() ) + disambig.getAndIncrement();
+        return new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-S-").format( new Date() ) + disambig.getAndIncrement();
     }
     
 }

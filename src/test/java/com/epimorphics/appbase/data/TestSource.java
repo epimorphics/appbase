@@ -179,7 +179,7 @@ public class TestSource extends BaseSourceTest {
     @Test
     public void testResourceView() {
         // Minimalist test, expand
-        List<ResourceView> views = ResourceViewFactory.getViews(ssource, "SELECT ?item WHERE {?item a test:Sample} ORDER BY ?item");
+        List<ResourceViewBase> views = ResourceViewFactory.getViews(ssource, "SELECT ?item WHERE {?item a test:Sample} ORDER BY ?item");
         assertEquals(5, views.size());
         assertEquals("Pref label", views.get(0).getLabel());
         assertEquals("Alt label", views.get(1).getLabel());
