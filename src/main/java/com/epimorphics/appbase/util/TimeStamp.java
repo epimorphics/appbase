@@ -22,7 +22,7 @@ public class TimeStamp {
     public static String makeTimestamp(long time) {
         disambig.compareAndSet(999, 0);  // allows for 1000 distinct updates per ms
         return String.format("%s-%03d", 
-                new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS").format( new Date(time) ),
+                new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss_SSS").format( new Date(time) ),
                 disambig.getAndIncrement());
     }
     
