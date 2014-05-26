@@ -110,17 +110,20 @@ public abstract class BaseAction implements Action {
     }
 
     protected Action resolveAction(ActionManager am, Object action) {
+        Action resolved;
         if (action == null) {
             return null;
         } else if (action instanceof String) {
-            return am.get((String)action);
+            resolved = am.get((String)action);
         } else if (action instanceof Action) {
-            return (Action)action;
+            resolved = (Action)action;
         } else if (action instanceof JsonObject) {
-            return ActionJsonFactorylet.parseAction((JsonObject)action);
+            resolved = ActionJsonFactorylet.parseAction((JsonObject)action);
         } else {
             throw new EpiException("Unexpected type for bound action (should be String or Action): " + action);
         }
+        resolved.resolve(am);
+        return resolved;
     }
     
     @Override
@@ -146,6 +149,9 @@ public abstract class BaseAction implements Action {
     public void mergeBaseConfiguration(Action base) {
         if (base instanceof BaseAction) {
             configuration = merge(((BaseAction)base).configuration, configuration);
+        }
+        if (onError == null) {
+            onError = base.getOnError();
         }
     }
 
