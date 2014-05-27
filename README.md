@@ -8,8 +8,5 @@ Reusable foundation for java RDF applications that provide a web UI or web API o
    * **Data access.**   Provides simple abstraction for accessing RDF data sources to ease switching between memory, TDB and remote sources. Mostly there to support ...
    * **Data wrapper.**  Wrappers to simplify access to RDF data from UI scripts. Supports cached access to labels/descriptions of resources for rendering.
    * **Template UI.**   Easy velocity based rendering. 
-
-### TBD
-
-   * Data (cube) API
+   * **Actions.**       Configurable asynchronous tasks
 
