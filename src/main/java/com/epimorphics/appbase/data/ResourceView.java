@@ -335,5 +335,20 @@ public class ResourceView implements Comparable<ResourceView> {
 //        return String.format("View[%s,%s]", root.getURI(), getLabel());
         return getLabel();
     }
+    
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof ResourceView) {
+            if ( ((ResourceView)other).getRoot().equals( getRoot() ) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    @Override
+    public int hashCode() {
+        return getRoot().hashCode();
+    }
        
 }
