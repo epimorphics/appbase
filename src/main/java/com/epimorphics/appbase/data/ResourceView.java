@@ -16,6 +16,7 @@ import com.epimorphics.rdfutil.QueryUtil;
 import com.epimorphics.rdfutil.RDFUtil;
 import com.epimorphics.util.EpiException;
 import com.epimorphics.util.PrefixUtils;
+import com.epimorphics.vocabs.SKOS;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QuerySolution;
@@ -118,6 +119,18 @@ public class ResourceView implements Comparable<ResourceView> {
      */
     public String getDescription(String lang) {
         return RDFUtil.getDescription(root, lang);
+    }
+    
+    /**
+     * Return a short ID that can be used for the resource in e.g. file paths.
+     * Either the skos:notation or the localname.
+     */
+    public String getShortID() {
+        String id = RDFUtil.getStringValue(root, SKOS.notation);
+        if (id == null) {
+            id = RDFUtil.getLocalname(root);
+        }
+        return id;
     }
 
     protected Property asProperty(Object prop) {
