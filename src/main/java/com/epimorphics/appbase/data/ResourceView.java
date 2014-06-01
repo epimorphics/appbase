@@ -25,6 +25,7 @@ import com.hp.hpl.jena.query.ResultSetFactory;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.sparql.util.Closure;
 
@@ -191,6 +192,18 @@ public class ResourceView implements Comparable<ResourceView> {
      */
     public Resource getResourceValue(Object prop) {
         return RDFUtil.getResourceValue(root, asProperty(prop));
+    }
+
+    /**
+     * Return a resource which points to this one via the given property
+     */
+    public Resource getInvResourceValue(Object prop) {
+        ResIterator ri = getModel().listSubjectsWithProperty( asProperty(prop), root);
+        if (ri.hasNext()) {
+            return ri.next();
+        } else {
+            return null;
+        }
     }
 
     /**
