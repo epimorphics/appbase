@@ -396,6 +396,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
                     monitor.setSucceeded();
                 }
             } catch (Throwable e) {
+                log.error("Exception during action execution " + id, e);
                 condMarkTerminated("Exception: " + e);
             }
             finishTime = System.currentTimeMillis();
