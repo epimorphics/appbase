@@ -13,17 +13,21 @@ import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.DESCRIPTION_KEY
 import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.NAME_KEY;
 import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.ON_ERROR_KEY;
 import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.TIMEOUT_KEY;
-
-import java.util.Map;
+import static com.epimorphics.json.JsonUtil.asJson;
+import static com.epimorphics.json.JsonUtil.getIntValue;
+import static com.epimorphics.json.JsonUtil.getStringValue;
+import static com.epimorphics.json.JsonUtil.makeJson;
+import static com.epimorphics.json.JsonUtil.merge;
+import static com.epimorphics.json.JsonUtil.mergeInto;
 
 import org.apache.jena.atlas.json.JsonObject;
+import org.apache.jena.atlas.json.JsonValue;
 
 import com.epimorphics.appbase.core.AppConfig;
 import com.epimorphics.appbase.tasks.Action;
 import com.epimorphics.appbase.tasks.ActionJsonFactorylet;
 import com.epimorphics.appbase.tasks.ActionManager;
 import com.epimorphics.appbase.tasks.ActionTrigger;
-import static com.epimorphics.json.JsonUtil.*;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 import com.epimorphics.util.EpiException;
 
@@ -63,6 +67,10 @@ public abstract class BaseAction implements Action {
         return getIntValue(configuration, key, deflt);
     }
 
+    public boolean getBooleanConfig(String key, boolean deflt) {
+        return getBooleanConfig(key, deflt);
+    }
+
     @Override
     public String getName() {
         return getStringConfig(NAME_KEY, "BaseAction");
@@ -82,12 +90,20 @@ public abstract class BaseAction implements Action {
         return getIntConfig(TIMEOUT_KEY, -1);
     }
 
-    public Object getParameter(Map<String, Object> parameters, String key) {
-        Object value = parameters.get(key);
+    public JsonValue getParameter(JsonObject parameters, String key) {
+        JsonValue value = parameters.get(key);
         if (value == null) {
             value = configuration.get(key);
         }
         return value;
+    }
+    
+    public JsonValue getRequiredParameter(JsonObject parameters, String key) {
+        JsonValue v = getParameter(parameters, key);
+        if (v == null) {
+            throw new EpiException("Action could not find required parameter: " + key);
+        }
+        return v;
     }
     
     public Action getActionNamed(String name) {

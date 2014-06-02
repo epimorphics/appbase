@@ -9,13 +9,14 @@
 
 package com.epimorphics.appbase.webapi;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import com.epimorphics.appbase.webapi.testing.TomcatTestBase;
 import com.sun.jersey.api.client.ClientResponse;

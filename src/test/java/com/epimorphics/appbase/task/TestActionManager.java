@@ -9,8 +9,8 @@
 
 package com.epimorphics.appbase.task;
 
+import static com.epimorphics.json.JsonUtil.getPath;
 import static org.junit.Assert.assertEquals;
-import static com.epimorphics.json.JsonUtil.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 

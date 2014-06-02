@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -205,6 +206,14 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
         return executionIndex.get(id);
     }
 
+    /**
+     * Return the executor which runs all actions, can be used
+     * by actions to schedule parallel tasks
+     */
+    public ExecutorService getExecutor() {
+        return executor;
+    }
+    
     /**
      * Return all executions that are still active.
      */

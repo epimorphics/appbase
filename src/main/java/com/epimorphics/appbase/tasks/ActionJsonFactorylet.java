@@ -31,9 +31,9 @@ import com.epimorphics.appbase.tasks.impl.JavaAction;
 import com.epimorphics.appbase.tasks.impl.ParallelAction;
 import com.epimorphics.appbase.tasks.impl.RegexTrigger;
 import com.epimorphics.appbase.tasks.impl.ScriptAction;
+import com.epimorphics.appbase.tasks.impl.ScriptAction.ArgType;
 import com.epimorphics.appbase.tasks.impl.SequenceAction;
 import com.epimorphics.appbase.tasks.impl.WrappedAction;
-import com.epimorphics.appbase.tasks.impl.ScriptAction.ArgType;
 import com.epimorphics.json.JsonUtil;
 import com.epimorphics.util.EpiException;
 

@@ -9,6 +9,8 @@
 
 package com.epimorphics.appbase.task;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -16,7 +18,6 @@ import org.apache.jena.atlas.json.JSON;
 import org.apache.jena.atlas.json.JsonArray;
 import org.apache.jena.atlas.json.JsonObject;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import com.epimorphics.json.JSFullWriter;
 import com.epimorphics.tasks.SimpleProgressMonitor;
