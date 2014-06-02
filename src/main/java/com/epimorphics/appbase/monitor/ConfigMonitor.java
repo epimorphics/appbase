@@ -27,6 +27,7 @@ import com.epimorphics.appbase.core.ComponentBase;
 import com.epimorphics.appbase.core.Startup;
 import com.epimorphics.appbase.core.TimerManager;
 import com.epimorphics.appbase.monitor.Scanner.FileRecord;
+import com.epimorphics.util.EpiException;
 import com.hp.hpl.jena.util.OneToManyMap;
 
 /**
@@ -163,6 +164,9 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
      */
     protected void init() {
         if (!initialized) {
+            if (scanner == null) {
+                throw new EpiException("No directory scanner, failed to set directory to monitor?");
+            }
             refresh();
             if (!productionMode) startScanning();
             initialized = true;
