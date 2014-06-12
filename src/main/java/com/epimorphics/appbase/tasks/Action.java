@@ -52,4 +52,10 @@ public interface Action extends ConfigInstance, Named {
      * (or null if there is no such action)
      */
     public Action getOnError();
+    
+    /**
+     * Return an action that should be called if this action succeeds
+     * (or null if there is no such action). 
+     */
+    public Action getOnSuccess();
 }

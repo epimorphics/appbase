@@ -168,7 +168,7 @@ public class TestSource extends BaseSourceTest {
         		"PREFIX test: <http://www.epimorphics.com/vocabs/test/> \n" +
         		"DELETE {?x test:string ?s}\n" +
         		"INSERT {?x test:string 'new string'}\n" +
-        		"WHERE {?x test:num 42}";
+        		"WHERE {?x test:num 42; test:string ?s}";
         ssource.update( UpdateFactory.create(update) );
         
         WNode v = getNode("test:test").getPropertyValue("test:string");

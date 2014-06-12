@@ -87,6 +87,18 @@ public class TestJsonActions {
     }
     
     @Test
+    public void testSuccessHander() throws InterruptedException {
+        ActionExecution ae = runAction("testSuccessChain", "");
+        ProgressMonitorReporter pm = ae.getMonitor();
+        assertTrue(pm.succeeded());
+        for (ProgressMessage message : pm.getMessages()){
+            System.out.println(message.toString());
+        }
+        assertEquals(2, pm.getMessages().size());
+        assertEquals( "Success action called", pm.getMessages().get(1).getMessage() );
+    }
+    
+    @Test
     public void testCompoundflows() throws InterruptedException {
         ActionExecution ae = runAction("sequenceTest", "");
         ProgressMonitorReporter pm = ae.getMonitor();

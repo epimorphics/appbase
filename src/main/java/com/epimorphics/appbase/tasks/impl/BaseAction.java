@@ -9,10 +9,7 @@
 
 package com.epimorphics.appbase.tasks.impl;
 
-import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.DESCRIPTION_KEY;
-import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.NAME_KEY;
-import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.ON_ERROR_KEY;
-import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.TIMEOUT_KEY;
+import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.*;
 import static com.epimorphics.json.JsonUtil.*;
 
 import org.apache.jena.atlas.json.JsonObject;
@@ -32,6 +29,7 @@ import com.epimorphics.util.EpiException;
 public abstract class BaseAction implements Action {
     protected JsonObject configuration;
     protected Action onError;
+    protected Action onSuccess;
     protected ActionTrigger trigger;
 
     public BaseAction() {
@@ -116,8 +114,14 @@ public abstract class BaseAction implements Action {
     }
     
     @Override
+    public Action getOnSuccess() {
+        return onSuccess;
+    }
+    
+    @Override
     public void resolve(ActionManager am) {
         onError = resolveAction(am, getConfig(ON_ERROR_KEY)); 
+        onSuccess = resolveAction(am, getConfig(ON_SUCCESS_KEY)); 
     }
 
     protected Action resolveAction(ActionManager am, Object action) {

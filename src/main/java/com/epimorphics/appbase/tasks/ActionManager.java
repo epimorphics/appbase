@@ -404,6 +404,11 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
                 if (monitor.getState() != TaskState.Terminated) {
                     monitor.setSucceeded();
                 }
+                if (monitor.succeeded()) {
+                    runNext( action.getOnSuccess() );
+                } else {
+                    runNext( action.getOnError() );
+                }
             } catch (Throwable e) {
                 log.error("Exception during action execution " + id, e);
                 condMarkTerminated("Exception: " + e);
@@ -461,9 +466,12 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
                 monitor.report(message);
                 monitor.setFailed();
             }
-            Action onError = action.getOnError();
-            if (onError != null) {
-                onError.run(JsonUtil.EMPTY_OBJECT, new NestedProgressReporter(monitor));
+            runNext( action.getOnError() );
+        }
+        
+        protected void runNext(Action next) {
+            if (next != null) {
+                next.run(JsonUtil.EMPTY_OBJECT, new NestedProgressReporter(monitor));
             }
         }
         

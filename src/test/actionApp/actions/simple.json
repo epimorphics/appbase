@@ -29,6 +29,18 @@
         "message" : "Timeout detected"
     }
   },{
+    "@name" : "testSuccessChain",
+    "@javaclass" : "com.epimorphics.appbase.task.PrintAction",
+    "message" : "test success chain",
+    "@onError" : {
+        "@javaclass" : "com.epimorphics.appbase.task.PrintAction",
+        "message" : "Error detected"
+    },
+    "@onSuccess" : {
+        "@javaclass" : "com.epimorphics.appbase.task.PrintAction",
+        "message" : "Success action called"
+    }
+  },{
     "@name" : "sequenceTest",
     "@type" : "sequence",
     "@actions" : [

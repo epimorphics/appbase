@@ -69,6 +69,7 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
     public static final String JAVACLASS_KEY   = "@javaclass";
     public static final String ACTIONS_KEY     = "@actions";
     public static final String ON_ERROR_KEY    = "@onError";
+    public static final String ON_SUCCESS_KEY    = "@onSuccess";
     public static final String TRIGGER_KEY     = "@trigger";
     public static final String SHELL_KEY     = "@shell";
     public static final String SCRIPT_KEY     = "@script";
@@ -89,6 +90,7 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
         ALLOWED_KEYS.add(JAVACLASS_KEY);
         ALLOWED_KEYS.add(ACTIONS_KEY);
         ALLOWED_KEYS.add(ON_ERROR_KEY);
+        ALLOWED_KEYS.add(ON_SUCCESS_KEY);
         ALLOWED_KEYS.add(TRIGGER_KEY);
         ALLOWED_KEYS.add(SHELL_KEY);
         ALLOWED_KEYS.add(SCRIPT_KEY);
@@ -189,6 +191,8 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
                     throw new EpiException("Error parsing action specifcation, " + key + " is not a legal reserved key");
                 }
                 if (key.equals(ON_ERROR_KEY)) {
+                    action.setConfig(key, parseActionRef( spec.get(key) ));
+                } else if (key.equals(ON_SUCCESS_KEY)) {
                     action.setConfig(key, parseActionRef( spec.get(key) ));
                 } else if (key.equals(ACTIONS_KEY) || key.equals(ARGS_KEY) || key.equals(TYPE_KEY)) {
                     // already handled
