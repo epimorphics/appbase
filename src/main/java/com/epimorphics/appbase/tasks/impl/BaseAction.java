@@ -13,12 +13,7 @@ import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.DESCRIPTION_KEY
 import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.NAME_KEY;
 import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.ON_ERROR_KEY;
 import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.TIMEOUT_KEY;
-import static com.epimorphics.json.JsonUtil.asJson;
-import static com.epimorphics.json.JsonUtil.getIntValue;
-import static com.epimorphics.json.JsonUtil.getStringValue;
-import static com.epimorphics.json.JsonUtil.makeJson;
-import static com.epimorphics.json.JsonUtil.merge;
-import static com.epimorphics.json.JsonUtil.mergeInto;
+import static com.epimorphics.json.JsonUtil.*;
 
 import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.atlas.json.JsonValue;
@@ -68,7 +63,7 @@ public abstract class BaseAction implements Action {
     }
 
     public boolean getBooleanConfig(String key, boolean deflt) {
-        return getBooleanConfig(key, deflt);
+        return getBooleanValue(configuration, key, deflt);
     }
 
     @Override
