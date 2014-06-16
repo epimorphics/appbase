@@ -21,6 +21,7 @@ import org.apache.jena.atlas.json.JsonObject;
 import org.junit.Test;
 
 import com.epimorphics.appbase.tasks.Action;
+import com.epimorphics.appbase.tasks.ActionExecution;
 import com.epimorphics.appbase.tasks.ActionManager;
 import com.epimorphics.tasks.ProgressMessage;
 import com.epimorphics.tasks.ProgressMonitorReporter;
@@ -33,8 +34,8 @@ public class TestActionManager {
         ActionManager am = new ActionManager();
         am.register(action);
         
-        ActionManager.ActionExecution ae1 = am.runAction(action, createParams("message=Test message,count=2"));
-        ActionManager.ActionExecution ae2 = am.runAction(action, createParams("message=Test message long,count=50"));
+        ActionExecution ae1 = am.runAction(action, createParams("message=Test message,count=2"));
+        ActionExecution ae2 = am.runAction(action, createParams("message=Test message long,count=50"));
 
         assertEquals(2, am.listActiveExecutions().size());
         
@@ -61,7 +62,7 @@ public class TestActionManager {
         assertEquals(ae2, am.getExecution(ae2.getId()));
     }
     
-    public static void dumpState(ActionManager.ActionExecution ae) {
+    public static void dumpState(ActionExecution ae) {
         ProgressMonitorReporter monitor = ae.getMonitor();
         for (ProgressMessage msg : monitor.getMessages()) {
             System.out.println(msg.toString());

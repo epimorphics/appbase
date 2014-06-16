@@ -25,10 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -37,13 +35,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.epimorphics.appbase.core.Shutdown;
-import com.epimorphics.appbase.core.TimerManager;
 import com.epimorphics.appbase.monitor.ConfigMonitor;
 import com.epimorphics.json.JsonUtil;
 import com.epimorphics.tasks.ProgressMessage;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 import com.epimorphics.tasks.SimpleProgressMonitor;
-import com.epimorphics.tasks.TaskState;
 import com.epimorphics.util.EpiException;
 import com.epimorphics.util.FileUtil;
 
@@ -253,7 +249,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
      */
     public ActionExecution runAction(Action action, JsonObject parameters, ProgressMonitorReporter monitor) {
         action.resolve(this);
-        ActionExecution ae = new ActionExecution(action, parameters, monitor);
+        ActionExecution ae = new ActionExecution(this, action, parameters, monitor);
         recordExecution(ae);
         ae.start();
         return ae;
@@ -334,147 +330,6 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
                 log.error("Problem writing to action log", e);
             }
         }
-    }
-    
-    /**
-     * Holds the state of the execution of an asynchronous action,
-     * it may be still running or terminates.
-     */
-    public class ActionExecution implements Runnable {
-        protected Action action;
-        protected JsonObject parameters;
-        protected long startTime;
-        protected long finishTime = 0;
-        protected ProgressMonitorReporter monitor;
-        protected String id = UUID.randomUUID().toString();
-        protected Future<?> future;
-        protected JsonObject result;
-        
-        public ActionExecution(Action action, JsonObject parameters) {
-            this(action, parameters, new SimpleProgressMonitor());
-        }
-        
-        public ActionExecution(Action action, JsonObject parameters, ProgressMonitorReporter monitor) {
-            this.parameters = JsonUtil.makeJson(parameters, ACTION_EXECUTION_PARAM, id);
-            this.monitor = monitor;
-            this.action = action;
-        }
-        
-        public Action getAction() {
-            return action;
-        }
-
-        public long getStartTime() {
-            return startTime;
-        }
-
-        public long getFinishTime() {
-            return finishTime;
-        }
-
-        public ProgressMonitorReporter getMonitor() {
-            return monitor;
-        }
-
-        public String getId() {
-            return id;
-        }
-        
-        public long getDuration() {
-            if (finishTime > 0) {
-                return finishTime - startTime;
-            } else {
-                return -1;
-            }
-        }
-        
-        public JsonObject getResult() {
-            return result;
-        }
-
-        
-        @Override
-        public void run() {
-            actionStartEvent(action, parameters);
-            startTime = System.currentTimeMillis();
-            monitor.setState(TaskState.Running);
-            startTimeout();
-            try {
-                result = action.run(parameters, monitor);
-                if (monitor.getState() != TaskState.Terminated) {
-                    monitor.setSucceeded();
-                }
-                if (monitor.succeeded()) {
-                    runNext( action.getOnSuccess() );
-                } else {
-                    runNext( action.getOnError() );
-                }
-            } catch (Throwable e) {
-                log.error("Exception during action execution " + id, e);
-                condMarkTerminated("Exception: " + e);
-            }
-            finishTime = System.currentTimeMillis();
-            recordEndOfExecution(this);
-            if (monitor.getState() != TaskState.Terminated) {
-                condMarkTerminated("Thread died before completion, cause unknown");
-            }
-            actionEndEvent(this, result);
-        }
-        
-        private Future<?> start() {
-            future = executor.submit(this);
-            return future;
-        }
-
-        private void startTimeout() {
-            int timeout = getAction().getTimeout();
-            if (timeout != -1) {
-                TimerManager.get().schedule(new Runnable() {
-                    @Override  public void run() { 
-                        timeout();
-                    }
-                }, timeout, TimeUnit.MILLISECONDS);
-            }
-        }
-        
-        /**
-         * Cancel the execution, recording the given message on the progress monitor
-         */
-        public void cancel(String message) {
-            if ( ! future.isDone() ) {
-                condMarkTerminated(message);
-                future.cancel(true);
-            }
-        }
-        
-        public void timeout() {
-            cancel("Terminated due to timeout");
-            actionEndEvent(this, result);
-        }
-        
-        public void waitForCompletion() {
-            try {
-                future.get();
-            } catch(Exception e) {
-                // Ignore interruption exception
-            }
-        }
-        
-        protected void condMarkTerminated(String message) {
-            ProgressMonitorReporter monitor = getMonitor();
-            if (monitor.getState() != TaskState.Terminated) {
-                monitor.report(message);
-                monitor.setFailed();
-            }
-            runNext( action.getOnError() );
-        }
-        
-        protected void runNext(Action next) {
-            if (next != null) {
-                next.run(JsonUtil.EMPTY_OBJECT, new NestedProgressReporter(monitor));
-            }
-        }
-        
     }
     
 }

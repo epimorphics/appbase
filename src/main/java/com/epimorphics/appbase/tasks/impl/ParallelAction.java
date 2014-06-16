@@ -11,8 +11,8 @@ package com.epimorphics.appbase.tasks.impl;
 
 import org.apache.jena.atlas.json.JsonObject;
 
+import com.epimorphics.appbase.tasks.ActionExecution;
 import com.epimorphics.appbase.tasks.ActionManager;
-import com.epimorphics.appbase.tasks.ActionManager.ActionExecution;
 import com.epimorphics.appbase.tasks.NestedProgressReporter;
 import com.epimorphics.json.JsonUtil;
 import com.epimorphics.tasks.ProgressMonitorReporter;
