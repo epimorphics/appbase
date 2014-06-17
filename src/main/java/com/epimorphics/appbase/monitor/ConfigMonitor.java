@@ -165,10 +165,12 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
     protected void init() {
         if (!initialized) {
             if (scanner == null) {
-                throw new EpiException("No directory scanner, failed to set directory to monitor?");
+                log.warn("No directory scanner, failed to set directory to monitor?");
+                // Don't raise exception because this is a valid set up for testing
+            } else {
+                refresh();
+                if (!productionMode) startScanning();
             }
-            refresh();
-            if (!productionMode) startScanning();
             initialized = true;
         }
     }

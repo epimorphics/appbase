@@ -43,7 +43,7 @@ public class DummyAction extends BaseAction implements Action {
             } catch (InterruptedException e) {
                 return EMPTY_OBJECT;
             }
-            monitor.report("" + parameters.get("message"));
+            monitor.report(msg);
         }
         monitor.report(getStringValue(parameters, NAME_KEY, null) + " finished");
         return makeJson("result", "Message: " + msg);
