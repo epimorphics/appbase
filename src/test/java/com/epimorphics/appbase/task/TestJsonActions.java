@@ -17,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,23 +33,30 @@ import com.epimorphics.appbase.tasks.ActionManager;
 import com.epimorphics.tasks.ProgressMessage;
 import com.epimorphics.tasks.ProgressMonitor;
 import com.epimorphics.tasks.ProgressMonitorReporter;
+import com.epimorphics.util.FileUtil;
 
 public class TestJsonActions {
     App testapp;
     ActionManager am;
+    File testDir;
     
     @Before
     public void startup() throws IOException {
         testapp = new App("testapp", new File("src/test/actionApp/app.conf"));
         AppConfig.theConfig.setDefaultApp(testapp);
         am = testapp.getComponentAs("actionManager", ActionManager.class);
+        am.setMaxHistory(1);
+        testDir = Files.createTempDirectory("testmonitor").toFile();
+        am.setTraceDir( testDir.getPath() );
         testapp.startup();
     }
     
     @After
     public void shutdown() {
-        if (testapp != null)
+        if (testapp != null) {
             testapp.shutdown();
+        }
+        FileUtil.deleteDirectory(testDir);
     }
     
     @Test
@@ -66,10 +74,15 @@ public class TestJsonActions {
         assertTrue( pm.getMessages().get(0).getMessage().startsWith("helloThrice") );
         assertEquals( "Hello", pm.getMessages().get(1).getMessage() );
         
+        ActionExecution restored = am.getExecution( ae.getId() );
+        assertEquals( "messageThrice", restored.getAction().getName() );
+        assertEquals( ae.getDuration(), restored.getDuration() );
+        assertEquals( 5, restored.getMonitor().getMessages().size() );
+        
     }
     
     @Test
-    public void testErrorHander() throws InterruptedException {
+    public void testErrorHandler() throws InterruptedException {
         ActionExecution ae = runAction("testErrorHandler", "");
 //        dumpState(ae);
         ProgressMonitorReporter pm = ae.getMonitor();
@@ -79,7 +92,7 @@ public class TestJsonActions {
         assertEquals( "Error detected", pm.getMessages().get(1).getMessage() );
 
         ae = runAction("testErrorTimeout", "");
-        Thread.sleep(10);  // Allow time out processing to complete, more robust way?
+//        Thread.sleep(10);  // Allow time out processing to complete, more robust way?
         pm = ae.getMonitor();
         assertFalse(pm.succeeded());
         List<ProgressMessage> messages = pm.getMessages();

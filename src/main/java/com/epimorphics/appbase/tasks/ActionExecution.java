@@ -9,6 +9,9 @@
 
 package com.epimorphics.appbase.tasks;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 import java.util.concurrent.Future;
@@ -38,6 +41,7 @@ public class ActionExecution implements Runnable, JSONWritable {
     protected static final String START_TIME_KEY = "startTime";
     protected static final String FINISH_TIME_KEY = "finishTime";
     protected static final String MONITOR_KEY = "monitor";
+    protected static final String DURATION_KEY = "duration";
     protected static final String ID_KEY = "id";
     protected static final String RESULT_KEY = "result";
     
@@ -181,10 +185,11 @@ public class ActionExecution implements Runnable, JSONWritable {
     public void writeTo(JSFullWriter out) {
         out.startObject();
         out.pair(ACTION_KEY, action.getName());
+        out.pair(ID_KEY, id);
         out.pair(PARAMETERS_KEY, parameters);
+        out.pair(DURATION_KEY, getDuration());
         out.pair(START_TIME_KEY, startTime);
         out.pair(FINISH_TIME_KEY, finishTime);
-        out.pair(ID_KEY, id);
         if (monitor instanceof JSONWritable) {
             out.pair(MONITOR_KEY, (JSONWritable)monitor);
         } else {
@@ -216,5 +221,17 @@ public class ActionExecution implements Runnable, JSONWritable {
         }
         return ae;
     }
-
+    
+    /**
+     * Reconstruct an ActionExecution from a JSON record.
+     * Assumes that the record is correctly formated.
+     */
+    public static ActionExecution reload(ActionManager actionManager, File file) throws IOException {
+        InputStream in = new FileInputStream(file);
+        try {
+            return reload(actionManager, in);
+        } finally {
+            in.close();
+        }
+    }
 }

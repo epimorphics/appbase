@@ -9,9 +9,12 @@
 
 package com.epimorphics.appbase.tasks;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -36,8 +39,8 @@ import org.slf4j.LoggerFactory;
 
 import com.epimorphics.appbase.core.Shutdown;
 import com.epimorphics.appbase.monitor.ConfigMonitor;
+import com.epimorphics.json.JSFullWriter;
 import com.epimorphics.json.JsonUtil;
-import com.epimorphics.tasks.ProgressMessage;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 import com.epimorphics.tasks.SimpleProgressMonitor;
 import com.epimorphics.util.EpiException;
@@ -130,6 +133,12 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
     
     @Override
     public void shutdown() {
+        executor.shutdown();
+        try {
+            executor.awaitTermination(500, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e1) {
+            // No action 
+        }
         if (actionLog != null) {
             try {
                 actionLog.close();
@@ -199,7 +208,15 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
      * Return an identified execution, may no longer be active.
      */
     public synchronized ActionExecution getExecution(String id) {
-        return executionIndex.get(id);
+        ActionExecution ae = executionIndex.get(id);
+        if (ae == null && traceDir != null) {
+            try {
+                ae = ActionExecution.reload(this, getTraceFile(id));
+            } catch (IOException e) {
+                log.error("Failed to retrieve persisted action execution for: " + id);
+            }
+        }
+        return ae;
     }
 
     /**
@@ -291,24 +308,43 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
      * Send event signalling the end of an action
      */
     protected List<ActionExecution> actionEndEvent(ActionExecution ae, JsonObject result) {
+        recordTrace(ae);
         String success = ae.getMonitor().succeeded() ? "succeeded" : "failed";
-        if (traceDir != null) {
-            try {
-                FileWriter fw = new FileWriter( new File(traceDir, "trace-" + ae.getId()) );
-                for (ProgressMessage message : ae.getMonitor().getMessages()) {
-                    fw.write(message.toString() + "\n");
-                }
-                fw.write( String.format("** Action %s %s in %d milliseconds\n", ae.getAction().getName(), success, ae.getDuration()) );
-                fw.close();
-            } catch (IOException e) {
-                log.error("Failed to write action trace", e);
-            }
-        }
         String msg = String.format("action:%s:finished %s %d", 
                 ae.getAction().getName(), success, ae.getDuration());
         return fireEvent(msg, result);
     }
     
+    /**
+     * Record a trace of the entire execution history
+     */
+    protected void recordTrace(ActionExecution ae) {
+        if (traceDir != null) {
+            try {
+                File traceFile = getTraceFile( ae.getId() );
+                OutputStream outs = new BufferedOutputStream( new FileOutputStream( traceFile ) );
+                JSFullWriter jsout = new JSFullWriter(outs);
+                jsout.startOutput();
+                ae.writeTo( jsout );
+                jsout.finishOutput();
+                outs.close();
+            } catch (IOException e) {
+                log.error("Failed to write action trace", e);
+            }
+        }
+    }
+
+    /**
+     * Return the file name of the trace file to use to record an execution
+     * or null tracing is not enabled
+     */
+    protected File getTraceFile(String id) {
+        if (traceDir != null) {
+            return new File(traceDir, "trace-" + id + ".json");
+        } else {
+            return null;
+        }
+    }
     /**
      * Log an event
      */

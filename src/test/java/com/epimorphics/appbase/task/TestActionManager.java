@@ -30,9 +30,7 @@ import com.epimorphics.appbase.tasks.ActionManager;
 import com.epimorphics.json.JSFullWriter;
 import com.epimorphics.json.JSONWritable;
 import com.epimorphics.tasks.ProgressMessage;
-import com.epimorphics.tasks.ProgressMonitor;
 import com.epimorphics.tasks.ProgressMonitorReporter;
-import com.epimorphics.tasks.ProgressReporter;
 import com.epimorphics.tasks.TaskState;
 
 public class TestActionManager {
