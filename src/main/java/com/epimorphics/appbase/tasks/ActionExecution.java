@@ -22,6 +22,7 @@ import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.atlas.json.JsonValue;
 
 import com.epimorphics.appbase.core.TimerManager;
+import com.epimorphics.appbase.util.TimeStamp;
 import com.epimorphics.json.JSFullWriter;
 import com.epimorphics.json.JSONWritable;
 import com.epimorphics.json.JsonUtil;
@@ -51,7 +52,7 @@ public class ActionExecution implements Runnable, JSONWritable {
     protected long startTime;
     protected long finishTime = 0;
     protected ProgressMonitorReporter monitor;
-    protected String id = UUID.randomUUID().toString();
+    protected String id = TimeStamp.makeTimestamp();
     protected Future<?> future;
     protected JsonObject result;
     

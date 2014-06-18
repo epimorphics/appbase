@@ -20,8 +20,8 @@ public class TimeStamp {
     protected static AtomicInteger disambig = new AtomicInteger(0);
     
     public static String makeTimestamp(long time) {
-        disambig.compareAndSet(999, 0);  // allows for 1000 distinct updates per ms
-        return String.format("%s-%03d", 
+        disambig.compareAndSet(9999, 0);  // allows for 10000 distinct updates per ms
+        return String.format("%s-%04d", 
                 new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss_SSS").format( new Date(time) ),
                 disambig.getAndIncrement());
     }
