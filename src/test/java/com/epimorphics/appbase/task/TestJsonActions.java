@@ -84,7 +84,6 @@ public class TestJsonActions {
     @Test
     public void testErrorHandler() throws InterruptedException {
         ActionExecution ae = runAction("testErrorHandler", "");
-//        dumpState(ae);
         ProgressMonitorReporter pm = ae.getMonitor();
         assertFalse(pm.succeeded());
         assertEquals(2, pm.getMessages().size());
@@ -92,7 +91,6 @@ public class TestJsonActions {
         assertEquals( "Error detected", pm.getMessages().get(1).getMessage() );
 
         ae = runAction("testErrorTimeout", "");
-//        Thread.sleep(10);  // Allow time out processing to complete, more robust way?
         pm = ae.getMonitor();
         assertFalse(pm.succeeded());
         List<ProgressMessage> messages = pm.getMessages();

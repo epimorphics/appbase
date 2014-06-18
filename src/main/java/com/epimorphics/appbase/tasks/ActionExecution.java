@@ -168,10 +168,8 @@ public class ActionExecution implements Runnable, JSONWritable {
     
     protected void condMarkTerminated(String message) {
         ProgressMonitorReporter monitor = getMonitor();
-        if (monitor.getState() != TaskState.Terminated) {
-            monitor.report(message);
-            monitor.setFailed();
-        }
+        monitor.report(message);
+        monitor.setFailed();
         runNext( action.getOnError() );
     }
     
