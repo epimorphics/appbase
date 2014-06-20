@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.UUID;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -97,6 +96,10 @@ public class ActionExecution implements Runnable, JSONWritable {
     
     public JsonObject getResult() {
         return result;
+    }
+    
+    public JsonObject getParameters() {
+        return parameters;
     }
 
     
