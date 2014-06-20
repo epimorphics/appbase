@@ -20,6 +20,7 @@ import org.apache.lucene.store.FSDirectory;
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.SparqlSource;
 import com.epimorphics.util.EpiException;
+import com.epimorphics.util.FileUtil;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.query.Dataset;
@@ -53,6 +54,7 @@ public class TDBSparqlSource extends BaseSparqlSource implements SparqlSource {
     protected DatasetAccessor accessor;
     
     public void setLocation(String loc) {
+        FileUtil.ensureDir(loc);
         tdbDir = asFile(loc);
         // Allow TDB to create the directory if it doesn't exist
 //        if (!tdbDir.exists() || !tdbDir.canRead()) {
