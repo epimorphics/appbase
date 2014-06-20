@@ -283,10 +283,25 @@ public class ResourceView implements Comparable<ResourceView> {
      * the system wide prefixes). Query just applies to the local view.
      */
     public List<ResourceView> getConnectedResourceViews(String path) {
+        return getConnectedResourceViews(path, ResourceView.class);
+    }
+    
+    /**
+     * Return all Resource values (as views) connected to the resource by a SPARQL path expression
+     * (which can use prefixes registered with the underlying model which are typically
+     * the system wide prefixes). Query just applies to the local view.
+     */
+    public <T extends ResourceView> List<T> getConnectedResourceViews(String path, Class<T> cls) {
         List<Resource> resources = getConnectedResource(path);
-        List<ResourceView> result = new ArrayList<>( resources.size() );
+        List<T> result = new ArrayList<>( resources.size() );
         for (Resource r : resources) {
-            result.add( new ResourceView(r) );
+            try {
+                T view = cls.newInstance();
+                view.setRoot( r );
+                result.add( view );
+            } catch (Exception e) {
+                throw new EpiException(e);
+            }
         }
         return result;
     }
