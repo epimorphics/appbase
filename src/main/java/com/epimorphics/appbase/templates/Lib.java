@@ -36,7 +36,9 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.jena.atlas.json.JsonValue;
 
+import com.epimorphics.json.JsonUtil;
 import com.epimorphics.rdfutil.RDFNodeWrapper;
 import com.epimorphics.util.NameUtils;
 import com.hp.hpl.jena.datatypes.RDFDatatype;
@@ -259,6 +261,19 @@ public class Lib {
         return null;
     }
 
+    /**
+     * Convert a riot Json value to plain Map/List style objects
+     */
+    public Object fromJson(JsonValue jv) {
+        return JsonUtil.fromJson(jv);
+    }
+    
+    /**
+     * Convert plain java Map/List structure to a riot Json object
+     */
+    public JsonValue toJson(Object o) {
+        return JsonUtil.asJson(o);
+    }
 
 }
 
