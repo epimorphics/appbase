@@ -17,7 +17,6 @@ import com.epimorphics.appbase.tasks.Action;
 import com.epimorphics.appbase.tasks.ActionManager;
 import com.epimorphics.json.JsonUtil;
 import com.epimorphics.tasks.ProgressMonitorReporter;
-import com.epimorphics.util.EpiException;
 
 /**
  * An action that calls an existing action with some configuration parameters overridden
@@ -30,15 +29,21 @@ public class WrappedAction extends BaseAction implements Action {
         super.resolve(am);
         String actionName = getStringConfig(BASE_KEY , null);
         baseAction = resolveAction(am, actionName);
-        if (baseAction == null) {
-            throw new EpiException("Can't find the action named: " + actionName + ", which is base for action " + getName());
+        if (baseAction != null) {
+            mergeBaseConfiguration(baseAction);
         }
-        mergeBaseConfiguration(baseAction);
     }
     
     @Override
     public JsonObject doRun(JsonObject parameters, ProgressMonitorReporter monitor) {
-        return baseAction.run(JsonUtil.merge(configuration, parameters), monitor);
+        if (baseAction == null) {
+            monitor.report("Could not find base action: " + getStringConfig(BASE_KEY , null));
+            monitor.setFailed();
+            return JsonUtil.EMPTY_OBJECT;
+        } else {
+            return baseAction.run(JsonUtil.merge(configuration, parameters), monitor);
+            
+        }
     }
 
 }

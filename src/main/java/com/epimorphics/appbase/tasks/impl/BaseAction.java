@@ -137,6 +137,9 @@ public abstract class BaseAction implements Action {
         } else {
             throw new EpiException("Unexpected type for bound action (should be String or Action): " + action);
         }
+        if (resolved == null) {
+            return null;
+        }
         resolved.resolve(am);
         return resolved;
     }

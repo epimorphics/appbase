@@ -49,6 +49,15 @@ public class ResourceViewBase extends ResourceView {
         super(root);
     }
     
+    /**
+     * Construct as a wrapper round an already retrieved resource whose associated
+     * Model should contain all relevant information for the view and allow thread-safe access.
+     */
+    public ResourceViewBase(Resource root, SparqlSource source) {
+        super(root);
+        this.source = source;
+    }
+    
 
     /**
      * Initialize the view given a source and a base URI.
@@ -97,7 +106,7 @@ public class ResourceViewBase extends ResourceView {
      * @return a list of views of the requested type which share the underlying model returned by the describe
      */
     public <T extends ResourceViewBase> List<T> listViews(String describe, String query, Class<T> viewType) {
-        return ResourceViewFactory.getViews(source, injectURI(describe), injectURI(query), viewType);
+        return ResourceViewFactory.getViews(getSource(), injectURI(describe), injectURI(query), viewType);
     }
     
     protected String injectURI(String q) {
