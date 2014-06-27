@@ -105,7 +105,7 @@ public class ActionExecution implements Runnable, JSONWritable {
     
     @Override
     public void run() {
-        this.actionManager.actionStartEvent(action, parameters);
+        this.actionManager.actionStartEvent(this, parameters);
         startTime = System.currentTimeMillis();
         monitor.setState(TaskState.Running);
         startTimeout();

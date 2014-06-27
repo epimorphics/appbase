@@ -300,8 +300,9 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
     /**
      * Send event signalling the start of an action
      */
-    protected List<ActionExecution> actionStartEvent(Action action, JsonObject parameters) {
-        return fireEvent("action:" + action.getName() + ":started", parameters);
+    protected List<ActionExecution> actionStartEvent(ActionExecution ae, JsonObject parameters) {
+        String msg = String.format("action:%s:%s:started", ae.getId(), ae.getAction().getName());
+        return fireEvent(msg, parameters);
     }
     
     /**
@@ -310,8 +311,8 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
     protected List<ActionExecution> actionEndEvent(ActionExecution ae, JsonObject result) {
         recordTrace(ae);
         String success = ae.getMonitor().succeeded() ? "succeeded" : "failed";
-        String msg = String.format("action:%s:finished %s %d", 
-                ae.getAction().getName(), success, ae.getDuration());
+        String msg = String.format("action:%s:%s:finished %s %d", 
+                ae.getId(), ae.getAction().getName(), success, ae.getDuration());
         return fireEvent(msg, result);
     }
     
