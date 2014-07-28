@@ -33,7 +33,7 @@ import com.epimorphics.util.EpiException;
 public class ScriptAction extends BaseAction implements Action  {
     public static final String ACTION_TYPE = "script";
     public static final String SCRIPT_PARAM = "@script";
-    public static final String DEFAULT_SHELL = "/bin/sh";
+    public static final String DEFAULT_SHELL = "/bin/bash";
 
     public enum ArgType { json, jsonRef, inline };
     
@@ -65,7 +65,7 @@ public class ScriptAction extends BaseAction implements Action  {
         }
         File scriptF = new File(scriptDir, script);
         if ( !scriptF.canExecute() ) {
-            throw new EpiException("Script file not execuatable: " + scriptF);
+            throw new EpiException("Script file not executable: " + scriptF);
         }
         
         monitor.report("Running script: " + script);
