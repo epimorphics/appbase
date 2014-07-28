@@ -21,6 +21,7 @@ import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.atlas.json.JsonValue;
 
 import com.epimorphics.appbase.core.TimerManager;
+import com.epimorphics.appbase.tasks.impl.InternalAction;
 import com.epimorphics.appbase.util.TimeStamp;
 import com.epimorphics.json.JSFullWriter;
 import com.epimorphics.json.JSONWritable;
@@ -209,7 +210,11 @@ public class ActionExecution implements Runnable, JSONWritable {
      */
     public static ActionExecution reload(ActionManager actionManager, InputStream in) {
         JsonObject jo = JSON.parse(in);
-        Action action = actionManager.get( JsonUtil.getStringValue(jo, ACTION_KEY) );
+        String actionName = JsonUtil.getStringValue(jo, ACTION_KEY);
+        Action action = actionManager.get( actionName );
+        if (action == null) {
+            action = new InternalAction(actionName);
+        }
         JsonObject parameters = jo.get(PARAMETERS_KEY).getAsObject();
         SimpleProgressMonitor monitor = new SimpleProgressMonitor( jo.get(MONITOR_KEY).getAsObject() );
         ActionExecution ae = new ActionExecution(actionManager, action, parameters, monitor);
