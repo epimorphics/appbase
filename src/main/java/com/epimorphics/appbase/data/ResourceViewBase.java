@@ -14,6 +14,8 @@ import static com.epimorphics.util.PrefixUtils.expandQuery;
 import java.util.List;
 
 import com.hp.hpl.jena.graph.Graph;
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -115,5 +117,24 @@ public class ResourceViewBase extends ResourceView {
     
     protected String expand(String q, String uri) {
         return expandQuery(q, source.getPrefixes()).replaceAll("\\?this", "<" + uri + ">");
+    }
+    
+    /**
+     * Return select results from underlying source rather than view
+     */
+    public ResultSet fullSelect(String query) {
+        return source.select( expand(query, getURI() ) );
+    }
+    
+    /**
+     * Return select results from underlying source rather than view
+     */
+    public QuerySolution fullSelectOne(String query) {
+        ResultSet results = fullSelect(query);
+        if (results.hasNext()) {
+            return results.next();
+        } else {
+            return null;
+        }
     }
 }
