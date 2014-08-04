@@ -22,5 +22,13 @@
     "@name" : "failScript",
     "@type" : "script",
     "@script" : "fail.sh"
+  },
+  {
+    "@name" : "helloScriptEnv",
+    "@type" : "script",
+    "@script" : "helloEnv.sh",
+    "arg1" : "arg one",
+    "@args" : ["arg1"],
+    "@env" : { "foo" : "fubar" }
   }
 ]

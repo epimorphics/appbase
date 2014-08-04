@@ -180,6 +180,12 @@ public class TestJsonActions {
         ae = runAction("failScript", "");
         monitor = ae.getMonitor();
         assertFalse(monitor.succeeded());
+        
+        // Environment case
+        ae = runAction("helloScriptEnv", "");
+        monitor = ae.getMonitor();
+        assertTrue(monitor.succeeded());
+        assertEquals("Hello arg one, env foo=fubar", monitor.getMessages().get(1).getMessage());
     }
     
     private ActionExecution runAction(String actionName, String args) {

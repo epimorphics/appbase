@@ -69,11 +69,12 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
     public static final String JAVACLASS_KEY   = "@javaclass";
     public static final String ACTIONS_KEY     = "@actions";
     public static final String ON_ERROR_KEY    = "@onError";
-    public static final String ON_SUCCESS_KEY    = "@onSuccess";
+    public static final String ON_SUCCESS_KEY  = "@onSuccess";
     public static final String TRIGGER_KEY     = "@trigger";
-    public static final String SHELL_KEY     = "@shell";
-    public static final String SCRIPT_KEY     = "@script";
-    public static final String ARGS_KEY     = "@args";
+    public static final String SHELL_KEY       = "@shell";
+    public static final String SCRIPT_KEY      = "@script";
+    public static final String ARGS_KEY        = "@args";
+    public static final String ENV_KEY         = "@env";
 
 
     public static final String SIMPLE_TYPE    = "simple";
@@ -95,6 +96,7 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
         ALLOWED_KEYS.add(SHELL_KEY);
         ALLOWED_KEYS.add(SCRIPT_KEY);
         ALLOWED_KEYS.add(ARGS_KEY);
+        ALLOWED_KEYS.add(ENV_KEY);
     }
     
     @Override
@@ -198,6 +200,13 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
                     // already handled
                 } else if (key.equals(TRIGGER_KEY)) {
                     action.setTrigger( new RegexTrigger( getString(spec, key, ".*") ) );
+                } else if (key.equals(ENV_KEY)) {
+                    JsonValue value = spec.get(ENV_KEY);
+                    if (value.isObject()) {
+                        action.setConfig(ENV_KEY, value);
+                    } else {
+                        throw new EpiException("@env value should be an object");
+                    }
                 } else {
                     action.setConfig(key, getValue(spec, key));
                 }

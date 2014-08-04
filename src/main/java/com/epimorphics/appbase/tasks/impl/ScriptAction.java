@@ -20,9 +20,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.jena.atlas.json.JSON;
 import org.apache.jena.atlas.json.JsonObject;
+import org.apache.jena.atlas.json.JsonValue;
 
 import com.epimorphics.appbase.tasks.Action;
 import com.epimorphics.appbase.tasks.ActionManager;
@@ -33,6 +35,7 @@ import com.epimorphics.util.EpiException;
 public class ScriptAction extends BaseAction implements Action  {
     public static final String ACTION_TYPE = "script";
     public static final String SCRIPT_PARAM = "@script";
+    public static final String ENV_PARAM = "@env";
     public static final String DEFAULT_SHELL = "/bin/bash";
 
     public enum ArgType { json, jsonRef, inline };
@@ -101,6 +104,24 @@ public class ScriptAction extends BaseAction implements Action  {
 
             scriptPB.redirectErrorStream(true);
             scriptPB.directory(scriptDir);
+            
+            JsonValue envSpec = configuration.get(ENV_PARAM);
+            if (envSpec != null) {
+                Map<String, String> environment = scriptPB.environment();
+                JsonObject envSpecO = envSpec.getAsObject();   // validated in parser so safe
+                for (String key : envSpecO.keySet()) {
+                    JsonValue value = envSpecO.get(key);
+//                    if ( ! value.isString() ) {
+//                        throw new EpiException("Script @env key values should be strings");
+//                    }
+//                    environment.put(key,  getStringValue(parameters, param) );
+                    if ( value.isString() ) {
+                        environment.put(key, value.getAsString().value() );
+                    } else {
+                        environment.put(key, value.toString());
+                    }
+                }
+            }
             Process scriptProcess = scriptPB.start();
 
             BufferedReader in = new BufferedReader( new InputStreamReader(scriptProcess.getInputStream()) );
