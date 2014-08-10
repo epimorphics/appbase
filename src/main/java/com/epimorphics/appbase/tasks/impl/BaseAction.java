@@ -118,10 +118,23 @@ public abstract class BaseAction implements Action {
         return onSuccess;
     }
     
+    
+    public void setOnError(Action onError) {
+        this.onError = onError;
+    }
+
+    public void setOnSuccess(Action onSuccess) {
+        this.onSuccess = onSuccess;
+    }
+
     @Override
     public void resolve(ActionManager am) {
-        onError = resolveAction(am, getConfig(ON_ERROR_KEY)); 
-        onSuccess = resolveAction(am, getConfig(ON_SUCCESS_KEY)); 
+        if (onError == null) {
+            onError = resolveAction(am, getConfig(ON_ERROR_KEY));
+        }
+        if (onSuccess == null) {
+            onSuccess = resolveAction(am, getConfig(ON_SUCCESS_KEY));
+        }
     }
 
     protected Action resolveAction(ActionManager am, Object action) {
@@ -170,6 +183,9 @@ public abstract class BaseAction implements Action {
         }
         if (onError == null) {
             onError = base.getOnError();
+        }
+        if (onSuccess == null) {
+            onSuccess = base.getOnSuccess();
         }
     }
 

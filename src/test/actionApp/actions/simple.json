@@ -41,6 +41,14 @@
         "message" : "Success action called"
     }
   },{
+    "@name" : "mark1",
+    "@javaclass" : "com.epimorphics.appbase.task.PrintAction",
+    "message" : "mark1 called"
+  },{
+    "@name" : "mark2",
+    "@javaclass" : "com.epimorphics.appbase.task.PrintAction",
+    "message" : "mark2 called"
+  },{
     "@name" : "sequenceTest",
     "@type" : "sequence",
     "@actions" : [

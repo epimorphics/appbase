@@ -283,6 +283,47 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
     }
     
     /**
+     * Create a closure which can be run either inline or as a background action
+     */
+    public Closure makeClosure(Action action) {
+        return new Closure(action, this);
+    }
+    
+    /**
+     * Create a closure which can be run either inline or as a background action
+     */
+    public Closure makeClosure(String actionName) {
+        return new Closure(actionName, this);
+    }
+    
+    /**
+     * Create a closure which can be run either inline or as a background action
+     */
+    public Closure makeClosure(String actionName, Object...args) {
+        Closure closure = new Closure(actionName, this);
+        closure.setParameters(args);
+        return closure;
+    }
+    
+    /**
+     * Create a closure which can be run either inline or as a background action
+     */
+    public Closure makeClosure(Action action, Object...args) {
+        Closure closure = new Closure(action, this);
+        closure.setParameters(args);
+        return closure;
+    }
+    
+    /**
+     * Create a closure which can be run either inline or as a background action
+     */
+    public Closure makeClosure(Action action, JsonObject args) {
+        Closure closure = new Closure(action, this);
+        closure.setCall(args);
+        return closure;
+    }
+    
+    /**
      * Send an event which will trigger any matching actions.
      */
     public List<ActionExecution> fireEvent(String event, JsonObject parameters) {
