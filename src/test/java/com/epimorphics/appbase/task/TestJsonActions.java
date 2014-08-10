@@ -30,9 +30,11 @@ import com.epimorphics.appbase.core.AppConfig;
 import com.epimorphics.appbase.tasks.Action;
 import com.epimorphics.appbase.tasks.ActionExecution;
 import com.epimorphics.appbase.tasks.ActionManager;
+import com.epimorphics.appbase.tasks.Closure;
 import com.epimorphics.tasks.ProgressMessage;
 import com.epimorphics.tasks.ProgressMonitor;
 import com.epimorphics.tasks.ProgressMonitorReporter;
+import com.epimorphics.tasks.SimpleProgressMonitor;
 import com.epimorphics.util.FileUtil;
 
 public class TestJsonActions {
@@ -187,6 +189,30 @@ public class TestJsonActions {
         assertTrue(monitor.succeeded());
         assertEquals("Hello arg one, env foo=fubar", monitor.getMessages().get(1).getMessage());
     }
+
+    @Test
+    public void testClosure() {
+        Closure closure = new Closure(new PrintAction(), am);
+        closure.setParameter("message", "hello");
+        
+        ActionExecution ae = closure.run();
+        ae.waitForCompletion();
+        checkMessages( ae.getMonitor(), "hello" );
+        
+        ProgressMonitorReporter monitor = new SimpleProgressMonitor();
+        closure.call(monitor);
+        checkMessages(monitor, "hello");
+        
+        closure.setAndThen( am.get("mark1") );
+
+        ae = closure.run();
+        ae.waitForCompletion();
+        checkMessages( ae.getMonitor(), "hello", "mark1 called" );
+        
+        monitor = new SimpleProgressMonitor();
+        closure.call(monitor);
+        checkMessages( monitor, "hello", "mark1 called" );
+    }
     
     private ActionExecution runAction(String actionName, String args) {
         Action a = am.get(actionName);
@@ -194,6 +220,15 @@ public class TestJsonActions {
         ActionExecution ae = am.runAction(actionName, createParams(args));
         ae.waitForCompletion();
         return ae;
+    }
+    
+    
+    private void checkMessages(ProgressMonitorReporter monitor, String...expected) {
+        List<ProgressMessage> messages = monitor.getMessages();
+        assertEquals(expected.length, messages.size());
+        for (int i = 0; i < expected.length; i++) {
+            assertTrue( messages.get(i).getMessage().startsWith( expected[i] ) );
+        }
     }
 
 }

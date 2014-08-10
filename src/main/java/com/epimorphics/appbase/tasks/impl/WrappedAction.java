@@ -24,11 +24,20 @@ import com.epimorphics.tasks.ProgressMonitorReporter;
 public class WrappedAction extends BaseAction implements Action {
     protected Action baseAction;
     
+    public WrappedAction() {
+    }
+    
+    public WrappedAction(Action baseAction) {
+        this.baseAction = baseAction;
+    }
+
     @Override
     public void resolve(ActionManager am) {
         super.resolve(am);
-        String actionName = getStringConfig(BASE_KEY , null);
-        baseAction = resolveAction(am, actionName);
+        if ( baseAction == null) {
+            String actionName = getStringConfig(BASE_KEY , null);
+            baseAction = resolveAction(am, actionName);
+        }
         if (baseAction != null) {
             mergeBaseConfiguration(baseAction);
         }
