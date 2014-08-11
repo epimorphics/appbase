@@ -68,7 +68,7 @@ public class ScriptAction extends BaseAction implements Action  {
         }
         File scriptF = new File(scriptDir, script);
         if ( !scriptF.canExecute() ) {
-            throw new EpiException("Script file not executable: " + scriptF);
+            throw new EpiException("Script file not executable: " + scriptF.getPath());
         }
         
         monitor.report("Running script: " + script);

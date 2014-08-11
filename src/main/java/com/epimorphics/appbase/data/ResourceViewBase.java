@@ -60,6 +60,15 @@ public class ResourceViewBase extends ResourceView {
         this.source = source;
     }
     
+    /**
+     * Construct as a wrapper round an already retrieved resource whose associated
+     * Model should contain all relevant information for the view and allow thread-safe access.
+     */
+    public ResourceViewBase(Resource root, ResourceViewBase parent) {
+        super(root);
+        this.source = parent.getSource();
+    }
+    
 
     /**
      * Initialize the view given a source and a base URI.
