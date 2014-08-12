@@ -35,6 +35,7 @@ public class ActionInstance extends BaseAction implements Action {
     protected List<Action> onErrorList = new ArrayList<>();
     protected ActionManager am;
     protected int timeout;
+    protected String name;
 
     protected ActionInstance(Action base, JsonObject parameters, ActionManager am) {
         JsonUtil.mergeInto(configuration, parameters);
@@ -42,6 +43,7 @@ public class ActionInstance extends BaseAction implements Action {
         this.am = am;
         baseAction.resolve(am);
         timeout = base.getTimeout();
+        name = base.getName();
     }
     
     @Override
@@ -61,6 +63,16 @@ public class ActionInstance extends BaseAction implements Action {
     @Override
     public ActionTrigger getTrigger() {
         return baseAction.getTrigger();
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+    
+    @Override
+    public void setName(String name) {
+        this.name = name;
     }
     
     @Override
@@ -120,8 +132,14 @@ public class ActionInstance extends BaseAction implements Action {
     @Override
     protected JsonObject doRun(JsonObject parameters,
             ProgressMonitorReporter monitor) {
+        return baseAction.run(parameters, monitor);
+    }
+    
+    @Override
+    public JsonObject run(JsonObject parameters,
+            ProgressMonitorReporter monitor) {
         JsonObject call = JsonUtil.merge(configuration, parameters);
-        JsonObject result = baseAction.run(call, monitor);
+        JsonObject result = doRun(call, monitor);
         if (monitor.succeeded()) {
             for (Action a : onSuccessList) {
                 a.run(result, monitor);
@@ -156,7 +174,7 @@ public class ActionInstance extends BaseAction implements Action {
      * Run the instance from within an enclosing action
      */
     public JsonObject run(ProgressMonitorReporter monitor) {
-        return doRun(JsonUtil.EMPTY_OBJECT, monitor);
+        return run(JsonUtil.EMPTY_OBJECT, monitor);
     }
     
     
@@ -168,4 +186,5 @@ public class ActionInstance extends BaseAction implements Action {
         run(monitor);
         return monitor.succeeded();
     }
+     
 }

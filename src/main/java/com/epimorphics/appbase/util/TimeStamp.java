@@ -30,4 +30,8 @@ public class TimeStamp {
         return makeTimestamp( System.currentTimeMillis() );
     }
     
+    public static String formatDateTime(long time) {
+        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format( time );
+    }
+    
 }

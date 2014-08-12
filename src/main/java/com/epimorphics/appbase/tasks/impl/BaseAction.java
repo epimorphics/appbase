@@ -20,6 +20,7 @@ import com.epimorphics.appbase.tasks.Action;
 import com.epimorphics.appbase.tasks.ActionJsonFactorylet;
 import com.epimorphics.appbase.tasks.ActionManager;
 import com.epimorphics.appbase.tasks.ActionTrigger;
+import com.epimorphics.json.JsonUtil;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 import com.epimorphics.util.EpiException;
 
@@ -97,6 +98,15 @@ public abstract class BaseAction implements Action {
             throw new EpiException("Action could not find required parameter: " + key);
         }
         return v;
+    }
+    
+    public String getStringParameter(JsonObject parameters, String key, String deflt) {
+        JsonValue v = getParameter(parameters, key);
+        if (v != null && v.isString()) {
+            return v.getAsString().value();
+        } else {
+            return deflt;
+        }
     }
     
     public Action getActionNamed(String name) {
@@ -187,6 +197,12 @@ public abstract class BaseAction implements Action {
         if (onSuccess == null) {
             onSuccess = base.getOnSuccess();
         }
+    }
+    
+    public JsonObject error(String message, ProgressMonitorReporter monitor) {
+        monitor.report(message);
+        monitor.setFailed();
+        return JsonUtil.EMPTY_OBJECT;
     }
 
 }
