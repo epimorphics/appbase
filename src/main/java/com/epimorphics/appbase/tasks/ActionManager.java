@@ -283,44 +283,29 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
     }
     
     /**
-     * Create a closure which can be run either inline or as a background action
+     * Create an instance of an action that is ready to run.
      */
-    public Closure makeClosure(Action action) {
-        return new Closure(action, this);
+    public ActionInstance makeInstance(Action action, Object...args) {
+        return new ActionInstance(action, JsonUtil.makeJson(args), this);
     }
     
     /**
-     * Create a closure which can be run either inline or as a background action
+     * Create an instance of an action that is ready to run.
      */
-    public Closure makeClosure(String actionName) {
-        return new Closure(actionName, this);
+    public ActionInstance makeInstance(Action action, JsonObject args) {
+        return new ActionInstance(action, args, this);
     }
     
     /**
-     * Create a closure which can be run either inline or as a background action
+     * Create an instance of an action that is ready to run.
+     * Returns null if the action can't be found
      */
-    public Closure makeClosure(String actionName, Object...args) {
-        Closure closure = new Closure(actionName, this);
-        closure.setParameters(args);
-        return closure;
-    }
-    
-    /**
-     * Create a closure which can be run either inline or as a background action
-     */
-    public Closure makeClosure(Action action, Object...args) {
-        Closure closure = new Closure(action, this);
-        closure.setParameters(args);
-        return closure;
-    }
-    
-    /**
-     * Create a closure which can be run either inline or as a background action
-     */
-    public Closure makeClosure(Action action, JsonObject args) {
-        Closure closure = new Closure(action, this);
-        closure.setCall(args);
-        return closure;
+    public ActionInstance makeInstance(String actionName, Object...args) {
+        Action action = get(actionName);
+        if (action == null){
+            return null;
+        }
+        return new ActionInstance(action, JsonUtil.makeJson(args), this);
     }
     
     /**

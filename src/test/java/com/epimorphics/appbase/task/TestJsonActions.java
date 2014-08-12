@@ -29,8 +29,8 @@ import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.core.AppConfig;
 import com.epimorphics.appbase.tasks.Action;
 import com.epimorphics.appbase.tasks.ActionExecution;
+import com.epimorphics.appbase.tasks.ActionInstance;
 import com.epimorphics.appbase.tasks.ActionManager;
-import com.epimorphics.appbase.tasks.Closure;
 import com.epimorphics.tasks.ProgressMessage;
 import com.epimorphics.tasks.ProgressMonitor;
 import com.epimorphics.tasks.ProgressMonitorReporter;
@@ -191,26 +191,25 @@ public class TestJsonActions {
     }
 
     @Test
-    public void testClosure() {
-        Closure closure = new Closure(new PrintAction(), am);
-        closure.setParameter("message", "hello");
+    public void testInstance() {
+        ActionInstance instance = am.makeInstance(new PrintAction(), "message", "hello");
         
-        ActionExecution ae = closure.run();
+        ActionExecution ae = instance.start();
         ae.waitForCompletion();
         checkMessages( ae.getMonitor(), "hello" );
         
         ProgressMonitorReporter monitor = new SimpleProgressMonitor();
-        closure.call(monitor);
+        instance.run(monitor);
         checkMessages(monitor, "hello");
         
-        closure.setAndThen( am.get("mark1") );
+        instance.addAndThen( am.get("mark1") );
 
-        ae = closure.run();
+        ae = instance.start();
         ae.waitForCompletion();
         checkMessages( ae.getMonitor(), "hello", "mark1 called" );
         
         monitor = new SimpleProgressMonitor();
-        closure.call(monitor);
+        instance.run(monitor);
         checkMessages( monitor, "hello", "mark1 called" );
     }
     
