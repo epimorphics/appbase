@@ -109,6 +109,24 @@ public abstract class BaseAction implements Action {
         }
     }
     
+    public int getIntParameter(JsonObject parameters, String key, int deflt) {
+        JsonValue v = getParameter(parameters, key);
+        if (v != null && v.isNumber()) {
+            return v.getAsNumber().value().intValue();
+        } else {
+            return deflt;
+        }
+    }
+    
+    public boolean getBooleanParameter(JsonObject parameters, String key, boolean deflt) {
+        JsonValue v = getParameter(parameters, key);
+        if (v != null && v.isBoolean()) {
+            return v.getAsBoolean().value();
+        } else {
+            return deflt;
+        }
+    }
+    
     public Action getActionNamed(String name) {
         ActionManager am = AppConfig.getApp().getA(ActionManager.class);
         Action a = am.get(name);
