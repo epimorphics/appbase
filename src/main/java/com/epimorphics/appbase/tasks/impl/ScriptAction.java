@@ -37,6 +37,7 @@ public class ScriptAction extends BaseAction implements Action  {
     public static final String SCRIPT_PARAM = "@script";
     public static final String ENV_PARAM = "@env";
     public static final String DEFAULT_SHELL = "/bin/bash";
+    public static final String RESULT = "result";
 
     public enum ArgType { json, jsonRef, inline };
     
@@ -126,13 +127,16 @@ public class ScriptAction extends BaseAction implements Action  {
 
             BufferedReader in = new BufferedReader( new InputStreamReader(scriptProcess.getInputStream()) );
             String line;
+            String lastLine = null;
             while ((line = in.readLine()) != null) {
                 monitor.report(line);
+                lastLine = line;
             }
             in.close();
             int status = scriptProcess.waitFor();
             if (status == 0) {
                 monitor.report("Script completed");
+                return JsonUtil.makeJson(RESULT, lastLine);   // Return last line, if any, as the result
             } else {
                 monitor.report("Script failed with status: " + status);
                 monitor.setFailed();
