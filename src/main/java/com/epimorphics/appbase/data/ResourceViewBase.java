@@ -109,7 +109,7 @@ public class ResourceViewBase extends ResourceView {
     }
  
     /**
-     * Construct a list views related to this view. In the queries any occurance of the
+     * Construct a list views related to this view. In the queries any occurrence of the
      * string ?this will be replaced by a reference to this resource.
      * @param describe describe query to run on the sparql source to fetch sum of the required views
      * @param query select query to run on the returned description to extract the intended resources
@@ -118,6 +118,19 @@ public class ResourceViewBase extends ResourceView {
      */
     public <T extends ResourceViewBase> List<T> listViews(String describe, String query, Class<T> viewType) {
         return ResourceViewFactory.getViews(getSource(), injectURI(describe), injectURI(query), viewType);
+    }
+    
+    /**
+     * Return a view of the resource value of the given property. This view is constructed by
+     * going by the the source and requesting a full view, c.f. getConnectedView(s)
+     */
+    public <T extends ResourceViewBase> T getResourceView(Object property, Class<T> viewType) {
+        Resource r = getResourceValue(property);
+        if (r != null) {
+            return ResourceViewFactory.getView(getSource(), r.getURI(), viewType);
+        } else {
+            return null;
+        }
     }
     
     protected String injectURI(String q) {
