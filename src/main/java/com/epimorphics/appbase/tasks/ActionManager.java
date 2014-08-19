@@ -293,6 +293,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
         action.resolve(this);
         ActionExecution ae = new ActionExecution(this, action, parameters, monitor);
         recordExecution(ae);
+        runHooks(Event.Start, ae);
         ae.start();
         return ae;
     }
@@ -352,7 +353,6 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
      * Send event signalling the start of an action
      */
     protected List<ActionExecution> actionStartEvent(ActionExecution ae, JsonObject parameters) {
-        runHooks(Event.Start, ae);
         String msg = String.format("action:%s:%s:started", ae.getId(), ae.getAction().getName());
         return fireEvent(msg, parameters);
     }
