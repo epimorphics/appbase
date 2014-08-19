@@ -16,7 +16,10 @@ import org.apache.jena.atlas.json.JsonObject;
 
 import com.epimorphics.appbase.tasks.impl.BaseAction;
 import com.epimorphics.json.JsonUtil;
+import com.epimorphics.tasks.ProgressMessage;
 import com.epimorphics.tasks.ProgressMonitorReporter;
+import com.epimorphics.tasks.SimpleProgressMonitor;
+import com.epimorphics.util.EpiException;
 
 /**
  * A ready-to-run action. Combines some base action with optional
@@ -177,6 +180,26 @@ public class ActionInstance extends BaseAction implements Action {
         return run(JsonUtil.EMPTY_OBJECT, monitor);
     }
     
+    /**
+     * Run the instance in the top level thread.
+     * Throw an exception if the action fails.
+     * Return the action results.
+     * The progress messages are lost.
+     */
+    public JsonObject runInline() {
+        SimpleProgressMonitor monitor = new SimpleProgressMonitor();
+        JsonObject result = run(monitor);
+        if (monitor.succeeded()) {
+            return result;
+        } else {
+            List<ProgressMessage> messages = monitor.getMessages();
+            if (messages.isEmpty()) {
+                throw new EpiException("Action failed, no further information");
+            } else {
+                throw new EpiException("Action failed: " + messages.get( messages.size() - 1 ).getMessage() );
+            }
+        }
+    }
     
     /**
      * Run the closure from within an enclosing action,
