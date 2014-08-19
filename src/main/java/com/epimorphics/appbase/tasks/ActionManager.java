@@ -45,6 +45,7 @@ import com.epimorphics.tasks.ProgressMonitorReporter;
 import com.epimorphics.tasks.SimpleProgressMonitor;
 import com.epimorphics.util.EpiException;
 import com.epimorphics.util.FileUtil;
+import com.epimorphics.appbase.tasks.ProcessingHook.Event;
 
 /**
  * Controller which tracks available actions, executes actions
@@ -74,6 +75,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
     protected Map<String, ActionExecution> executionIndex = new HashMap<String, ActionExecution>();
     protected Deque<ActionExecution> executionHistory = new ArrayDeque<>(DEFAULT_HISTORY_SIZE);
     protected Set<Action> triggerableActions = new HashSet<>();
+    protected Map<Event, List<ProcessingHook>> installedHooks = new HashMap<>();
 
     protected ThreadPoolExecutor executor = new ThreadPoolExecutor(CORE_THREADS, MAX_THREADS, KEEPALIVE, TimeUnit.MILLISECONDS, 
             new ArrayBlockingQueue<Runnable>(QUEUE_DEPTH));
@@ -129,6 +131,29 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
     
     public String getScriptDir() {
         return scriptDir.getPath();
+    }
+    
+    /**
+     * Install a processing hook that will be run at certain
+     * stages in the action execution lifecycle. 
+     */
+    public void installHook(ProcessingHook hook) {
+        Event event = hook.runOn();
+        List<ProcessingHook> hooks = installedHooks.get(event);
+        if (hooks == null) {
+            hooks = new ArrayList<>();
+            installedHooks.put(event, hooks);
+        }
+        hooks.add(hook);
+    }
+    
+    protected void runHooks(ProcessingHook.Event event, ActionExecution execution) {
+        List<ProcessingHook> hooks = installedHooks.get(event);
+        if (hooks != null) {
+            for (ProcessingHook hook : hooks) {
+                hook.run(execution);
+            }
+        }
     }
     
     @Override
@@ -327,6 +352,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
      * Send event signalling the start of an action
      */
     protected List<ActionExecution> actionStartEvent(ActionExecution ae, JsonObject parameters) {
+        runHooks(Event.Start, ae);
         String msg = String.format("action:%s:%s:started", ae.getId(), ae.getAction().getName());
         return fireEvent(msg, parameters);
     }
@@ -335,6 +361,10 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
      * Send event signalling the end of an action
      */
     protected List<ActionExecution> actionEndEvent(ActionExecution ae, JsonObject result) {
+        runHooks(Event.Complete, ae);
+        if ( ! ae.getMonitor().succeeded() ) {
+            runHooks(Event.Error, ae);
+        }
         recordTrace(ae);
         String success = ae.getMonitor().succeeded() ? "succeeded" : "failed";
         String msg = String.format("action:%s:%s:finished %s %d", 

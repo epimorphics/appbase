@@ -13,6 +13,7 @@ import static com.epimorphics.appbase.task.TestActionManager.createParams;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -31,6 +32,8 @@ import com.epimorphics.appbase.tasks.Action;
 import com.epimorphics.appbase.tasks.ActionExecution;
 import com.epimorphics.appbase.tasks.ActionInstance;
 import com.epimorphics.appbase.tasks.ActionManager;
+import com.epimorphics.appbase.tasks.ProcessingHook;
+import com.epimorphics.appbase.tasks.ProcessingHook.Event;
 import com.epimorphics.tasks.ProgressMessage;
 import com.epimorphics.tasks.ProgressMonitor;
 import com.epimorphics.tasks.ProgressMonitorReporter;
@@ -97,6 +100,42 @@ public class TestJsonActions {
         assertFalse(pm.succeeded());
         List<ProgressMessage> messages = pm.getMessages();
         assertEquals( "Timeout detected", messages.get(messages.size() - 1).getMessage());
+    }
+    
+    @Test
+    public void testHooks() {
+        TestHook startHook = new TestHook(Event.Start);
+        am.installHook(startHook);
+        TestHook endHook = new TestHook(Event.Complete);
+        am.installHook(endHook);
+        TestHook errorHook = new TestHook(Event.Error);
+        am.installHook(errorHook);
+        
+        ActionExecution ae = runAction("messageThrice", "message=test");
+        ae.waitForCompletion();
+        assertEquals(ae.getId(), startHook.lastAEID());
+        assertEquals(ae.getId(), endHook.lastAEID());
+        assertNull( errorHook.lastAEID() );
+        
+        ae = runAction("testErrorHandler", "");
+        ae.waitForCompletion();
+        assertEquals(ae.getId(), startHook.lastAEID());
+        assertEquals(ae.getId(), endHook.lastAEID());
+        assertEquals(ae.getId(), errorHook.lastAEID());
+    }
+    
+    class TestHook implements ProcessingHook {
+        protected Event event;
+        protected String lastAEID;
+        
+        public TestHook(Event event) {  this.event = event;    }
+        public Event runOn() {  return event;      }
+        public void run(ActionExecution execution) {
+            lastAEID = execution.getId();
+        }
+        public String lastAEID() {
+            return lastAEID;
+        }
     }
     
     @Test
