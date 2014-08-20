@@ -14,11 +14,11 @@ import java.util.List;
 
 import org.apache.jena.atlas.json.JsonObject;
 
-import com.epimorphics.appbase.tasks.impl.BaseAction;
 import com.epimorphics.json.JsonUtil;
 import com.epimorphics.tasks.ProgressMessage;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 import com.epimorphics.tasks.SimpleProgressMonitor;
+import com.epimorphics.tasks.TaskState;
 import com.epimorphics.util.EpiException;
 
 /**
@@ -32,8 +32,9 @@ import com.epimorphics.util.EpiException;
  * </p>
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
-public class ActionInstance extends BaseAction implements Action {
+public class ActionInstance implements Action {
     protected Action baseAction;
+    protected JsonObject call = new JsonObject();
     protected List<Action> onSuccessList = new ArrayList<>();
     protected List<Action> onErrorList = new ArrayList<>();
     protected ActionManager am;
@@ -41,12 +42,20 @@ public class ActionInstance extends BaseAction implements Action {
     protected String name;
 
     protected ActionInstance(Action base, JsonObject parameters, ActionManager am) {
-        JsonUtil.mergeInto(configuration, parameters);
+        JsonUtil.mergeInto(call, parameters);
         baseAction = base;
         this.am = am;
         baseAction.resolve(am);
         timeout = base.getTimeout();
         name = base.getName();
+    }
+    
+    public Action getAction() {
+        return baseAction;
+    }
+    
+    public JsonObject getCall() {
+        return call;
     }
     
     @Override
@@ -96,16 +105,6 @@ public class ActionInstance extends BaseAction implements Action {
         return baseAction.getOnSuccess();
     }
     
-    @Override
-    public void setOnError(Action onError) {
-        addOnError(onError);
-    }
-
-    @Override
-    public void setOnSuccess(Action onSuccess) {
-        addOnSuccess(onSuccess);
-    }
-    
     /**
      * Add an additional action to run if this action succeeds
      */
@@ -116,40 +115,56 @@ public class ActionInstance extends BaseAction implements Action {
     /**
      * Add an additional action to run if this action fails
      */
-    public void addOnError(Action next) {
+    public synchronized void addOnError(Action next) {
         onErrorList.add( next );
     }
     
     /**
      * Add an additional action to run whether or not this action succeeds
      */
-    public void addAndThen(Action next) {
+    public synchronized void addAndThen(Action next) {
         onSuccessList.add( next );
         onErrorList.add( next );
     }
     
     public void setConfig( Object...args ) {
-        configuration = JsonUtil.makeJson(configuration, args);
+        call = JsonUtil.makeJson(call, args);
     }
-
-    @Override
-    protected JsonObject doRun(JsonObject parameters,
-            ProgressMonitorReporter monitor) {
-        return baseAction.run(parameters, monitor);
+    
+    public void addConfig( JsonObject conf ) {
+        JsonUtil.mergeInto(call, conf);
+    }
+    
+    public void addConfig( Object...args ) {
+        addConfig( JsonUtil.makeJson(args) );
     }
     
     @Override
     public JsonObject run(JsonObject parameters,
             ProgressMonitorReporter monitor) {
-        JsonObject call = JsonUtil.merge(configuration, parameters);
-        JsonObject result = doRun(call, monitor);
+        JsonUtil.mergeInto(call, parameters);
+        JsonObject result = null;
+        try {
+            result = baseAction.run(call, monitor);
+            if (monitor.getState() != TaskState.Terminated) {
+                monitor.setState(TaskState.Terminated);
+            }
+        } catch (Exception e) {
+            ActionManager.log.error("Exception during action execution", e);
+            monitor.report("Exception during execution: " + e);
+            monitor.setFailed();
+        }
         if (monitor.succeeded()) {
-            for (Action a : onSuccessList) {
-                a.run(result, monitor);
+            synchronized (this) {
+                for (Action a : onSuccessList) {
+                    a.run(result, monitor);
+                }
             }
         } else {
-            for (Action a : onErrorList) {
-                a.run(result, monitor);
+            synchronized (this) {
+                for (Action a : onErrorList) {
+                    a.run(result, monitor);
+                }
             }
         }
         if (monitor.succeeded()) {

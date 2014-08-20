@@ -39,13 +39,13 @@ import org.slf4j.LoggerFactory;
 
 import com.epimorphics.appbase.core.Shutdown;
 import com.epimorphics.appbase.monitor.ConfigMonitor;
+import com.epimorphics.appbase.tasks.ProcessingHook.Event;
 import com.epimorphics.json.JSFullWriter;
 import com.epimorphics.json.JsonUtil;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 import com.epimorphics.tasks.SimpleProgressMonitor;
 import com.epimorphics.util.EpiException;
 import com.epimorphics.util.FileUtil;
-import com.epimorphics.appbase.tasks.ProcessingHook.Event;
 
 /**
  * Controller which tracks available actions, executes actions
@@ -291,7 +291,21 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
      */
     public ActionExecution runAction(Action action, JsonObject parameters, ProgressMonitorReporter monitor) {
         action.resolve(this);
-        ActionExecution ae = new ActionExecution(this, action, parameters, monitor);
+        return runInstance( makeInstance(action, parameters), monitor );
+    }
+    
+    /**
+     * Start the prepared action instance funning as a background thread
+     */
+    public ActionExecution runInstance(ActionInstance instance) {
+        return runInstance(instance, new SimpleProgressMonitor());
+    }
+    
+    /**
+     * Start the prepared action instance funning as a background thread
+     */
+    public ActionExecution runInstance(ActionInstance instance, ProgressMonitorReporter monitor) {
+        ActionExecution ae = new ActionExecution(this, instance, monitor);
         recordExecution(ae);
         runHooks(Event.Start, ae);
         ae.start();

@@ -27,7 +27,6 @@ import com.epimorphics.appbase.core.ComponentBase;
 import com.epimorphics.appbase.core.Startup;
 import com.epimorphics.appbase.core.TimerManager;
 import com.epimorphics.appbase.monitor.Scanner.FileRecord;
-import com.epimorphics.util.EpiException;
 import com.hp.hpl.jena.util.OneToManyMap;
 
 /**

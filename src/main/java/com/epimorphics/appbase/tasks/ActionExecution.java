@@ -47,8 +47,7 @@ public class ActionExecution implements Runnable, JSONWritable {
     protected static final String RESULT_KEY = "result";
     
     private final ActionManager actionManager;
-    protected Action action;
-    protected JsonObject parameters;
+    protected ActionInstance instance;
     protected long startTime;
     protected long finishTime = 0;
     protected ProgressMonitorReporter monitor;
@@ -56,21 +55,21 @@ public class ActionExecution implements Runnable, JSONWritable {
     protected Future<?> future;
     protected JsonObject result;
     
-    public ActionExecution(ActionManager actionManager, Action action, JsonObject parameters) {
-        this(actionManager, action, parameters, new SimpleProgressMonitor());
-    }
-    
-    public ActionExecution(ActionManager actionManager, Action action, JsonObject parameters, ProgressMonitorReporter monitor) {
+    public ActionExecution(ActionManager actionManager, ActionInstance instance, ProgressMonitorReporter monitor) {
         this.actionManager = actionManager;
-        this.parameters = JsonUtil.makeJson(parameters, ActionManager.ACTION_EXECUTION_PARAM, id);
         this.monitor = monitor;
-        this.action = action;
+        this.instance = instance;
+        instance.addConfig(ActionManager.ACTION_EXECUTION_PARAM, id);
     }
  
     public Action getAction() {
-        return action;
+        return instance.getAction();
     }
 
+    public ActionInstance getActionInstance() {
+        return instance;
+    }
+    
     public long getStartTime() {
         return startTime;
     }
@@ -100,30 +99,17 @@ public class ActionExecution implements Runnable, JSONWritable {
     }
     
     public JsonObject getParameters() {
-        return parameters;
+        return instance.getCall();
     }
 
     
     @Override
     public void run() {
-        this.actionManager.actionStartEvent(this, parameters);
+        this.actionManager.actionStartEvent(this, getParameters());
         startTime = System.currentTimeMillis();
         monitor.setState(TaskState.Running);
         startTimeout();
-        try {
-            result = action.run(parameters, monitor);
-            if (monitor.getState() != TaskState.Terminated) {
-                monitor.setSucceeded();
-            }
-            if (monitor.succeeded()) {
-                runNext( action.getOnSuccess() );
-            } else {
-                runNext( action.getOnError() );
-            }
-        } catch (Throwable e) {
-            ActionManager.log.error("Exception during action execution " + id, e);
-            condMarkTerminated("Exception: " + e);
-        }
+        result = instance.run(monitor);
         finishTime = System.currentTimeMillis();
         this.actionManager.recordEndOfExecution(this);
         if (monitor.getState() != TaskState.Terminated) {
@@ -175,7 +161,6 @@ public class ActionExecution implements Runnable, JSONWritable {
         ProgressMonitorReporter monitor = getMonitor();
         monitor.report(message);
         monitor.setFailed();
-        runNext( action.getOnError() );
     }
     
     protected void runNext(Action next) {
@@ -187,9 +172,9 @@ public class ActionExecution implements Runnable, JSONWritable {
     @Override
     public void writeTo(JSFullWriter out) {
         out.startObject();
-        out.pair(ACTION_KEY, action.getName());
+        out.pair(ACTION_KEY, getAction().getName());
         out.pair(ID_KEY, id);
-        out.pair(PARAMETERS_KEY, parameters);
+        out.pair(PARAMETERS_KEY, getParameters());
         out.pair(DURATION_KEY, getDuration());
         out.pair(START_TIME_KEY, startTime);
         out.pair(FINISH_TIME_KEY, finishTime);
@@ -217,11 +202,11 @@ public class ActionExecution implements Runnable, JSONWritable {
         }
         JsonObject parameters = jo.get(PARAMETERS_KEY).getAsObject();
         SimpleProgressMonitor monitor = new SimpleProgressMonitor( jo.get(MONITOR_KEY).getAsObject() );
-        ActionExecution ae = new ActionExecution(actionManager, action, parameters, monitor);
+        ActionInstance ai = actionManager.makeInstance(action, parameters);
+        ActionExecution ae = new ActionExecution(actionManager, ai, monitor);
         ae.startTime = JsonUtil.getLongValue(jo, START_TIME_KEY, -1);
         ae.finishTime = JsonUtil.getLongValue(jo, FINISH_TIME_KEY, -1);
         ae.id = JsonUtil.getStringValue(jo, ID_KEY);
-        ae.parameters = parameters;
         JsonValue result = jo.get(RESULT_KEY);
         if (result != null) {
             ae.result = result.getAsObject();

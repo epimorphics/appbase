@@ -86,9 +86,10 @@ public abstract class BaseAction implements Action {
 
     public JsonValue getParameter(JsonObject parameters, String key) {
         JsonValue value = parameters.get(key);
-        if (value == null) {
-            value = configuration.get(key);
-        }
+        // No longer needed, doRun should always see the merged configuration plus parameters
+//        if (value == null) {
+//            value = configuration.get(key);
+//        }
         return value;
     }
     
@@ -196,7 +197,7 @@ public abstract class BaseAction implements Action {
     
     @Override
     public JsonObject run(JsonObject parameters, ProgressMonitorReporter monitor) {
-        return doRun(parameters, monitor);
+        return doRun( JsonUtil.merge(configuration, parameters), monitor);
     }
     
     protected abstract JsonObject doRun(JsonObject parameters, ProgressMonitorReporter monitor);
