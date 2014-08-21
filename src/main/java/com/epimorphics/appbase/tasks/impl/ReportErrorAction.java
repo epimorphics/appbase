@@ -33,8 +33,7 @@ public class ReportErrorAction extends BaseAction {
     @Override
     protected JsonObject doRun(JsonObject parameters,
             ProgressMonitorReporter monitor) {
-        monitor.report( getStringParameter(parameters, MESSAGE_PARAM, "Unknown error") );
-        monitor.setFailed();
+        monitor.reportError( getStringParameter(parameters, MESSAGE_PARAM, "Unknown error") );
         return parameters;
     }
 

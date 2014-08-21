@@ -170,8 +170,7 @@ public class ActionExecution implements Runnable, JSONWritable {
     
     protected void condMarkTerminated(String message) {
         ProgressMonitorReporter monitor = getMonitor();
-        monitor.report(message);
-        monitor.setFailed();
+        monitor.reportError(message);
     }
     
     protected void runNext(Action next) {

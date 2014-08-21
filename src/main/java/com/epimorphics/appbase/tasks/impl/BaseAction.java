@@ -219,8 +219,7 @@ public abstract class BaseAction implements Action {
     }
     
     public JsonObject error(String message, ProgressMonitorReporter monitor) {
-        monitor.report(message);
-        monitor.setFailed();
+        monitor.reportError(message);
         return JsonUtil.EMPTY_OBJECT;
     }
 

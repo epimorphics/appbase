@@ -151,8 +151,7 @@ public class ActionInstance implements Action {
             }
         } catch (Exception e) {
             ActionManager.log.error("Exception during action execution", e);
-            monitor.report("Exception during execution: " + e);
-            monitor.setFailed();
+            monitor.reportError("Exception during execution: " + e);
         }
         if (monitor.succeeded()) {
             synchronized (this) {

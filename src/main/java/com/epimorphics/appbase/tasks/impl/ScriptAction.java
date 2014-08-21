@@ -151,18 +151,15 @@ public class ScriptAction extends BaseAction implements Action  {
                 monitor.report("Script completed");
                 return JsonUtil.makeJson(RESULT, lastLine);   // Return last line, if any, as the result
             } else {
-                monitor.report("Script failed with status: " + status);
-                monitor.setFailed();
+                monitor.reportError("Script failed with status: " + status);
                 return JsonUtil.makeJson("errorStatus", status);
             }
             
         } catch (IOException e) {
-            monitor.report("Problem configuring script " + script  + ", " + e);
-            monitor.setFailed();
+            monitor.reportError("Problem configuring script " + script  + ", " + e);
             
         } catch (InterruptedException e) {
-            monitor.report("Script action " + script + " interrupted");
-            monitor.setFailed();  // what does interruption really mean here?
+            monitor.reportError("Script action " + script + " interrupted");
         } finally {
             if (argFile != null) {
                 argFile.delete();

@@ -130,5 +130,15 @@ public class NestedProgressReporter implements ProgressMonitorReporter {
     public void report(String message, int lineNumber, String type) {
         wrapped.report(message, lineNumber, type);
     }
+
+    @Override
+    public void reportError(String message) {
+        wrapped.report(message);
+    }
+
+    @Override
+    public void reportError(String message, int lineNumber) {
+        wrapped.report(message, lineNumber);
+    }
     
 }
