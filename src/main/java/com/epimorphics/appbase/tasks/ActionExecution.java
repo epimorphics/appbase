@@ -67,8 +67,6 @@ public class ActionExecution implements Runnable, JSONWritable {
         return instance.getAction();
     }
     
-    
-
     public ActionInstance getActionInstance() {
         return instance;
     }
@@ -113,6 +111,15 @@ public class ActionExecution implements Runnable, JSONWritable {
         return instance.getCall();
     }
 
+    /**
+     * Attempt to stop the execution.
+     * Depends on the action responding to interrupts
+     * and checking the monitor status.
+     */
+    public void stop() {
+        monitor.setState(TaskState.Terminated);
+        future.cancel(true);
+    }
     
     @Override
     public void run() {

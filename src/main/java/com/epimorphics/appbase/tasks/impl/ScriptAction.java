@@ -114,10 +114,6 @@ public class ScriptAction extends BaseAction implements Action  {
                 JsonObject envSpecO = envSpec.getAsObject();   // validated in parser so safe
                 for (String key : envSpecO.keySet()) {
                     JsonValue value = envSpecO.get(key);
-//                    if ( ! value.isString() ) {
-//                        throw new EpiException("Script @env key values should be strings");
-//                    }
-//                    environment.put(key,  getStringValue(parameters, param) );
                     if ( value.isString() ) {
                         environment.put(key, value.getAsString().value() );
                     } else {
@@ -139,9 +135,23 @@ public class ScriptAction extends BaseAction implements Action  {
 //            in.close();
             stdout.start();
             stderr.start();
-            int status = scriptProcess.waitFor();
-            stdout.join();
-            stderr.join();
+            int status = 1;
+            try {
+                status = scriptProcess.waitFor();
+                stdout.join();
+                stderr.join();
+            } catch (InterruptedException e) {
+                monitor.reportError("Script action " + script + " interrupted");
+                scriptProcess.destroy();
+                try {
+                    // Catch any dying messages
+                    stdout.join();
+                    stderr.join();
+                } catch (InterruptedException e2) {
+                    // No further clean up attempts
+                }
+                status = 2;
+            }
             String lastLine = "";
             List<ProgressMessage> messages = monitor.getMessages();
             if ( ! messages.isEmpty()) {
@@ -157,9 +167,6 @@ public class ScriptAction extends BaseAction implements Action  {
             
         } catch (IOException e) {
             monitor.reportError("Problem configuring script " + script  + ", " + e);
-            
-        } catch (InterruptedException e) {
-            monitor.reportError("Script action " + script + " interrupted");
         } finally {
             if (argFile != null) {
                 argFile.delete();
