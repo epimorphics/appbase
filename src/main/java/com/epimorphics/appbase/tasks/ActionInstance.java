@@ -185,7 +185,7 @@ public class ActionInstance implements Action {
      * with no additional parameters
      */
     public ActionExecution start() {
-        return am.runAction(this, JsonUtil.EMPTY_OBJECT);
+        return am.runInstance(this);
     }
     
     /**

@@ -38,6 +38,7 @@ import com.epimorphics.util.EpiException;
 public class ActionExecution implements Runnable, JSONWritable {
     // probably should switch to using jackson for this but a lot of the JSON code is already dependent on Jena version
     protected static final String ACTION_KEY = "action";
+    protected static final String INSTANCE_NAME_KEY = "iname";
     protected static final String PARAMETERS_KEY = "parameters";
     protected static final String START_TIME_KEY = "startTime";
     protected static final String FINISH_TIME_KEY = "finishTime";
@@ -65,6 +66,8 @@ public class ActionExecution implements Runnable, JSONWritable {
     public Action getAction() {
         return instance.getAction();
     }
+    
+    
 
     public ActionInstance getActionInstance() {
         return instance;
@@ -84,6 +87,14 @@ public class ActionExecution implements Runnable, JSONWritable {
 
     public String getId() {
         return id;
+    }
+    
+    public String getName() {
+        return instance.getName();
+    }
+    
+    public void setName(String name) {
+        instance.setName(name);
     }
     
     public long getDuration() {
@@ -173,6 +184,7 @@ public class ActionExecution implements Runnable, JSONWritable {
     public void writeTo(JSFullWriter out) {
         out.startObject();
         out.pair(ACTION_KEY, getAction().getName());
+        out.pair(INSTANCE_NAME_KEY,  instance.getName());
         out.pair(ID_KEY, id);
         out.pair(PARAMETERS_KEY, getParameters());
         out.pair(DURATION_KEY, getDuration());
@@ -203,6 +215,8 @@ public class ActionExecution implements Runnable, JSONWritable {
         JsonObject parameters = jo.get(PARAMETERS_KEY).getAsObject();
         SimpleProgressMonitor monitor = new SimpleProgressMonitor( jo.get(MONITOR_KEY).getAsObject() );
         ActionInstance ai = actionManager.makeInstance(action, parameters);
+        String name = JsonUtil.getStringValue(parameters, INSTANCE_NAME_KEY, actionName);
+        ai.setName(name);
         ActionExecution ae = new ActionExecution(actionManager, ai, monitor);
         ae.startTime = JsonUtil.getLongValue(jo, START_TIME_KEY, -1);
         ae.finishTime = JsonUtil.getLongValue(jo, FINISH_TIME_KEY, -1);

@@ -83,7 +83,27 @@ public class TestJsonActions {
         assertEquals( "messageThrice", restored.getAction().getName() );
         assertEquals( ae.getDuration(), restored.getDuration() );
         assertEquals( 5, restored.getMonitor().getMessages().size() );
+    }
+    
+    @Test
+    public void testNaming() {
+        ActionExecution ae = runAction("messageThrice", "message=test");
+        ProgressMonitorReporter pm = ae.getMonitor();
+        assertTrue(pm.succeeded());
         
+        assertEquals("messageThrice", ae.getAction().getName());
+        ae.setName("My run");
+        assertEquals("My run", ae.getName());
+        assertEquals("My run", ae.getActionInstance().getName());
+        assertEquals("messageThrice", ae.getAction().getName());
+        
+        ActionInstance inst = am.makeInstance("messageThrice", "message", "test 2");
+        inst.setName("My run 2");
+        ae = inst.start();
+        ae.waitForCompletion();
+        assertEquals("messageThrice", ae.getAction().getName());
+        assertEquals("My run 2", ae.getName());
+
     }
     
     @Test
