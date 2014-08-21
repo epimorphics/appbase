@@ -9,16 +9,30 @@
 
 package com.epimorphics.appbase.data.impl;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.zip.GZIPOutputStream;
 
+import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.query.text.EntityDefinition;
 import org.apache.jena.query.text.TextDatasetFactory;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.SparqlSource;
+import com.epimorphics.appbase.tasks.Action;
+import com.epimorphics.appbase.tasks.impl.BaseAction;
+import com.epimorphics.appbase.util.TimeStamp;
+import com.epimorphics.json.JsonUtil;
+import com.epimorphics.tasks.ProgressMonitorReporter;
 import com.epimorphics.util.EpiException;
 import com.epimorphics.util.FileUtil;
 import com.hp.hpl.jena.graph.Node;
@@ -45,10 +59,13 @@ import com.hp.hpl.jena.vocabulary.RDFS;
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
 public class TDBSparqlSource extends BaseSparqlSource implements SparqlSource {
+    static Logger log = LoggerFactory.getLogger( TDBSparqlSource.class );
+    
     protected File tdbDir;
     protected File textIndex;      
+    protected File backupDir;
     protected String indexSpec = null;
-    protected Dataset dataset;  // TODO shoudl this be a thread local?
+    protected Dataset dataset;  // TODO should this be a thread local?
     protected boolean isUnionDefault;
     protected GraphStore graphStore;
     protected DatasetAccessor accessor;
@@ -60,6 +77,11 @@ public class TDBSparqlSource extends BaseSparqlSource implements SparqlSource {
 //        if (!tdbDir.exists() || !tdbDir.canRead()) {
 //            throw new EpiException("Configured location for TDB source is not accessible: " + loc);
 //        }
+    }
+    
+    public void setBackupDir(String loc) {
+        FileUtil.ensureDir(loc);
+        backupDir = asFile(loc);
     }
     
     /**
@@ -154,4 +176,64 @@ public class TDBSparqlSource extends BaseSparqlSource implements SparqlSource {
         return graphStore;
     }
 
+    /**
+     * Return an action that will backup the data to the backup directory
+     */
+    public Action getBackupAction() {
+        return new BackupAction();
+    }
+    
+    public class BackupAction extends BaseAction {
+        
+        @Override
+        public String getName() {
+            return "backup";
+        }
+
+        @Override
+        protected JsonObject doRun(JsonObject parameters,
+                ProgressMonitorReporter monitor) {
+            if (backupDir == null) {
+                log.error("No backup directory configured");
+                monitor.reportError("No backup directory configured");
+                return JsonUtil.EMPTY_OBJECT;
+            }
+            String filename = "backup-" + TimeStamp.makeTimestamp() + ".nq.gz";
+            File backupFile = new File(backupDir, filename);
+
+            monitor.report("Backup in progress: " + filename);
+            log.info("Started  backup to " +filename);
+            OutputStream out = null ;
+            dataset.begin(ReadWrite.READ);
+            try {
+                out = new FileOutputStream(backupFile) ;
+                out = new GZIPOutputStream(out, 8*1024) ;
+                out = new BufferedOutputStream(out) ;
+                
+                RDFDataMgr.write(out, dataset.asDatasetGraph(), Lang.NQUADS) ;
+                out.close() ;
+                out = null ;
+
+                monitor.report("Backup finished: " + filename);
+                log.info("Finished backup to " + filename);
+                return JsonUtil.makeJson("backupfile", backupFile.getPath());
+                
+            } catch (IOException e) {
+                log.warn("Problem writing backup to " + filename, e);
+                monitor.reportError("Problem writing backup to " + filename + ", " + e);
+                
+            } catch ( RuntimeException ex ) {
+                log.warn("Exception during backup: ", ex);
+                monitor.reportError("Exception during backup: " + ex);
+                
+            } finally {
+                dataset.end();
+                try { if (out != null) out.close() ; }
+                catch (IOException e) { /* ignore */ }
+            }
+            return JsonUtil.EMPTY_OBJECT;
+        }
+        
+    }
+    
 }
