@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import org.apache.jena.atlas.json.JsonValue;
 import com.epimorphics.appbase.tasks.Action;
 import com.epimorphics.appbase.tasks.ActionManager;
 import com.epimorphics.json.JsonUtil;
+import com.epimorphics.tasks.ProgressMessage;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 import com.epimorphics.util.EpiException;
 
@@ -103,7 +105,7 @@ public class ScriptAction extends BaseAction implements Action  {
                 break;
             }
 
-            scriptPB.redirectErrorStream(true);
+            scriptPB.redirectErrorStream(false);
             scriptPB.directory(scriptDir);
             
             JsonValue envSpec = configuration.get(ENV_PARAM);
@@ -125,15 +127,26 @@ public class ScriptAction extends BaseAction implements Action  {
             }
             Process scriptProcess = scriptPB.start();
 
-            BufferedReader in = new BufferedReader( new InputStreamReader(scriptProcess.getInputStream()) );
-            String line;
-            String lastLine = null;
-            while ((line = in.readLine()) != null) {
-                monitor.report(line);
-                lastLine = line;
-            }
-            in.close();
+            Thread stdout = new Thread( new CaptureOutput(scriptProcess.getInputStream(), monitor, "") );
+            Thread stderr = new Thread( new CaptureOutput(scriptProcess.getErrorStream(), monitor, "error") );
+//            BufferedReader in = new BufferedReader( new InputStreamReader(scriptProcess.getInputStream()) );
+//            String line;
+//            String lastLine = null;
+//            while ((line = in.readLine()) != null) {
+//                monitor.report(line);
+//                lastLine = line;
+//            }
+//            in.close();
+            stdout.start();
+            stderr.start();
             int status = scriptProcess.waitFor();
+            stdout.join();
+            stderr.join();
+            String lastLine = "";
+            List<ProgressMessage> messages = monitor.getMessages();
+            if ( ! messages.isEmpty()) {
+                lastLine = messages.get( messages.size() - 1 ).getMessage();
+            }
             if (status == 0) {
                 monitor.report("Script completed");
                 return JsonUtil.makeJson(RESULT, lastLine);   // Return last line, if any, as the result
@@ -157,6 +170,32 @@ public class ScriptAction extends BaseAction implements Action  {
         }
         
         return EMPTY_OBJECT;
+    }
+    
+    class CaptureOutput implements Runnable {
+        protected BufferedReader in;
+        protected ProgressMonitorReporter monitor;
+        protected String type;
+
+        public CaptureOutput(InputStream in, ProgressMonitorReporter monitor, String type) {
+            this.in = new BufferedReader( new InputStreamReader(in) );
+            this.monitor = monitor;
+            this.type = type;
+        }
+        
+        @Override
+        public void run() {
+            String line;
+            try {
+                while ((line = in.readLine()) != null) {
+                    monitor.report(line, type);
+                }
+                in.close();
+            } catch (IOException e) {
+                // Quietly exit if the stream dies
+            }
+        }
+    
     }
     
 }

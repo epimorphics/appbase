@@ -120,5 +120,15 @@ public class NestedProgressReporter implements ProgressMonitorReporter {
     public JSONWritable viewUpdatesSince(int offset) {
         return wrapped.viewUpdatesSince(offset);
     }
+
+    @Override
+    public void report(String message, String type) {
+        wrapped.report(message, type);
+    }
+
+    @Override
+    public void report(String message, int lineNumber, String type) {
+        wrapped.report(message, lineNumber, type);
+    }
     
 }

@@ -247,6 +247,26 @@ public class TestJsonActions {
         monitor = ae.getMonitor();
         assertTrue(monitor.succeeded());
         assertEquals("Hello arg one, env foo=fubar", monitor.getMessages().get(1).getMessage());
+        
+        // Stderror case
+        ae = runAction("stderr", "");
+        monitor = ae.getMonitor();
+        assertTrue(monitor.succeeded());
+        assertEquals(6, monitor.getMessages().size());
+        assertNotNull( findMessage("Hello on stdout", monitor) );
+        ProgressMessage err = findMessage("Hello on stderr", monitor);
+        assertNotNull(err);
+        assertEquals("error", err.getType());
+    }
+    
+    private ProgressMessage findMessage(String expected, ProgressMonitor monitor) {
+        List<ProgressMessage> messages = monitor.getMessages();
+        for (ProgressMessage message : messages) {
+            if (message.getMessage().equals(expected)) {
+                return message;
+            }
+        }
+        return null;
     }
 
     @Test

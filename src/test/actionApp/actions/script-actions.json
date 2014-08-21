@@ -24,6 +24,11 @@
     "@script" : "fail.sh"
   },
   {
+    "@name" : "stderr",
+    "@type" : "script",
+    "@script" : "stderr.sh"
+  },
+  {
     "@name" : "helloScriptEnv",
     "@type" : "script",
     "@script" : "helloEnv.sh",
