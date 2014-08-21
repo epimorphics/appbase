@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -37,7 +38,9 @@ import org.apache.jena.atlas.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.core.Shutdown;
+import com.epimorphics.appbase.core.Startup;
 import com.epimorphics.appbase.monitor.ConfigMonitor;
 import com.epimorphics.appbase.tasks.ProcessingHook.Event;
 import com.epimorphics.json.JSFullWriter;
@@ -58,7 +61,7 @@ import com.epimorphics.util.FileUtil;
  * <li>logDirectory - file name for a separate log of all actions, actions will still be included in the webapp log</li>
  * </ul>
  */
-public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
+public class ActionManager extends ConfigMonitor<Action> implements Shutdown, Startup {
     static Logger log = LoggerFactory.getLogger(ActionManager.class);
     
     public static final String ACTION_EXECUTION_PARAM = "actionExecutionID";
@@ -90,8 +93,8 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
     /**
      * Configure the maximum number of past executions which are retain for review, default is 500
      */
-    public void setMaxHistory(int maxHistory) {
-        this.maxHistory = maxHistory;
+    public void setMaxHistory(long maxHistory) {
+        this.maxHistory = (int) maxHistory;
     }
 
     /**
@@ -170,6 +173,29 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
             } catch (IOException e) {
                 // ignore, we are shutting down anyway
             }
+        }
+    }
+    
+    @Override
+    public void startup(App app) {
+        super.startup(app);
+        if (traceDir != null) {
+            loadTraceHistory();
+        }
+    }
+    
+    private void loadTraceHistory() {
+        String[] tracesFiles = traceDir.list();
+        Arrays.sort(tracesFiles);
+        int start = Math.max(0, tracesFiles.length - maxHistory);
+        try {
+            for (int i = start; i < tracesFiles.length; i++) {
+                ActionExecution ae = ActionExecution.reload(this, new File(traceDir, tracesFiles[i]));
+                executionHistory.add(ae);
+            }   
+            log.info("Loaded " + executionHistory.size() + " historical action traces");
+        } catch (IOException e) {
+            log.error("Failed to reload historical action traces", e);
         }
     }
     
@@ -428,6 +454,9 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown {
                 // TODO Use Directory watcher to make this more efficient?
                 if (!logF.exists()) {  
                     // log file deleted while we were running?
+                    if (actionLog != null) {
+                        actionLog.close();
+                    }
                     actionLog = new FileWriter( logF, true);
                 }
                 actionLog.write(dateStr + " " + msg + "\n");

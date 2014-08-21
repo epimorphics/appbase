@@ -215,7 +215,7 @@ public class ActionExecution implements Runnable, JSONWritable {
         JsonObject parameters = jo.get(PARAMETERS_KEY).getAsObject();
         SimpleProgressMonitor monitor = new SimpleProgressMonitor( jo.get(MONITOR_KEY).getAsObject() );
         ActionInstance ai = actionManager.makeInstance(action, parameters);
-        String name = JsonUtil.getStringValue(parameters, INSTANCE_NAME_KEY, actionName);
+        String name = JsonUtil.getStringValue(jo, INSTANCE_NAME_KEY, actionName);
         ai.setName(name);
         ActionExecution ae = new ActionExecution(actionManager, ai, monitor);
         ae.startTime = JsonUtil.getLongValue(jo, START_TIME_KEY, -1);
