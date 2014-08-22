@@ -110,16 +110,6 @@ public class ActionExecution implements Runnable, JSONWritable {
     public JsonObject getParameters() {
         return instance.getCall();
     }
-
-    /**
-     * Attempt to stop the execution.
-     * Depends on the action responding to interrupts
-     * and checking the monitor status.
-     */
-    public void stop() {
-        monitor.setState(TaskState.Terminated);
-        future.cancel(true);
-    }
     
     @Override
     public void run() {
@@ -157,6 +147,7 @@ public class ActionExecution implements Runnable, JSONWritable {
      */
     public void cancel(String message) {
         if ( ! future.isDone() ) {
+            monitor.setState(TaskState.Terminated);
             condMarkTerminated(message);
             future.cancel(true);
         }
