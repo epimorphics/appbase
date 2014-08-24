@@ -91,6 +91,13 @@ public class Lib {
     public String pathDecode(String enc) {
         return NameUtils.decodeSafeName(enc);
     }
+    
+    /** 
+     * Map a string to something safe to use in anchors etc
+     */
+    public String safeName(String orig) {
+        return NameUtils.safeVarName(orig);
+    }
 
     /**
      * Convert a string arg to an integer, returning the default

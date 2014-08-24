@@ -71,6 +71,29 @@ public class SQueryUtil {
     public static List<Literal> selectLiteralVar(String var, String query, SparqlSource source, PrefixMapping pm) {
         return resultsFor(source.select( PrefixUtils.expandQuery(query, pm) ), var, Literal.class);
     }
+
+    /**
+     * Return a list of all bindings of the given var as lexical forms of literals 
+     */
+    public static List<String> selectStringVar(String var, String query, SparqlSource source) {
+        return asStringList( selectLiteralVar(var, query, source) );
+    }
+
+    /**
+     * Return a list of all bindings of the given var as lexical forms of literals
+     * Prefixes in the query will be expand from the given prefix mapping
+     */
+    public static List<String> selectStringVar(String var, String query, SparqlSource source, PrefixMapping pm) {
+        return asStringList( selectLiteralVar(var, query, source, pm) );
+    }
+    
+    private static List<String> asStringList(List<Literal> literals) {
+        List<String> results = new ArrayList<>( literals.size() );
+        for (Literal l : literals) {
+            results.add( l.getLexicalForm() );
+        }
+        return results;
+    }
     
 
     /**
