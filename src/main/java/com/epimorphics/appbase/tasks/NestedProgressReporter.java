@@ -19,7 +19,9 @@ import com.epimorphics.tasks.TaskState;
 /**
  * Wraps an existing monitor/reporter to support nested action calls.
  * Progress messages are sent to the wrapped reporter but the termination
- * status is stored by the wrapper. Has the same ID as the wrapped reporter.
+ * status is stored by the wrapper. If the nested action fails the wrapped
+ * reported is marked as failed.
+ *  Has the same ID as the wrapped reporter.
  */
 public class NestedProgressReporter implements ProgressMonitorReporter {
     protected ProgressMonitorReporter wrapped;
@@ -62,6 +64,7 @@ public class NestedProgressReporter implements ProgressMonitorReporter {
     @Override
     public synchronized void setFailed() {
         succeeded = false;
+        wrapped.setSuccess(false);
         setState( TaskState.Terminated );
     }
 

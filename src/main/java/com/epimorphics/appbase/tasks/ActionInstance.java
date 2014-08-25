@@ -188,10 +188,22 @@ public class ActionInstance implements Action {
     }
     
     /**
-     * Run the instance from within an enclosing action
+     * Run the instance
      */
     public JsonObject run(ProgressMonitorReporter monitor) {
         return run(JsonUtil.EMPTY_OBJECT, monitor);
+    }
+    
+    /**
+     * Run the instance from within an enclosing action
+     */
+    public JsonObject runNested(ProgressMonitorReporter monitor) {
+        NestedProgressReporter nmon = new NestedProgressReporter(monitor);
+        JsonObject result = run(JsonUtil.EMPTY_OBJECT, nmon);
+        if (! nmon.succeeded() ) {
+            monitor.setFailed();
+        }
+        return result;
     }
     
     /**
@@ -220,7 +232,7 @@ public class ActionInstance implements Action {
      * returning true if the call succeeded 
      */
     public boolean runAndReport(ProgressMonitorReporter monitor) {
-        run(monitor);
+        runNested(monitor);
         return monitor.succeeded();
     }
      
