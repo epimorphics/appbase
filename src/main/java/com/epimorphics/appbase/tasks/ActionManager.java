@@ -191,7 +191,8 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown, St
         try {
             for (int i = start; i < tracesFiles.length; i++) {
                 ActionExecution ae = ActionExecution.reload(this, new File(traceDir, tracesFiles[i]));
-                executionHistory.add(ae);
+                if (ae != null)
+                    executionHistory.add(ae);
             }   
             log.info("Loaded " + executionHistory.size() + " historical action traces");
         } catch (IOException e) {

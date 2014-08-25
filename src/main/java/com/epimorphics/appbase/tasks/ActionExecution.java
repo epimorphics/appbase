@@ -233,6 +233,9 @@ public class ActionExecution implements Runnable, JSONWritable {
         InputStream in = new FileInputStream(file);
         try {
             return reload(actionManager, in);
+        } catch (Exception e) {
+            ActionManager.log.error("Failed to load action execution " + file, e);
+            return null;
         } finally {
             in.close();
         }
