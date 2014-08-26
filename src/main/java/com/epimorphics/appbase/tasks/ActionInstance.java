@@ -142,42 +142,51 @@ public class ActionInstance implements Action {
     @Override
     public JsonObject run(JsonObject parameters,
             ProgressMonitorReporter monitor) {
-        JsonUtil.mergeInto(call, parameters);
-        JsonObject result = null;
-        try {
-            result = baseAction.run(call, monitor);
-            if (monitor.getState() != TaskState.Terminated) {
-                monitor.setState(TaskState.Terminated);
-            }
-        } catch (Exception e) {
-            ActionManager.log.error("Exception during action execution", e);
-            monitor.reportError("Exception during execution: " + e);
+        JsonObject thiscall = JsonUtil.merge(call, parameters);
+        JsonObject result = safeRun(baseAction, thiscall, monitor);
+        
+        String aeid = JsonUtil.getStringValue(thiscall, ActionManager.ACTION_EXECUTION_PARAM, null);
+        if (aeid != null) {
+            result.put(ActionManager.ACTION_EXECUTION_PARAM, aeid);
         }
+        
         if (monitor.succeeded()) {
             synchronized (this) {
                 for (Action a : onSuccessList) {
-                    a.run(result, monitor);
+                    safeRun(a, result, monitor);
                 }
             }
         } else {
             synchronized (this) {
                 for (Action a : onErrorList) {
-                    a.run(result, monitor);
+                    safeRun(a, result, monitor);
                 }
             }
         }
         if (monitor.succeeded()) {
             if (baseAction.getOnSuccess() != null) {
-                baseAction.getOnSuccess().run(result, monitor);
+                safeRun(baseAction.getOnSuccess(), result, monitor);
             }
         } else {
             if (baseAction.getOnError() != null) {
-                baseAction.getOnError().run(result, monitor);
+                safeRun(baseAction.getOnError(), result, monitor);
             }
+        }
+        if (monitor.getState() != TaskState.Terminated) {
+            monitor.setState(TaskState.Terminated);
         }
         return result;
     }
     
+    private JsonObject safeRun(Action a, JsonObject params, ProgressMonitorReporter monitor) {
+        try {
+            return a.run(params, monitor);
+        } catch (Exception e) {
+            ActionManager.log.error("Exception during action execution", e);
+            monitor.reportError("Exception during execution: " + e);
+            return JsonUtil.EMPTY_OBJECT;
+        }
+    }
     
     /**
      * Set the instance running as a separate background action
