@@ -110,6 +110,15 @@ public abstract class BaseAction implements Action {
         }
     }
     
+    public String getStringParameter(JsonObject parameters, String key) {
+        JsonValue v = getParameter(parameters, key);
+        if (v != null && v.isString()) {
+            return v.getAsString().value();
+        } else {
+            throw new EpiException("Action could not find required parameter: " + key);
+        }
+    }
+    
     public int getIntParameter(JsonObject parameters, String key, int deflt) {
         JsonValue v = getParameter(parameters, key);
         if (v != null && v.isNumber()) {
