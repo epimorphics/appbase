@@ -57,6 +57,10 @@ public abstract class TomcatTestBase {
     protected Client c;
 
     abstract public String getWebappRoot() ;
+    
+    public String getWebappContext() {
+        return "/";
+    }
 
 
     @Before
@@ -67,7 +71,7 @@ public abstract class TomcatTestBase {
 
         tomcat.setBaseDir(".");
 
-        String contextPath = "/";
+        String contextPath = getWebappContext();
 
         File rootF = new File(root);
         if (!rootF.exists()) {
