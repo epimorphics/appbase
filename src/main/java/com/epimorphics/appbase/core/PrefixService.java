@@ -10,6 +10,7 @@
 package com.epimorphics.appbase.core;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,9 +56,13 @@ public class PrefixService extends ComponentBase {
     public void setPrefixFile(String file) {
         File pf = asFile(file);
         if (pf.canRead()) {
-            prefixes = FileManager.get().loadModel(pf.getAbsolutePath());
-            log.info("Loaded prefixes: " + pf);
-            prefixes.setNsPrefixes(globalDefault);
+            try {
+                prefixes = FileManager.get().loadModel(pf.getCanonicalPath());
+                log.info("Loaded prefixes: " + pf);
+                prefixes.setNsPrefixes(globalDefault);
+            } catch (IOException e) {
+                log.error("Failed to load prefixes file: " + pf);
+            }
         } else {
             log.error("Failed to find prefixes file: " + pf);
         }
