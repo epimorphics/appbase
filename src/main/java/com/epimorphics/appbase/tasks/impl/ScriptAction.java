@@ -193,7 +193,7 @@ public class ScriptAction extends BaseAction implements Action  {
             try {
                 while ((line = in.readLine()) != null) {
                     // Work around for JENA-767
-                    String clean = line.replace("\\b", "");
+                    String clean = line.replace("\b", "");
                     monitor.report(clean, type);
                 }
                 in.close();
