@@ -36,6 +36,7 @@ import org.apache.jena.atlas.json.JsonObject;
 import org.junit.After;
 import org.junit.Before;
 
+import com.epimorphics.util.NameUtils;
 import com.epimorphics.util.TestUtil;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -60,6 +61,13 @@ public abstract class TomcatTestBase {
     
     public String getWebappContext() {
         return "/";
+    }
+    
+    /**
+     * URL to use for liveness tests
+     */
+    public String getTestURL() {
+        return NameUtils.ensureLastSlash( BASE_URL.substring(0, BASE_URL.length()-1) + getWebappContext() );
     }
 
 
@@ -238,15 +246,14 @@ public abstract class TomcatTestBase {
         boolean tomcatLive = false;
         int count = 0;
         while (!tomcatLive) {
-            int status = getResponse(BASE_URL).getStatus();
+            int status = getResponse( getTestURL() ).getStatus();
             if (status != targetStatus) {
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    assertTrue("Interrupted", false);
                 }
-                if (count++ > 10) {
+                if (count++ > 120 ) {
                     assertTrue("Too many tries", false);
                 }
             } else {
