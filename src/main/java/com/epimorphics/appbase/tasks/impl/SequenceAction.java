@@ -22,19 +22,20 @@ public class SequenceAction extends CompoundAction {
 
     @Override
     protected JsonObject doRun(JsonObject parameters, ProgressMonitorReporter monitor) {
-        JsonObject result = new JsonObject();
+        JsonObject call = JsonUtil.makeJson(parameters);
         int n = componentActions.length;
         for (int i = 0; i < n; i++) {
             NestedProgressReporter prog = new NestedProgressReporter(monitor);
-            result = componentActions[i].run(JsonUtil.merge(parameters, result), prog);
+            JsonObject result = componentActions[i].run(call, prog);
             if (! prog.succeeded()) {
                 monitor.setFailed();
                 return result;
             }
+            JsonUtil.mergeInto(call, result);
             monitor.setProgress((int)Math.floor(100*i/n));
         }
         monitor.setSucceeded();
-        return result;
+        return call;
     }
     
 }
