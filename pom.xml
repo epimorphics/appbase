@@ -56,6 +56,30 @@
       <url>http://repository.epimorphics.com</url>
     </repository>
 
+    <repository>  
+     <id>epi-public-s3-snapshot</id>  
+     <name>Epimorphics S3 snapshot repository</name>  
+     <url>s3://epi-repository/public/snapshot</url>  
+     <releases>  
+       <enabled>false</enabled>  
+     </releases>  
+     <snapshots>  
+       <enabled>true</enabled>  
+     </snapshots>  
+    </repository>  
+
+    <repository>  
+     <id>epi-public-s3-release</id>  
+     <name>Epimorphics S3 release repository</name>  
+     <url>s3://epi-repository/public/release</url>  
+     <releases>  
+       <enabled>true</enabled>  
+     </releases>  
+     <snapshots>  
+       <enabled>false</enabled>  
+     </snapshots>  
+    </repository>  
+    
   </repositories>
 
   <pluginRepositories>
@@ -87,7 +111,7 @@
     <dependency>
       <groupId>com.epimorphics</groupId>
       <artifactId>lib</artifactId>
-      <version>0.0.20-SNAPSHOT</version>
+      <version>0.0.20</version>
     </dependency>
         <dependency>
       <groupId>javax.servlet</groupId>
@@ -242,12 +266,18 @@
       </plugin>
 -->
     </plugins>
-
+    
     <extensions>
       <extension>
         <groupId>org.apache.maven.wagon</groupId>
         <artifactId>wagon-ftp</artifactId>
-        <version>2.2</version>
+        <version>2.6</version>
+      </extension>
+      
+      <extension>
+        <groupId>org.springframework.build</groupId>
+        <artifactId>aws-maven</artifactId>
+        <version>5.0.0.RELEASE</version>
       </extension>
     </extensions>
 
@@ -283,14 +313,24 @@
   </build>
 
   <distributionManagement>
+     <repository>  
+         <id>epi-public-s3-release</id>  
+         <name>Epimorphics S3 release repository</name>  
+         <url>s3://epi-repository/public/release</url>  
+     </repository>
+       
+     <snapshotRepository>  
+         <id>epi-public-s3-snapshot</id>  
+         <name>Epimorphics S3 snapshot repository</name>  
+         <url>s3://epi-repository/public/snapshot</url>  
+     </snapshotRepository>  
+
     <!--
-      <repository> <id>ftp-repo-epi</id> <url>ftp://ftp.epimorphics.org/</url>
-      </repository>
-    -->
     <repository>
       <id>epi-public-repo</id>
       <url>ftp://epimorphics.com</url>
     </repository>
+    -->
 
   </distributionManagement>
 
