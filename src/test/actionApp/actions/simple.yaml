@@ -1,0 +1,64 @@
+"@name" : messageThrice
+"@type" : simple
+"@javaclass" : com.epimorphics.appbase.task.DummyAction
+"count" : 3
+---
+"@name"   : helloThrice
+"@base"   : messageThrice
+"message" : Hello
+---
+"@name"      : causeError
+"@javaclass" : com.epimorphics.appbase.task.CreateErrorAction
+---
+"@name" : testErrorHandler
+"@base" : causeError
+"@onError" :
+    "@javaclass" : com.epimorphics.appbase.task.PrintAction
+    "message" : Error detected
+---
+"@name"      : testErrorTimeout
+"@javaclass" : com.epimorphics.appbase.task.DummyAction
+"count"      : 50
+"message"    : ping
+"@timeout"   : 40
+"@onError" :
+    "@javaclass" : com.epimorphics.appbase.task.PrintAction
+    "message"    : Timeout detected
+---
+"@name"      : testSuccessChain
+"@javaclass" : com.epimorphics.appbase.task.PrintAction
+"message"  : test success chain
+"@onError" :
+    "@javaclass" : com.epimorphics.appbase.task.PrintAction
+    "message"    : Error detected
+"@onSuccess" :
+    "@javaclass" : com.epimorphics.appbase.task.PrintAction
+    "message"    : Success action called
+---
+"@name" : mark1
+"@javaclass" : com.epimorphics.appbase.task.PrintAction
+"message" : mark1 called
+---
+"@name"      : mark2
+"@javaclass" : com.epimorphics.appbase.task.PrintAction
+"message"    : mark2 called
+---
+"@name" : sequenceTest
+"@type" : sequence
+"@actions" :
+  - {"@javaclass" : "com.epimorphics.appbase.task.PrintAction", "message" : "sequence 1"}
+  - {"@javaclass" : "com.epimorphics.appbase.task.PrintAction", "message" : "sequence 2"}
+  - {"@javaclass" : "com.epimorphics.appbase.task.PrintAction", "message" : "sequence 3"}
+---
+"@name" : parTest
+"@type" : parallel
+"@actions" :
+  - {"@javaclass" : "com.epimorphics.appbase.task.PrintAction", "message" : "par 1"}
+  - {"@javaclass" : "com.epimorphics.appbase.task.PrintAction", "message" : "par 2"}
+  - {"@javaclass" : "com.epimorphics.appbase.task.PrintAction", "message" : "par 3"}
+---
+"@name" : triggerTest
+"@javaclass" : com.epimorphics.appbase.task.RecordingAction
+"@trigger" : "test/.*"
+"message" : "fired"
+ 

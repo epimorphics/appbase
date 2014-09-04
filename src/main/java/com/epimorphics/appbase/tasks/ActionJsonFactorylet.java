@@ -24,6 +24,7 @@ import org.apache.jena.atlas.json.JSON;
 import org.apache.jena.atlas.json.JsonArray;
 import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.atlas.json.JsonValue;
+import org.yaml.snakeyaml.Yaml;
 
 import com.epimorphics.appbase.tasks.impl.BaseAction;
 import com.epimorphics.appbase.tasks.impl.CompoundAction;
@@ -101,15 +102,28 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
     
     @Override
     public boolean canConfigure(File file) {
-        return file.canRead() && file.getName().endsWith(".json");
+        return file.canRead() && 
+                (file.getName().endsWith(".json") || file.getName().endsWith(".yaml"));
     }
 
     @Override
     public Collection<Action> configure(File file) {
         try {
             FileInputStream stream = new FileInputStream(file);
-            JsonValue spec = JSON.parseAny(stream);
-            stream.close();
+            JsonValue spec = null;
+            if (file.getName().endsWith(".json")) {
+                spec = JSON.parseAny(stream);
+                stream.close();
+            } else {
+                JsonArray array = new JsonArray();
+                for (Object parse : new Yaml().loadAll(stream) ) {
+                    array.add( JsonUtil.asJson(parse) );
+                }
+                try {
+                    stream.close();
+                } catch (IOException e) {}
+                spec = array;
+            }
             
             if (spec.isArray()) {
                 JsonArray a = spec.getAsArray();
