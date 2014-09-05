@@ -33,7 +33,8 @@
         <enabled>true</enabled>
       </snapshots>
     </repository>
-
+    
+ <!-- 
     <repository>
       <id>repo-epi</id>
       <name>Epimorphics repository</name>
@@ -55,11 +56,12 @@
       <name>Epimorphics Public Repository</name>
       <url>http://repository.epimorphics.com</url>
     </repository>
-
+ -->
+ 
     <repository>  
      <id>epi-public-s3-snapshot</id>  
      <name>Epimorphics S3 snapshot repository</name>  
-     <url>s3://epi-repository/public/snapshot</url>  
+     <url>s3://epi-repository/snapshot</url>  
      <releases>  
        <enabled>false</enabled>  
      </releases>  
@@ -71,7 +73,7 @@
     <repository>  
      <id>epi-public-s3-release</id>  
      <name>Epimorphics S3 release repository</name>  
-     <url>s3://epi-repository/public/release</url>  
+     <url>s3://epi-repository/release</url>  
      <releases>  
        <enabled>true</enabled>  
      </releases>  
@@ -81,25 +83,6 @@
     </repository>  
     
   </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>repo-epi</id>
-      <name>Epimorphics repository</name>
-      <layout>default</layout>
-      <url>http://www.epimorphics.com/maven2</url>
-      <releases>
-        <updatePolicy>always</updatePolicy>
-        <checksumPolicy>warn</checksumPolicy>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>interval:30</updatePolicy>
-        <checksumPolicy>warn</checksumPolicy>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
-
 
   <dependencies>
     <dependency>
@@ -111,7 +94,7 @@
     <dependency>
       <groupId>com.epimorphics</groupId>
       <artifactId>lib</artifactId>
-      <version>0.0.20</version>
+      <version>0.0.21</version>
     </dependency>
         <dependency>
       <groupId>javax.servlet</groupId>
@@ -240,36 +223,6 @@
         <version>2.5</version>
       </plugin>
 
-<!--
-      <plugin>
-        <groupId>org.apache.jena.tools</groupId>
-        <artifactId>schemagen</artifactId>
-        <version>0.2-20121116.182324-1</version>
-        <configuration>
-          <includes>
-            <include>src/main/vocabs/*.ttl</include>
-            <include>src/main/vocabs/*.owl</include>
-          </includes>
-          <fileOptions>
-            <source>
-              <input>default</input>
-              <package-name>com.epimorphics.server.vocabs</package-name>
-              <ontology>true</ontology>
-              <noStrict>true</noStrict>
-            </source>
-          </fileOptions>
-
-        </configuration>
-        <executions>
-          <execution>
-            <id>schemagen</id>
-            <goals>
-              <goal>translate</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
--->
     </plugins>
     
     <extensions>
@@ -321,13 +274,13 @@
      <repository>  
          <id>epi-public-s3-release</id>  
          <name>Epimorphics S3 release repository</name>  
-         <url>s3://epi-repository/public/release</url>  
+         <url>s3://epi-repository/release</url>  
      </repository>
        
      <snapshotRepository>  
          <id>epi-public-s3-snapshot</id>  
          <name>Epimorphics S3 snapshot repository</name>  
-         <url>s3://epi-repository/public/snapshot</url>  
+         <url>s3://epi-repository/snapshot</url>  
      </snapshotRepository>  
 
     <!--
