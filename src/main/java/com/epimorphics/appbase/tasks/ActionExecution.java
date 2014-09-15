@@ -173,7 +173,7 @@ public class ActionExecution implements Runnable, JSONWritable {
     
     protected void runNext(Action next) {
         if (next != null) {
-            next.run(JsonUtil.EMPTY_OBJECT, new NestedProgressReporter(monitor));
+            next.run(JsonUtil.emptyObject(), new NestedProgressReporter(monitor));
         }
     }
     

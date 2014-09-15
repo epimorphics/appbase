@@ -9,12 +9,12 @@
 
 package com.epimorphics.appbase.task;
 
-import static com.epimorphics.json.JsonUtil.EMPTY_OBJECT;
 import static com.epimorphics.json.JsonUtil.getStringValue;
 
 import org.apache.jena.atlas.json.JsonObject;
 
 import com.epimorphics.appbase.tasks.impl.BaseAction;
+import com.epimorphics.json.JsonUtil;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 
 public class PrintAction extends BaseAction {
@@ -24,7 +24,7 @@ public class PrintAction extends BaseAction {
             ProgressMonitorReporter monitor) {
         monitor.report( getStringValue(parameters, "message", "No message") );
         monitor.succeeded();
-        return EMPTY_OBJECT;
+        return JsonUtil.emptyObject();
     }
 
 }

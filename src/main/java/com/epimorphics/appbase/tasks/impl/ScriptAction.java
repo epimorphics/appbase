@@ -9,7 +9,6 @@
 
 package com.epimorphics.appbase.tasks.impl;
 
-import static com.epimorphics.json.JsonUtil.EMPTY_OBJECT;
 import static com.epimorphics.json.JsonUtil.fromJson;
 import static com.epimorphics.json.JsonUtil.getStringValue;
 import static com.epimorphics.json.JsonUtil.merge;
@@ -173,7 +172,7 @@ public class ScriptAction extends BaseAction implements Action  {
             }
         }
         
-        return EMPTY_OBJECT;
+        return JsonUtil.emptyObject();
     }
     
     class CaptureOutput implements Runnable {

@@ -10,7 +10,6 @@
 package com.epimorphics.appbase.task;
 
 import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.NAME_KEY;
-import static com.epimorphics.json.JsonUtil.EMPTY_OBJECT;
 import static com.epimorphics.json.JsonUtil.getIntValue;
 import static com.epimorphics.json.JsonUtil.getStringValue;
 import static com.epimorphics.json.JsonUtil.makeJson;
@@ -19,6 +18,7 @@ import org.apache.jena.atlas.json.JsonObject;
 
 import com.epimorphics.appbase.tasks.Action;
 import com.epimorphics.appbase.tasks.impl.BaseAction;
+import com.epimorphics.json.JsonUtil;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 
 /**
@@ -41,7 +41,7 @@ public class DummyAction extends BaseAction implements Action {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
-                return EMPTY_OBJECT;
+                return JsonUtil.emptyObject();
             }
             monitor.report(msg);
         }

@@ -196,7 +196,7 @@ public class TDBSparqlSource extends BaseSparqlSource implements SparqlSource {
             if (backupDir == null) {
                 log.error("No backup directory configured");
                 monitor.reportError("No backup directory configured");
-                return JsonUtil.EMPTY_OBJECT;
+                return JsonUtil.emptyObject();
             }
             String filename = "backup-" + TimeStamp.makeTimestamp() + ".nq.gz";
             File backupFile = new File(backupDir, filename);
@@ -231,7 +231,7 @@ public class TDBSparqlSource extends BaseSparqlSource implements SparqlSource {
                 try { if (out != null) out.close() ; }
                 catch (IOException e) { /* ignore */ }
             }
-            return JsonUtil.EMPTY_OBJECT;
+            return JsonUtil.emptyObject();
         }
         
     }

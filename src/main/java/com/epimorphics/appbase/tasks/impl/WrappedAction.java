@@ -47,7 +47,7 @@ public class WrappedAction extends BaseAction implements Action {
     public JsonObject doRun(JsonObject parameters, ProgressMonitorReporter monitor) {
         if (baseAction == null) {
             monitor.reportError("Could not find base action: " + getStringConfig(BASE_KEY , null));
-            return JsonUtil.EMPTY_OBJECT;
+            return JsonUtil.emptyObject();
         } else {
             return baseAction.run(JsonUtil.merge(configuration, parameters), monitor);
             

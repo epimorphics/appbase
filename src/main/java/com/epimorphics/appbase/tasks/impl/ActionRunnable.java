@@ -36,6 +36,6 @@ public class ActionRunnable extends BaseAction implements Action {
         } catch (Exception e) {
             monitor.reportError("Runnable action through error: " + e);
         }
-        return JsonUtil.EMPTY_OBJECT;
+        return JsonUtil.emptyObject();
     }
 }

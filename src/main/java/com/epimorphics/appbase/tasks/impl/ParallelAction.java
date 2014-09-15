@@ -44,7 +44,7 @@ public class ParallelAction extends CompoundAction {
             }
         }
         monitor.setSuccess( !failed );
-        return JsonUtil.EMPTY_OBJECT;
+        return JsonUtil.emptyObject();
     }
 
 }

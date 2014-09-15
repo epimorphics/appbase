@@ -147,7 +147,8 @@ public class ActionInstance implements Action {
         
         String aeid = JsonUtil.getStringValue(thiscall, ActionManager.ACTION_EXECUTION_PARAM, null);
         if (aeid != null) {
-            result.put(ActionManager.ACTION_EXECUTION_PARAM, aeid);
+            // Merge rather than put to avoid overwriting the EMPTY_OBJECT
+            result = JsonUtil.makeJson(result, ActionManager.ACTION_EXECUTION_PARAM, aeid);
         }
         
         if (monitor.succeeded()) {
@@ -184,7 +185,7 @@ public class ActionInstance implements Action {
         } catch (Exception e) {
             ActionManager.log.error("Exception during action execution", e);
             monitor.reportError("Exception during execution: " + e);
-            return JsonUtil.EMPTY_OBJECT;
+            return JsonUtil.emptyObject();
         }
     }
     
@@ -200,7 +201,7 @@ public class ActionInstance implements Action {
      * Run the instance
      */
     public JsonObject run(ProgressMonitorReporter monitor) {
-        return run(JsonUtil.EMPTY_OBJECT, monitor);
+        return run(JsonUtil.emptyObject(), monitor);
     }
     
     /**
@@ -208,7 +209,7 @@ public class ActionInstance implements Action {
      */
     public JsonObject runNested(ProgressMonitorReporter monitor) {
         NestedProgressReporter nmon = new NestedProgressReporter(monitor);
-        JsonObject result = run(JsonUtil.EMPTY_OBJECT, nmon);
+        JsonObject result = run(JsonUtil.emptyObject(), nmon);
         if (! nmon.succeeded() ) {
             monitor.setFailed();
         }

@@ -9,7 +9,6 @@
 
 package com.epimorphics.appbase.task;
 
-import static com.epimorphics.json.JsonUtil.EMPTY_OBJECT;
 import static com.epimorphics.json.JsonUtil.getStringValue;
 
 import java.util.ArrayList;
@@ -18,6 +17,7 @@ import java.util.List;
 import org.apache.jena.atlas.json.JsonObject;
 
 import com.epimorphics.appbase.tasks.impl.BaseAction;
+import com.epimorphics.json.JsonUtil;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 
 /**
@@ -41,6 +41,6 @@ public class RecordingAction extends BaseAction {
         synchronized (messages) {
             messages.add( getStringValue(parameters, "message", null) + " - " + getStringValue(parameters, "@trigger", null) );
         }
-        return EMPTY_OBJECT;
+        return JsonUtil.emptyObject();
     }
 }
