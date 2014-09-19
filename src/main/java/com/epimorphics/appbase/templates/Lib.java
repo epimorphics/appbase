@@ -217,6 +217,13 @@ public class Lib {
     static final String PAGE_PARAM = "page";
 
     /**
+     * Return the current time as a unix Long time stamp
+     */
+    public Long now() {
+        return System.currentTimeMillis();
+    }
+    
+    /**
      * Test if a node is a date-time literal
      */
     public boolean isDatetime(Object node) {
