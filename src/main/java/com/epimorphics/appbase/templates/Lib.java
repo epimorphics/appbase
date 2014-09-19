@@ -145,6 +145,13 @@ public class Lib {
             return escapeHtml(html);
         }
     }
+    
+    /**
+     * Limit a string to at most N characters
+     */
+    public String strLimit(String s, int N) {
+        return s.length() > N ? s.substring(0, N) : s;
+    }
 
     /**
      * Transform a string with a regex replacement
