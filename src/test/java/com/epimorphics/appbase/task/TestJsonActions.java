@@ -119,7 +119,9 @@ public class TestJsonActions {
         pm = ae.getMonitor();
         assertFalse(pm.succeeded());
         List<ProgressMessage> messages = pm.getMessages();
-        assertEquals( "Timeout detected", messages.get(messages.size() - 1).getMessage());
+        int n = messages.size();
+        assertTrue( "Timeout detected".equals( messages.get(n-1).getMessage() ) 
+                 || "Timeout detected".equals( messages.get(n-2).getMessage() ) );
     }
     
     @Test
