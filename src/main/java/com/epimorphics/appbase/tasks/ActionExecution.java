@@ -103,6 +103,25 @@ public class ActionExecution implements Runnable, JSONWritable {
         }
     }
     
+    public String getFormattedDuration() {
+        long duration = getDuration();
+        if (duration == -1) {
+            return "Not finished";
+        }
+        if (duration < 1000) {
+            return String.format("%d ms", duration);
+        } else if (duration < 60000) {
+            return String.format("%5.3f s", duration/1000.0);
+        } else {
+            long secs = duration/1000;
+            if (secs > 2600) {
+                return String.format("%dh %2dm %2ds", secs/3600, (secs%3600)/60, (secs%60));
+            } else {
+                return String.format("%2dm %2ds", (secs%3600)/60, (secs%60));
+            }
+        }
+    }
+    
     public JsonObject getResult() {
         return result;
     }
