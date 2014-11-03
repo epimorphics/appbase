@@ -9,7 +9,7 @@
 
 package com.epimorphics.appbase.monitor;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,6 +35,7 @@ import com.hp.hpl.jena.util.FileUtils;
 public class TestDatasetMonitor {
     protected App app;
     protected DatasetMonitor monitor;
+    protected CachingDatasetMonitor cmonitor;
     protected SparqlSource source;
     protected File testDir;
     
@@ -54,6 +55,12 @@ public class TestDatasetMonitor {
         monitor.setSparqlSource(source);
         app.addComponent("monitor", monitor);
         
+        cmonitor = new CachingDatasetMonitor();
+        cmonitor.setDirectory(testDir.getPath());
+        cmonitor.setFileSampleLength(1000);
+        cmonitor.setSparqlSource(source);
+        app.addComponent("cmonitor", cmonitor);
+        
         app.startup();
     }
     
@@ -65,27 +72,34 @@ public class TestDatasetMonitor {
     @Test
     public void testMonitor() throws IOException, InterruptedException {
         monitor.setScanInterval(5);
+        cmonitor.setScanInterval(5);
         assertTrue( monitor.getEntries().isEmpty() );
         
         addFile("graph1", "g1.ttl");
-        waitFor("file:g1.ttl", true);
+        waitFor(monitor, "file:g1.ttl", true);
         TestUtil.testArray(TestUnionSource.checkGraphs(source), new String[]{"graph1"});
         
         addFile("graph2", "subdir/g2.ttl");
-        waitFor("file:subdir/g2.ttl", true);
+        waitFor(monitor, "file:subdir/g2.ttl", true);
         TestUtil.testArray(TestUnionSource.checkGraphs(source), new String[]{"graph1", "graph2"});
         TestUtil.testArray(checkGraphNames(source), new String[]{"file:g1.ttl", "file:subdir/g2.ttl"});
         
+        waitFor(cmonitor, "file:subdir/g2.ttl", true);
+        assertEquals(2, cmonitor.getCachedUnion().size());
+        
         removeFile("g1.ttl");
-        waitFor("file:g1.ttl", false);
+        waitFor(monitor, "file:g1.ttl", false);
         TestUtil.testArray(TestUnionSource.checkGraphs(source), new String[]{"graph2"});
         TestUtil.testArray(checkGraphNames(source), new String[]{"file:subdir/g2.ttl"});
+        
+        waitFor(cmonitor, "file:g1.ttl", false);
+        assertEquals(1, cmonitor.getCachedUnion().size());
     }
     
-    protected void waitFor(String graphname, boolean present) throws InterruptedException {
+    protected void waitFor(DatasetMonitor dsmon, String graphname, boolean present) throws InterruptedException {
         for (int t = 0; t < NTRIES; t++) {
             Thread.sleep(MONITOR_CHECK_DELAY);
-            MonitoredGraph m = monitor.get(graphname);
+            MonitoredGraph m = dsmon.get(graphname);
             if ( (present && m != null) || (!present && m == null) ) {
                 return;
             }

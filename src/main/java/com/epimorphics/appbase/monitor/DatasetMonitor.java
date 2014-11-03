@@ -96,15 +96,32 @@ public class DatasetMonitor extends ConfigMonitor<DatasetMonitor.MonitoredGraph>
             getAccessor().putModel(entry.getName(), model);
             super.doAddEntry(entry);
             if (wsource != null) wsource.resetCache();
+            addModelHook(entry.getName(), model);
         } catch (Throwable t) {
             log.error("Failed add monitored graph: " + entry.getName(), t);
         }
     }
+    
+    /**
+     * Extension hook called when a graph is loaded.
+     */
+    protected void addModelHook(String graph, Model model) {
+        // Default is no action
+    }
+    
+    /**
+     * Extension hook called when a graph is removed.
+     */
+    protected void removeModelHook(String graph) {
+        // Default is no action
+    }
 
+    @Override
     protected void doRemoveEntry(MonitoredGraph entry) {
         getAccessor().deleteModel( entry.getName() );
         super.doRemoveEntry(entry);
         if (wsource != null) wsource.resetCache();
+        removeModelHook(entry.getName());
     }
 
     protected DatasetAccessor getAccessor() {
