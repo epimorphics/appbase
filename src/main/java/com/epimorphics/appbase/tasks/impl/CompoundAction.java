@@ -29,6 +29,7 @@ public abstract class CompoundAction extends BaseAction {
     
     @Override
     public void resolve(ActionManager am) {
+        super.resolve(am);
         componentActions = new Action[ components.size() ];
         for (int i = 0; i < components.size(); i++) {
             Action a = resolveAction(am, components.get(i));

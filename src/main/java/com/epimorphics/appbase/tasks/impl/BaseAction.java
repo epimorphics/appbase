@@ -15,6 +15,7 @@ import static com.epimorphics.json.JsonUtil.*;
 import java.util.Map.Entry;
 
 import org.apache.jena.atlas.json.JsonObject;
+import org.apache.jena.atlas.json.JsonString;
 import org.apache.jena.atlas.json.JsonValue;
 
 import com.epimorphics.appbase.core.AppConfig;
@@ -183,6 +184,8 @@ public abstract class BaseAction implements Action {
             return null;
         } else if (action instanceof String) {
             resolved = am.get((String)action);
+        } else if (action instanceof JsonString) {
+            resolved = am.get( ((JsonString)action).value() );
         } else if (action instanceof Action) {
             resolved = (Action)action;
         } else if (action instanceof JsonObject) {

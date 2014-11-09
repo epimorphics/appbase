@@ -108,12 +108,18 @@ public class TestJsonActions {
     
     @Test
     public void testErrorHandler() throws InterruptedException {
-        ActionExecution ae = runAction("testErrorHandler", "");
-        ProgressMonitorReporter pm = ae.getMonitor();
+//        ActionExecution ae = runAction("testErrorHandler", "");
+//        ProgressMonitorReporter pm = ae.getMonitor();
+//        assertFalse(pm.succeeded());
+//        assertEquals(2, pm.getMessages().size());
+//        assertTrue( pm.getMessages().get(0).getMessage().contains("Forcing error from CreateErrorAction") );
+//        assertEquals( "Error detected", pm.getMessages().get(1).getMessage() );
+//        
+        ProgressMonitorReporter pm = runAction("compoundError", "").getMonitor();
         assertFalse(pm.succeeded());
-        assertEquals(2, pm.getMessages().size());
-        assertTrue( pm.getMessages().get(0).getMessage().contains("Forcing error from CreateErrorAction") );
-        assertEquals( "Error detected", pm.getMessages().get(1).getMessage() );
+        assertEquals(3, pm.getMessages().size());
+        assertEquals( "compound error", pm.getMessages().get(0).getMessage() );
+        assertEquals( "exception caught", pm.getMessages().get(2).getMessage() );
 
         // TODO debug why this test is unreliable outside of eclipse on fast machine
         /*

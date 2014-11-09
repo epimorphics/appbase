@@ -61,4 +61,20 @@
 "@javaclass" : com.epimorphics.appbase.task.RecordingAction
 "@trigger" : "test/.*"
 "message" : "fired"
+---
+"@name" : compoundError
+"@javaclass" : com.epimorphics.appbase.task.PrintAction
+"message"  : compound error
+"@onSuccess": nestedCompoundError
+---
+"@name" : nestedCompoundError
+"@type" : sequence
+"@actions" :
+  - "@javaclass" : com.epimorphics.appbase.tasks.CreateErrorAction
+  - "@javaclass" : com.epimorphics.appbase.task.PrintAction
+    "message"  : "after exception"
+"@onError" :
+    "@javaclass" : com.epimorphics.appbase.task.PrintAction
+    "message"  : "exception caught"
+    
  

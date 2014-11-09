@@ -108,7 +108,7 @@ public class ActionInstance implements Action {
     /**
      * Add an additional action to run if this action succeeds
      */
-    public void addOnSuccess(Action next) {
+    public synchronized void addOnSuccess(Action next) {
         onSuccessList.add( next );
     }
     
@@ -167,15 +167,6 @@ public class ActionInstance implements Action {
                 }
             }
         }
-        if (monitor.succeeded()) {
-            if (baseAction.getOnSuccess() != null) {
-                safeRun(baseAction.getOnSuccess(), followOnCall, monitor);
-            }
-        } else {
-            if (baseAction.getOnError() != null) {
-                safeRun(baseAction.getOnError(), followOnCall, monitor);
-            }
-        }
         if (monitor.getState() != TaskState.Terminated) {
             monitor.setState(TaskState.Terminated);
         }
@@ -183,13 +174,25 @@ public class ActionInstance implements Action {
     }
     
     private JsonObject safeRun(Action a, JsonObject params, ProgressMonitorReporter monitor) {
+        JsonObject result = null;
         try {
-            return a.run(params, monitor);
+            result = a.run(params, monitor);
         } catch (Exception e) {
             ActionManager.log.error("Exception during action execution", e);
             monitor.reportError("Exception during execution: " + e);
-            return JsonUtil.emptyObject();
+            result = JsonUtil.emptyObject();
         }
+        JsonObject followOnCall = JsonUtil.merge(params, result);
+        if (monitor.succeeded()) {
+            if (a.getOnSuccess() != null) {
+                safeRun(a.getOnSuccess(), followOnCall, monitor);
+            }
+        } else {
+            if (a.getOnError() != null) {
+                safeRun(a.getOnError(), followOnCall, monitor);
+            }
+        }
+        return result;
     }
     
     /**
