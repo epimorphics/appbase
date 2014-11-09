@@ -7,7 +7,7 @@
  *
  *****************************************************************/
 
-package com.epimorphics.appbase.task;
+package com.epimorphics.appbase.tasks;
 
 import org.apache.jena.atlas.json.JsonObject;
 
