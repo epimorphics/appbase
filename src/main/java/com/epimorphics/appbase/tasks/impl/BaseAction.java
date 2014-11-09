@@ -12,6 +12,8 @@ package com.epimorphics.appbase.tasks.impl;
 import static com.epimorphics.appbase.tasks.ActionJsonFactorylet.*;
 import static com.epimorphics.json.JsonUtil.*;
 
+import java.util.Map.Entry;
+
 import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.atlas.json.JsonValue;
 
@@ -206,7 +208,7 @@ public abstract class BaseAction implements Action {
     
     @Override
     public JsonObject run(JsonObject parameters, ProgressMonitorReporter monitor) {
-        return doRun( JsonUtil.merge(configuration, parameters), monitor);
+        return doRun( mergedCall(parameters), monitor);
     }
     
     protected abstract JsonObject doRun(JsonObject parameters, ProgressMonitorReporter monitor);
@@ -232,4 +234,18 @@ public abstract class BaseAction implements Action {
         return JsonUtil.emptyObject();
     }
 
+    /**
+     * In calls the non-@ configuration overrides parameters to allow us e.g. bind a messages into a message action
+     * and not have it overridden with messages for other actions when chaining.
+     */
+    protected JsonObject mergedCall(JsonObject parameters) {
+        JsonObject call = JsonUtil.makeJson(parameters);
+        for (Entry<String, JsonValue> e : configuration.entrySet()) {
+            String key = e.getKey();
+            if ( ! key.startsWith("@") || ! call.hasKey(key)) {
+                call.put(key, e.getValue());
+            }
+        }
+        return call;
+    }
 }

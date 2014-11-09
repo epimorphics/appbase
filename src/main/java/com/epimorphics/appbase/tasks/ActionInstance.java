@@ -142,7 +142,8 @@ public class ActionInstance implements Action {
     @Override
     public JsonObject run(JsonObject parameters,
             ProgressMonitorReporter monitor) {
-        JsonObject thiscall = JsonUtil.merge(call, parameters);
+//        JsonObject thiscall = JsonUtil.merge(call, parameters);
+        JsonObject thiscall = JsonUtil.merge(parameters, call);
         JsonObject result = safeRun(baseAction, thiscall, monitor);
         
         String aeid = JsonUtil.getStringValue(thiscall, ActionManager.ACTION_EXECUTION_PARAM, null);
@@ -151,26 +152,28 @@ public class ActionInstance implements Action {
             result = JsonUtil.makeJson(result, ActionManager.ACTION_EXECUTION_PARAM, aeid);
         }
         
+        JsonObject followOnCall = JsonUtil.merge(thiscall, result);
+        
         if (monitor.succeeded()) {
             synchronized (this) {
                 for (Action a : onSuccessList) {
-                    safeRun(a, result, monitor);
+                    safeRun(a, followOnCall, monitor);
                 }
             }
         } else {
             synchronized (this) {
                 for (Action a : onErrorList) {
-                    safeRun(a, result, monitor);
+                    safeRun(a, followOnCall, monitor);
                 }
             }
         }
         if (monitor.succeeded()) {
             if (baseAction.getOnSuccess() != null) {
-                safeRun(baseAction.getOnSuccess(), result, monitor);
+                safeRun(baseAction.getOnSuccess(), followOnCall, monitor);
             }
         } else {
             if (baseAction.getOnError() != null) {
-                safeRun(baseAction.getOnError(), result, monitor);
+                safeRun(baseAction.getOnError(), followOnCall, monitor);
             }
         }
         if (monitor.getState() != TaskState.Terminated) {

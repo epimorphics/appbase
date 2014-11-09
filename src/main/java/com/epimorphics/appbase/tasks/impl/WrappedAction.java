@@ -49,7 +49,7 @@ public class WrappedAction extends BaseAction implements Action {
             monitor.reportError("Could not find base action: " + getStringConfig(BASE_KEY , null));
             return JsonUtil.emptyObject();
         } else {
-            return baseAction.run(JsonUtil.merge(configuration, parameters), monitor);
+            return baseAction.run( mergedCall(parameters), monitor);
             
         }
     }
