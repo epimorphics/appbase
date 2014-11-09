@@ -8,7 +8,7 @@
 "message" : Hello
 ---
 "@name"      : causeError
-"@javaclass" : com.epimorphics.appbase.task.CreateErrorAction
+"@javaclass" : com.epimorphics.appbase.tasks.CreateErrorAction
 ---
 "@name" : testErrorHandler
 "@base" : causeError
