@@ -90,7 +90,13 @@ public class ScriptAction extends BaseAction implements Action  {
                     args[0] = DEFAULT_SHELL;
                     args[1] = script;
                     for (int i = 0; i < argMap.size(); i++) {
-                        args[2+i] = fromJson( conf.get( argMap.get(i) ) ).toString();
+                        String argname = argMap.get(i);
+                        JsonValue arg = conf.get( argname );
+                        if (arg == null) {
+                            monitor.reportError(String.format("Failed to find value for argument %s in script %s, aborting", argname, script));
+                            return JsonUtil.emptyObject();
+                        }
+                        args[2+i] = fromJson( arg ).toString();
                     }
                     scriptPB = new ProcessBuilder(args);
                 }
