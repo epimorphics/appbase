@@ -303,6 +303,7 @@ public class WNode implements Comparable<WNode> {
     }
     
     protected WNode getNode(Node n) {
+        if (n == null) return null;
         WNode result = source.get(n);
         if (n.isBlank()) {
             result.setDescription( description );
