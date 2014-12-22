@@ -34,37 +34,66 @@ public class TestMonitor {
     protected App app;
     protected TMonitor monitor;
     protected File testDir;
+    protected File fubarFile;
     
+//    private static final int MONITOR_CHECK_DELAY = 1000;
+//    private static final int NTRIES = 60;
     private static final int MONITOR_CHECK_DELAY = 15;
     private static final int NTRIES = 20;
     
     @Before
     public void setup() throws IOException {
         testDir = Files.createTempDirectory("testmonitor").toFile();
+        fubarFile = touchFile("fubar", "fubar1");
+        
         app = new App("TestMonitor");
-
-        monitor = new TMonitor();
-        monitor.setDirectory(testDir.getPath());
-        monitor.setFileSampleLength(1000);
-
-        app.addComponent("monitor", monitor);
-        app.startup();
     }
     
     @After
     public void cleanUp() {
         FileUtil.deleteDirectory(testDir);
     }
-
+    
     @Test
-    public void testMonitor() throws IOException, InterruptedException {
+    public void testScanner() throws IOException, InterruptedException {
+        monitor = new TMonitor();
+        monitor.setDirectory(testDir.getPath());
+        monitor.setFileSampleLength(1000);
         monitor.setScanInterval(5);
+
+        app.addComponent("monitor", monitor);
+        app.startup();
+
+        doTestMonitor();
+    }
+    
+    @Test
+    public void testWatcher() throws IOException, InterruptedException {
+        
+        monitor = new TMonitor();
+        monitor.setUseWatcher(true);
+        monitor.setDirectory(testDir.getPath());
+
+        app.addComponent("monitor", monitor);
+        app.startup();
+
+        doTestMonitor();
+    }
+
+    public void doTestMonitor() throws IOException, InterruptedException {
+        waitFor("fubar", true);
+
+        Collection<TestInstance> entries = monitor.getEntries();
+        assertEquals(1, entries.size());
+
+        assertTrue( fubarFile.delete() );
+        waitFor("fubar", false);
         assertTrue( monitor.getEntries().isEmpty() );
         
         File fooFile = touchFile("foo", "foo1");
         waitFor("foo", true);
         
-        Collection<TestInstance> entries = monitor.getEntries();
+        entries = monitor.getEntries();
         assertEquals(1, entries.size());
         
         TestInstance[] entryArray = new TestInstance[1];
@@ -95,6 +124,14 @@ public class TestMonitor {
         entries = monitor.getEntries();
         assertEquals(1, entries.size());
         TestUtil.testArray(entryNames(entries), new String[]{"bar1"});
+        
+        File dir = FileUtil.ensureDir(testDir + "/dir");
+        File childF = touchFile("dir/child", "child1");
+        waitFor("child", true);
+        
+        childF.delete();
+        dir.delete();
+        waitFor("child", false);
     }
     
     private File touchFile(String file, String content) throws IOException {

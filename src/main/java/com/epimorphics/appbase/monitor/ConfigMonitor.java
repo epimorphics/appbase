@@ -10,6 +10,7 @@
 package com.epimorphics.appbase.monitor;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,7 +27,6 @@ import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.core.ComponentBase;
 import com.epimorphics.appbase.core.Startup;
 import com.epimorphics.appbase.core.TimerManager;
-import com.epimorphics.appbase.monitor.Scanner.FileRecord;
 import com.hp.hpl.jena.util.OneToManyMap;
 
 /**
@@ -36,37 +36,46 @@ import com.hp.hpl.jena.util.OneToManyMap;
  * should supply the method which does the instantiation. It should be
  * configured as a component in the application config.
  * <p>
- * If run in production mode then the configuration directory is only consulted
- * once the first time any access method is used or by an explicit refresh().
- * After that only an explicit refresh() will cause a directory scan.
- * </p><p>
- * In development mode then by default the directory is scanned every 
- * 2 seconds to check for changes, this is configurable.
+ * The default is to use a legacy scanning system which checks for changes
+ * periodically (default every 2s but can be set into production mode where
+ * check is only done at startup and it explicit refresh).
  * </p>
+ * <p>
+ * Preferred method is to {@link #setUseWatcher(boolean)} to true to use a 
+ * more efficient low level file system watcher. If this is done then
+ * productionModel, fileSampleLength and scanInterval are all irrelevant.
+ * </p> 
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
+public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentBase implements Runnable, Startup, FileRecord.Process {
 
-// Note: It might be useful to have a mode where the check is only done 
-// when an access method is used more than 2 seconds after the last check. 
-// Has the advantage that in a system where you aren't using the monitor work isn't
-// being done. Has the disadvantage that you take the scan hit at exactly the time you
-// want a result. No support for this at present.
-
-public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentBase implements Runnable, Startup {
     static Logger log = LoggerFactory.getLogger(ConfigMonitor.class);
     
     protected boolean initialized = false;
+    protected boolean useWatcher = false; 
+    protected File scanDir;
+    
+    // Legacy scanner based monitoring
     protected boolean productionMode = false;
     protected boolean waitForStable = true;
     protected int scanInterval = 2 * 1000;  // 2 seconds
     protected Scanner scanner;
     protected int fingerprintLength = 0;
     protected ScheduledFuture<?> scanTask;
-    protected File scanDir;
     
     protected OneToManyMap<File, T> entries = new OneToManyMap<>();
     protected Map<String, T> entryIndex = new HashMap<>();
 
+    /**
+     * Set to true to monitor the directory by a low level file
+     * system watcher instead of a periodic scan. Should
+     * be set before setting the directory.
+     */
+    public void setUseWatcher(boolean useWatcher) {
+        this.useWatcher = useWatcher;
+    }
+    
+    
     /**
      * Set production mode on/off. In production mode then the directory
      * will only be scanned once at first access and then only when explicitly refreshed
@@ -77,12 +86,14 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
     }
     
     /**
-     * Set the directory to be monitored
+     * Set the directory to be monitored. Must be set before monitor is started.
      */
     public void setDirectory(String dir) {
         scanDir = asFile(dir);
-        scanner = new Scanner(scanDir);
-        scanner.setFingerprintLength(fingerprintLength);
+        if (!useWatcher) {
+            scanner = new Scanner(scanDir);
+            scanner.setFingerprintLength(fingerprintLength);
+        }
     }
     
     /**
@@ -92,7 +103,7 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
      */
     public void setScanInterval(long intervalInMS) {
         scanInterval = (int) intervalInMS;
-        if (initialized && !productionMode) {
+        if (initialized && !productionMode && !useWatcher) {
             stopScanning();
             startScanning();
         }
@@ -163,12 +174,22 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
      */
     protected void init() {
         if (!initialized) {
-            if (scanner == null) {
-                log.warn("No directory scanner, failed to set directory to monitor?");
-                // Don't raise exception because this is a valid set up for testing
+            if (useWatcher) {
+                try {
+                    ConfigWatcher.watch(scanDir, this);
+                    ConfigWatcher.start();
+                } catch (IOException e) {
+                    log.error("Failed to set directory monitor", e);
+                }
             } else {
-                refresh();
-                if (!productionMode) startScanning();
+                if (scanner == null) {
+                    log.warn("No directory scanner, failed to set directory to monitor?");
+                    // Don't raise exception because this is a valid set up for testing
+                } else {
+                    refresh();
+                    if (!productionMode) startScanning();
+                }
+    
             }
             initialized = true;
         }
@@ -194,29 +215,36 @@ public abstract class ConfigMonitor<T extends ConfigInstance> extends ComponentB
     private synchronized void doScan(boolean returnImmediately) {
         Set<FileRecord> changes = scanner.scan(returnImmediately);
         synchronized (this) {
-            for ( Scanner.FileRecord change : changes ) {
-                try {
-                    File file = change.file;
-                    switch(change.state) {
-                    case NEW:
-                        addEntry(file, configure(file) );
-                        break;
-                        
-                    case MODIFIED:
-                        Collection<T> entrylist = configure(file);
-                        removeEntry( file );
-                        addEntry(file, entrylist);
-                        break;
-                        
-                    case DELETED:
-                        removeEntry( file );
-                        break;
-                    }
-                } catch (Exception e) {
-                    // Absorb problems here and log otherwise the scanner can be left part configured
-                    log.error("Problem loading scanned changes", e);
-                }
+            for ( FileRecord change : changes ) {
+                process(change);
             }
+        }
+    }
+    
+    /**
+     * Handle one file change notification
+     */
+    public void process(FileRecord change) {
+        try {
+            File file = change.file;
+            switch(change.state) {
+            case NEW:
+                addEntry(file, configure(file) );
+                break;
+                
+            case MODIFIED:
+                Collection<T> entrylist = configure(file);
+                removeEntry( file );
+                addEntry(file, entrylist);
+                break;
+                
+            case DELETED:
+                removeEntry( file );
+                break;
+            }
+        } catch (Exception e) {
+            // Absorb problems here and log otherwise the scanner can be left part configured
+            log.error("Problem loading scanned changes", e);
         }
     }
     

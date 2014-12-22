@@ -36,6 +36,8 @@ import java.util.zip.CRC32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.epimorphics.appbase.monitor.FileRecord.FileState;
+
 /**
  * Scans a directory to detect any files that have been added, changed or removed.
  * 
@@ -47,18 +49,6 @@ public class Scanner {
     protected int fingerprintLength = 1000;  
     protected final File directory;
     protected final FilenameFilter filter;
-
-    public enum FileState { NEW, DELETED, MODIFIED };
-    
-    public class FileRecord {
-        public File file;
-        public FileState state;
-        
-        public FileRecord(File file, FileState state) {
-            this.file = file;
-            this.state = state;
-        }
-    }
 
     /**
      * Set the length of the file head which will be included in the
@@ -139,7 +129,7 @@ public class Scanner {
     }
     
     private Set<FileRecord> scanDir(File dir, Set<File> removed, boolean reportImmediately) {
-        Set<FileRecord> results = new HashSet<Scanner.FileRecord>();
+        Set<FileRecord> results = new HashSet<FileRecord>();
         
         File[] list = dir.listFiles(filter);
         if (list == null) {
