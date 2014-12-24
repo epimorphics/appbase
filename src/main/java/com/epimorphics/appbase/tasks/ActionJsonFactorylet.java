@@ -103,7 +103,7 @@ public class ActionJsonFactorylet implements ActionFactory.Factorylet {
     @Override
     public boolean canConfigure(File file) {
         return file.canRead() && 
-                (file.getName().endsWith(".json") || file.getName().endsWith(".yaml"));
+                (file.getName().endsWith(".json") || file.getName().endsWith(".yaml") || file.getName().endsWith(".yml"));
     }
 
     @Override
