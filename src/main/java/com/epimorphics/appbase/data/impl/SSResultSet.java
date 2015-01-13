@@ -42,6 +42,7 @@ public class SSResultSet implements ClosableResultSet {
     
     @Override
     public boolean hasNext() {
+        if (source == null) return false; // Already finished and cleaned up
         boolean hasnext = results.hasNext();
         if (!hasnext) {
             doClose();
