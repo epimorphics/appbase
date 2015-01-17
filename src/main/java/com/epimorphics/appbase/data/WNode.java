@@ -50,6 +50,8 @@ public class WNode implements Comparable<WNode> {
     
     public WNode(WSource source, RDFNode node) {
         this(source, node.asNode());
+        // Prevent live fetch of description information by declaring that the node is fully described by its containing local model
+        description = new NodeDescription(this.node, node.getModel().getGraph());
     }
     
     public WNode(WSource source, Node node) {
