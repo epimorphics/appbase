@@ -47,11 +47,19 @@ public class WNode implements Comparable<WNode> {
     protected WSource source;
     protected Node node;
     protected NodeDescription description;
+    protected boolean selfDescribed;    
     
     public WNode(WSource source, RDFNode node) {
+        this(source, node, true);
+    }
+    
+    public WNode(WSource source, RDFNode node, boolean selfDescribed) {
         this(source, node.asNode());
-        // Prevent live fetch of description information by declaring that the node is fully described by its containing local model
-        description = new NodeDescription(this.node, node.getModel().getGraph());
+        this.selfDescribed = selfDescribed;
+        if (selfDescribed) {
+            // Prevent live fetch of description information by declaring that the node is fully described by its containing local model
+            description = new NodeDescription(this.node, node.getModel().getGraph());
+        }
     }
     
     public WNode(WSource source, Node node) {
@@ -65,6 +73,10 @@ public class WNode implements Comparable<WNode> {
     }
     
     // -- Basic accessors -------------------------------
+    
+    protected void setSelfDescribed(boolean selfDescribed) {
+        this.selfDescribed = selfDescribed;
+    }
     
     public boolean isResource() {
         return node.isURI() || node.isBlank();
@@ -306,11 +318,17 @@ public class WNode implements Comparable<WNode> {
     
     protected WNode getNode(Node n) {
         if (n == null) return null;
-        WNode result = source.get(n);
-        if (n.isBlank()) {
-            result.setDescription( description );
+        if (n.isLiteral()) {
+            return new WNode(source, n);
+        } else if (n.isBlank() || selfDescribed) {
+            if (description != null) {
+                NodeDescription nd = new NodeDescription(n, description.description);
+                WNode result = new WNode(source, n, nd);
+                result.setSelfDescribed(selfDescribed);
+                return result;
+            }
         }
-        return result;
+        return source.get(n);
     }
     
     // -- queries --------------------
