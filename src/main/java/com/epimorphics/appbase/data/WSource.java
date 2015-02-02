@@ -64,11 +64,11 @@ public class WSource extends ComponentBase {
      * @param size
      */
     @SuppressWarnings("unchecked")
-    public synchronized void setCacheSize(int size) {
+    public synchronized void setCacheSize(long size) {
         if (size == 0) {
             cache = null;
         } else {
-            cache = new LRUMap(size);
+            cache = new LRUMap((int)size);
         }
     }
     
