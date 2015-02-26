@@ -231,6 +231,13 @@ public class Lib {
     }
     
     /**
+     * Return the current time as a Calendar object
+     */
+    public Calendar calendar() {
+        return Calendar.getInstance();
+    }
+    
+    /**
      * Test if a node is a date-time literal
      */
     public boolean isDatetime(Object node) {
@@ -257,10 +264,12 @@ public class Lib {
         return printDatetime("d MMM yyyy HH:mm:ss.SSS", node);
     }
 
-    private Date asDateTime(Object node) {
+    public Date asDateTime(Object node) {
         RDFNode n = null;
         if (node instanceof Date) {
             return (Date)node;
+        } else if (node instanceof Calendar) {
+            return ((Calendar)node).getTime();
         } else if (node instanceof Long) {
             return new Date( (Long)node );
         }
