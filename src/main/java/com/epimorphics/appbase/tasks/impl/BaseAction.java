@@ -52,6 +52,11 @@ public abstract class BaseAction implements Action {
         mergeInto(configuration, config);
     }
 
+    @Override 
+    public JsonObject getConfig() {
+        return configuration;
+    }
+    
     public Object getConfig(String key) {
         return configuration.get(key);
     }

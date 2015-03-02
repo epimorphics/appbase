@@ -36,6 +36,12 @@ public interface Action extends ConfigInstance, Named {
     public JsonObject run(JsonObject parameters, ProgressMonitorReporter monitor);
     
     /**
+     * Return access to the configuration parmeters for this action, if available.
+     * May return null.
+     */
+    public JsonObject getConfig();
+    
+    /**
      * Return the maximum time (in milliseconds) this action should be allowed to run.
      * Return -1 if there's no limit.
      */

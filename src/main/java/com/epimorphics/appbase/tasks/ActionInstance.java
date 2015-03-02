@@ -68,6 +68,11 @@ public class ActionInstance implements Action {
         return timeout;
     }
     
+    @Override
+    public JsonObject getConfig() {
+        return call;
+    }
+    
     public void setTimeout(int timeout) {
         this.timeout = timeout;
     }
