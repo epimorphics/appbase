@@ -68,34 +68,52 @@ public class AppConfig implements ServletContextListener {
             if (param.startsWith(CONFIG_PREFIX)) {
                 String appName = param.substring(CONFIG_PREFIX.length());
                 String configFiles = context.getInitParameter(param);
-                for (String configF : configFiles.split(",") ) {
-                    File configFile = new File( expandFileLocation(configF.trim()) );
-                    if (configFile.exists() && configFile.canRead()) {
-                        try {
-                            App app = new App(appName, configFile);
-                            for (Startup s : startupHooks) {
-                                s.startup(app);
-                            }
-                            apps.put(appName, app);
-                            if (defaultApp == null) {
-                                defaultApp = app;
-                                log.info("Loaded App " + appName + " as the default app");
-                            } else {
-                                log.info("Loaded App " + appName);
-                            }
-                            // exit after the first successful configuration of this app
-                            break;
-                        } catch (Exception e) {
-                            log.error("Failed to load configuration file: " + configFile, e);
-                        }
-                    }
-                }
+                loadConfig(appName, configFiles);
             }
         }
         
         if (defaultApp == null) {
             throw new EpiException("No apps successfully configured");
         }
+    }
+    
+    /**
+     * Manually start up a configurable app. Used when not in a servlet context.
+     * @param appName the name of the app
+     * @param config  comma-separated list of locations to search for the configuration file.
+     */
+    public static void startApp(String appName, String config) {
+        theConfig = new AppConfig();
+        theConfig.loadConfig(appName, config);
+        if (theConfig.defaultApp == null) {
+            throw new EpiException("No apps successfully configured");
+        }
+        
+    }
+    
+    private void loadConfig(String appName, String configFiles) {
+        for (String configF : configFiles.split(",") ) {
+            File configFile = new File( expandFileLocation(configF.trim()) );
+            if (configFile.exists() && configFile.canRead()) {
+                try {
+                    App app = new App(appName, configFile);
+                    for (Startup s : startupHooks) {
+                        s.startup(app);
+                    }
+                    apps.put(appName, app);
+                    if (defaultApp == null) {
+                        defaultApp = app;
+                        log.info("Loaded App " + appName + " as the default app");
+                    } else {
+                        log.info("Loaded App " + appName);
+                    }
+                    // exit after the first successful configuration of this app
+                    break;
+                } catch (Exception e) {
+                    log.error("Failed to load configuration file: " + configFile, e);
+                }
+            }
+        }        
     }
     
     /**
