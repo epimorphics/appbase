@@ -57,6 +57,7 @@ public class ScriptAction extends BaseAction implements Action  {
     
     @Override
     public void resolve(ActionManager am) {
+        super.resolve(am);
         scriptDir = new File( am.getScriptDir() );
     }
     
