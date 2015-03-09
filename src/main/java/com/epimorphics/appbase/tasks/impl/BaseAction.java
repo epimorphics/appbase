@@ -256,4 +256,18 @@ public abstract class BaseAction implements Action {
         }
         return call;
     }
+    
+    /**
+     * Utility to strip @-configuration keys for a call to make it safe
+     * to use in invoking a nested action
+     */
+    public JsonObject makeSafe(JsonObject params) {
+        JsonObject safe = new JsonObject();
+        for ( Entry<String, JsonValue> e  : params.entrySet()) {
+            if (!e.getKey().startsWith("@")) {
+                safe.put(e.getKey(), e.getValue());
+            }
+        }
+        return safe;
+    }
 }
