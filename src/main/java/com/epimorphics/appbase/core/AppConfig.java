@@ -55,11 +55,12 @@ public class AppConfig implements ServletContextListener {
     protected Map<String, App> apps = new HashMap<String, App>();
     protected App defaultApp;
     protected String filebase = null;
+    protected ServletContext context;
     
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         theConfig = this;           // Keep the last initialized version as the default global config
-        ServletContext context = sce.getServletContext();
+        context = sce.getServletContext();
         filebase =  withoutTrailingSlash(context.getRealPath("/"));
 
         Enumeration<String> paramNames = context.getInitParameterNames();
@@ -75,6 +76,10 @@ public class AppConfig implements ServletContextListener {
         if (defaultApp == null) {
             throw new EpiException("No apps successfully configured");
         }
+    }
+    
+    public ServletContext getContext() {
+        return context;
     }
     
     /**
