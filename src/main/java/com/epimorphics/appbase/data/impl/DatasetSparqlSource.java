@@ -11,6 +11,7 @@ package com.epimorphics.appbase.data.impl;
 
 import org.apache.jena.query.text.EntityDefinition;
 import org.apache.jena.query.text.TextDatasetFactory;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.slf4j.Logger;
@@ -88,7 +89,7 @@ public class DatasetSparqlSource extends BaseSparqlSource implements SparqlSourc
 //                }
 //            }
             
-            dataset = TextDatasetFactory.createLucene(dataset, dir, entDef) ;
+            dataset = TextDatasetFactory.createLucene(dataset, dir, entDef, new StandardAnalyzer(org.apache.jena.query.text.TextIndexLucene.VER)) ;
         }
         
     }

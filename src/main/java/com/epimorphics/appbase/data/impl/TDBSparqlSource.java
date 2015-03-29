@@ -21,6 +21,7 @@ import org.apache.jena.query.text.EntityDefinition;
 import org.apache.jena.query.text.TextDatasetFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.slf4j.Logger;
@@ -124,7 +125,7 @@ public class TDBSparqlSource extends BaseSparqlSource implements SparqlSource {
                         }
                     }
                 }
-                dataset = TextDatasetFactory.createLucene(dataset, dir, entDef) ;            
+                dataset = TextDatasetFactory.createLucene(dataset, dir, entDef, new StandardAnalyzer(org.apache.jena.query.text.TextIndexLucene.VER)) ;            
             } catch (IOException e) {
                 throw new EpiException("Failed to create jena-text lucence index area", e);
             }
