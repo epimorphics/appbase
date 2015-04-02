@@ -2,12 +2,12 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.epimorphics</groupId>
   <artifactId>appbase</artifactId>
-  <version>0.0.8-SNAPSHOT</version>
+  <version>0.1.1</version>
   <name>appbase - server utilities</name>
 
   <scm>
     <developerConnection>scm:git:ssh://git@github.com/epimorphics/appbase.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>appbase-0.1.1</tag>
   </scm>
 
   <properties>
