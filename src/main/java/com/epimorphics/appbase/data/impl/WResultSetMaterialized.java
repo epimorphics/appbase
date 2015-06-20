@@ -49,6 +49,10 @@ public class WResultSetMaterialized implements WResultSet {
     public WResultSet copy() {
         return this;    
     }
+    
+    public int count() {
+        return rows.size();
+    }
 
 
 }
