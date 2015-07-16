@@ -305,5 +305,48 @@ public class Lib {
         return JsonUtil.asJson(o);
     }
 
+    
+    // Simple facet support - multi-valued query parameter holds encoded URIs that have been selected
+    
+    public boolean facetContains(Object facet, String value) {
+        return asFacet(facet).contains(value);
+    }
+    
+    public List<String> addToFacet(Object facet, String value) {
+        List<String> result = new ArrayList<>(asFacet(facet));
+        result.add(value);
+        return result;
+    }
+    
+    public List<String> removeFromFacet(Object facet, String value) {
+        List<String> result = new ArrayList<>( asFacet(facet) );
+        result.remove(value);
+        return result;
+    }
+    
+    public String facetAsQuery(String queryName, Object facet) {
+        boolean started = false;
+        StringBuffer query = new StringBuffer();
+        for (String value : asFacet(facet)) {
+            query.append( started ? "&" : "?");
+            started = true;
+            query.append(queryName);
+            query.append("=");
+            query.append( pathEncode(value) );
+        }
+        return query.toString();
+    }
+    
+    @SuppressWarnings("unchecked")
+    private List<String> asFacet(Object facet) {
+        if (facet instanceof String) {
+            return Collections.singletonList((String)facet);
+        } else if (facet instanceof List<?>) {
+            return (List<String>)facet;
+        } else {
+            return Collections.emptyList();
+            
+        }
+    }
 }
 
