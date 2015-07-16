@@ -237,7 +237,13 @@ public class VelocityRender extends ComponentBase {
         vc.put("uri", requestURI);
         vc.put("context", context);
         for (String key : parameters.keySet()) {
-            vc.put(key, parameters.getFirst(key));
+            List<String> values = parameters.get(key);
+            if (values.size() == 1) {
+                vc.put(key, values.get(0));
+            } else {
+                vc.put(key, values);
+            }
+            
         }
         for (int i = 0; i < args.length;) {
             String name = args[i++].toString();
