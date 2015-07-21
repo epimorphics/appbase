@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.jena.atlas.json.JsonValue;
 
+import com.epimorphics.appbase.data.WNode;
 import com.epimorphics.json.JsonUtil;
 import com.epimorphics.rdfutil.RDFNodeWrapper;
 import com.epimorphics.util.NameUtils;
@@ -277,13 +278,15 @@ public class Lib {
             n = ((RDFNodeWrapper)node).asRDFNode();
         } else if (node instanceof RDFNode) {
             n = (RDFNode) node;
+        } else if (node instanceof WNode && ((WNode)node).isLiteral()) {
+            n = ((WNode) node).asLiteral();
         } else {
             return null;
         }
         if (n.isLiteral()) {
             Literal l = n.asLiteral();
             RDFDatatype dt = l.getDatatype();
-            if (XSDDateType.XSDdateTime.equals(dt)) {
+            if (XSDDateType.XSDdateTime.equals(dt) || XSDDateType.XSDdate.equals(dt)) {
                 Calendar c = ((XSDDateTime)l.getValue()).asCalendar();
                 return c.getTime();
             }
