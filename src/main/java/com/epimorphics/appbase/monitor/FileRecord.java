@@ -29,4 +29,14 @@ public class FileRecord {
         this.file = file;
         this.state = state;
     }
+
+    public File getFile() {
+        return file;
+    }
+
+    public FileState getState() {
+        return state;
+    }
+    
+    
 }
