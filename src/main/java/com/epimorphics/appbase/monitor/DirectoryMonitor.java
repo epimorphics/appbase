@@ -52,21 +52,30 @@ public abstract class DirectoryMonitor implements FileRecord.Process {
         return watchedDirectories.get(dir);
     }
     
+    protected synchronized boolean stillWatching(File file) {
+        return watchedDirectories.get( file.getParentFile().getPath() ) != null;
+    }
+    
     /**
      * Add a directory to watch.
      */
     public synchronized void addWatch(String dir, JsonObject params) {
         try {
             File fdir = new File(dir);
-            watchedDirectories.put( fdir.getCanonicalPath(), params);
+            watchedDirectories.put( fdir.getPath(), params);
             ConfigWatcher.watch(fdir, this);
         } catch (IOException e) {
             throw new EpiException("Monitor cannot access watched directory: " + dir, e);
         }
     }
     
+    public synchronized void removeWatch(String dir) {
+        watchedDirectories.put( dir, null );
+    }
+    
     public synchronized void process(FileRecord record) {
         File file = record.getFile();
+        if ( !stillWatching(file) ) return;
         if (record.getState() == FileState.NEW) {
             startTracker(file);
         } else if (record.getState() == FileState.DELETED) {
