@@ -25,7 +25,9 @@ import com.epimorphics.util.EpiException;
  * Monitor a set of directories for new files arriving and fires an action
  * on each as it becomes stable. Each directory can have an associated
  * set of configuration parameters (expressed as a json object) which is 
- * passed to the triggered action. 
+ * passed to the triggered action. Intended for situations where the file
+ * will then be processed and removed, does not provide for tracking of
+ * later modifications or removal.
  */
 public abstract class DirectoryMonitor implements FileRecord.Process {
     public static final String DIRECTORY_PARAM = "dir";
