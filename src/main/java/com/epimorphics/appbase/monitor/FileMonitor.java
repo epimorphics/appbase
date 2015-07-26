@@ -103,6 +103,7 @@ public abstract class FileMonitor implements FileRecord.Process {
         public FileTracker(File file, int waitTime) {
             this.file = file;
             this.waitTimeMS = waitTime * 1000;
+            this.setDaemon(true);
         }
         
         public synchronized void fileChanged() {

@@ -119,10 +119,17 @@ public class ConfigWatcher {
        keys.put(key, new WatchRecord(key, dir, processor));
    }
 
-   protected void startWatching() {
+   protected synchronized void startWatching() {
        if (theWorker == null) {
            theWorker = new WatchWorker();
            theWorker.start();
+       }
+   }
+   
+   protected synchronized void stopWatching() {
+       if (theWorker != null) {
+           theWorker.interrupt();
+           theWorker = null;
        }
    }
    
@@ -138,6 +145,13 @@ public class ConfigWatcher {
     */
    public static void start() {
        theWatcher.startWatching();
+   }
+   
+   /**
+    * Interrupt (and hopefully stop) the shared watcher service. Does not wait for termination
+    */
+   public static void stop() {
+       theWatcher.stopWatching();
    }
    
    public class WatchWorker extends Thread {
