@@ -48,8 +48,8 @@ public class TestFileMonitor {
     
     @Test
     public void testMonitor() throws IOException, InterruptedException {
-        FileMonitor monitor = new TestMonitor();
-        monitor.addWatch(testDir.getPath(), JsonUtil.makeJson(FileMonitor.WAIT_TIME_PARAM, 1, "test", "foobar"));
+        DirectoryMonitor monitor = new TestMonitor();
+        monitor.addWatch(testDir.getPath(), JsonUtil.makeJson(DirectoryMonitor.WAIT_TIME_PARAM, 1, "test", "foobar"));
         File testFile = new File(testDir, "test1"); 
         
         Thread t = new Thread(new FileGenerator(testFile.getPath(), 5, 300));
@@ -62,7 +62,7 @@ public class TestFileMonitor {
         assertEquals( "foobar", JsonUtil.getStringValue(triggeredParameters, "test") );
     }
     
-    public class TestMonitor extends FileMonitor {
+    public class TestMonitor extends DirectoryMonitor {
 
         @Override
         protected void action(File file, JsonObject parameters) {

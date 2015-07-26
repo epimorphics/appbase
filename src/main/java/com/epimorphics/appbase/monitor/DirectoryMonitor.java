@@ -27,7 +27,7 @@ import com.epimorphics.util.EpiException;
  * set of configuration parameters (expressed as a json object) which is 
  * passed to the triggered action. 
  */
-public abstract class FileMonitor implements FileRecord.Process {
+public abstract class DirectoryMonitor implements FileRecord.Process {
     public static final String DIRECTORY_PARAM = "dir";
     public static final String WAIT_TIME_PARAM = "waitTime";
     
