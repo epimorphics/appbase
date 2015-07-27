@@ -49,7 +49,7 @@ public class TestFileMonitor {
     @Test
     public void testMonitor() throws IOException, InterruptedException {
         DirectoryMonitor monitor = new TestMonitor();
-        monitor.addWatch(testDir.getPath(), JsonUtil.makeJson(DirectoryMonitor.WAIT_TIME_PARAM, 1, "test", "foobar"));
+        monitor.addWatch(testDir.getPath(), JsonUtil.makeJson(DirectoryMonitor.WAIT_TIME_PARAM, 1000, "test", "foobar"));
         File testFile = new File(testDir, "test1"); 
         
         Thread t = new Thread(new FileGenerator(testFile.getPath(), 5, 300));

@@ -33,7 +33,7 @@ public abstract class DirectoryMonitor implements FileRecord.Process {
     public static final String DIRECTORY_PARAM = "dir";
     public static final String WAIT_TIME_PARAM = "waitTime";
     
-    public static final int DEFAULT_WAIT_TIME = 3;
+    public static final int DEFAULT_WAIT_TIME = 3000;
     
     protected Map<String, JsonObject> watchedDirectories = new HashMap<>();
     protected Map<File, FileTracker> fileTrackers = new HashMap<>();
@@ -113,7 +113,7 @@ public abstract class DirectoryMonitor implements FileRecord.Process {
         
         public FileTracker(File file, int waitTime) {
             this.file = file;
-            this.waitTimeMS = waitTime * 1000;
+            this.waitTimeMS = waitTime;
             this.setDaemon(true);
         }
         
