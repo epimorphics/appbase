@@ -19,6 +19,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.jena.atlas.json.JSON;
 import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.atlas.json.JsonValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.epimorphics.appbase.core.TimerManager;
 import com.epimorphics.appbase.tasks.impl.InternalAction;
@@ -37,6 +39,8 @@ import com.epimorphics.util.NameUtils;
  * it may be still running or terminates.
  */
 public class ActionExecution implements Runnable, JSONWritable {
+    static Logger log = LoggerFactory.getLogger( ActionExecution.class );
+    
     // probably should switch to using jackson for this but a lot of the JSON code is already dependent on Jena version
     protected static final String ACTION_KEY = "action";
     protected static final String INSTANCE_NAME_KEY = "iname";
@@ -172,7 +176,7 @@ public class ActionExecution implements Runnable, JSONWritable {
         try {
             future.get();
         } catch(Exception e) {
-            // Ignore interruption exception
+            log.warn("Wait for action completion interrupted", e);
         }
     }
     
