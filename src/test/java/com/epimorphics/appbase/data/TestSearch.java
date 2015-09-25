@@ -19,7 +19,7 @@ import org.junit.Test;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.util.PrefixUtils;
-import com.hp.hpl.jena.query.ResultSetFactory;
+import org.apache.jena.query.ResultSetFactory;
 
 /**
  * Testing multi-predicate text search handling.

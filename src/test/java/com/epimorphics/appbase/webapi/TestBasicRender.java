@@ -16,10 +16,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.ws.rs.core.Response;
+
 import org.junit.Test;
 
 import com.epimorphics.appbase.webapi.testing.TomcatTestBase;
-import com.sun.jersey.api.client.ClientResponse;
 
 public class TestBasicRender extends TomcatTestBase {
 
@@ -30,11 +31,11 @@ public class TestBasicRender extends TomcatTestBase {
     
     @Test
     public void testRender() {
-        ClientResponse response = getResponse(BASE_URL + "/test?arg=foo", "text/hml");
+        Response response = getResponse(BASE_URL + "/test?arg=foo", "text/hml");
         assertEquals(200, response.getStatus());
         
         // Should do testing base on HTML structure if can figure the right library for that, in the meantime ...
-        List<String> paras = findmatches(response.getEntity(String.class), "<p>([^<]*)</p>");
+        List<String> paras = findmatches(response.readEntity(String.class), "<p>([^<]*)</p>");
         assertEquals("Hello there from myapp (parameter = This is a string)", paras.get(0));
         assertEquals("Query param arg = foo", paras.get(1));
         assertEquals("Component1.prop1 = Component 1 name", paras.get(2));

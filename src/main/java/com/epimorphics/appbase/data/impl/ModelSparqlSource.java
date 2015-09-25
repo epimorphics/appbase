@@ -9,15 +9,16 @@
 
 package com.epimorphics.appbase.data.impl;
 
+import org.apache.jena.query.DatasetAccessor;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.sparql.core.DatasetGraph;
+import org.apache.jena.sparql.core.DatasetGraphFactory;
+import org.apache.jena.update.UpdateExecutionFactory;
+import org.apache.jena.update.UpdateRequest;
+
 import com.epimorphics.appbase.data.SparqlSource;
-import com.hp.hpl.jena.query.DatasetAccessor;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.update.GraphStore;
-import com.hp.hpl.jena.update.GraphStoreFactory;
-import com.hp.hpl.jena.update.UpdateExecutionFactory;
-import com.hp.hpl.jena.update.UpdateRequest;
 
 /**
  * Wrapper for a plain memory model so that it acts as a sparql source.
@@ -28,7 +29,7 @@ import com.hp.hpl.jena.update.UpdateRequest;
  */
 public class ModelSparqlSource extends BaseSparqlSource implements SparqlSource {
     protected Model model;
-    protected GraphStore graphStore;
+    protected DatasetGraph graphStore;
     
     public ModelSparqlSource() {
     }
@@ -72,9 +73,9 @@ public class ModelSparqlSource extends BaseSparqlSource implements SparqlSource 
         model.leaveCriticalSection();
     }
     
-    protected GraphStore getGraphStore() {
+    protected DatasetGraph getGraphStore() {
         if (graphStore == null) {
-            graphStore = GraphStoreFactory.create(model);
+            graphStore = DatasetGraphFactory.create(model.getGraph());
         }
         return graphStore;
     }        

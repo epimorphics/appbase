@@ -9,7 +9,7 @@
 
 package com.epimorphics.appbase.data;
 
-import com.hp.hpl.jena.query.ResultSet;
+import org.apache.jena.query.ResultSet;
 
 /**
  * Interface for ResultSets which have associated resources (e.g. a read lock)

@@ -12,11 +12,11 @@ package com.epimorphics.appbase.data.impl;
 import java.util.List;
 
 import com.epimorphics.appbase.data.ClosableResultSet;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.sparql.engine.binding.Binding;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.sparql.engine.binding.Binding;
 
 /**
  * ResultSet which retains a reference to the query execution

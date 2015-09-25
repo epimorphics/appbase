@@ -17,13 +17,13 @@ import org.junit.Test;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.impl.RemoteSparqlSource;
-import com.hp.hpl.jena.query.DatasetAccessor;
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.update.UpdateFactory;
-import com.hp.hpl.jena.vocabulary.RDFS;
+import org.apache.jena.query.DatasetAccessor;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.update.UpdateFactory;
+import org.apache.jena.vocabulary.RDFS;
 
 public class TestRemoteSource {
     protected static final String TEST = "http://localhost/test/def#";

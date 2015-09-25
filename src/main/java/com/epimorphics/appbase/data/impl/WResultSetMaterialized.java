@@ -16,7 +16,7 @@ import java.util.List;
 import com.epimorphics.appbase.data.WQuerySolution;
 import com.epimorphics.appbase.data.WResultSet;
 import com.epimorphics.appbase.data.WSource;
-import com.hp.hpl.jena.query.ResultSet;
+import org.apache.jena.query.ResultSet;
 
 /**
  * Implementation of WResultSet which materializes the full set of results

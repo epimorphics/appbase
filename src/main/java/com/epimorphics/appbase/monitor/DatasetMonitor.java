@@ -20,8 +20,8 @@ import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.SparqlSource;
 import com.epimorphics.appbase.data.WSource;
 import com.epimorphics.util.EpiException;
-import com.hp.hpl.jena.query.DatasetAccessor;
-import com.hp.hpl.jena.rdf.model.Model;
+import org.apache.jena.query.DatasetAccessor;
+import org.apache.jena.rdf.model.Model;
 
 /**
  * Monitors a directory of RDF files, loading each into a given SparqlSource as 

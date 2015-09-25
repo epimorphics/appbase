@@ -27,7 +27,7 @@ import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.core.ComponentBase;
 import com.epimorphics.appbase.core.Startup;
 import com.epimorphics.appbase.core.TimerManager;
-import com.hp.hpl.jena.util.OneToManyMap;
+import org.apache.jena.util.OneToManyMap;
 
 /**
  * Monitors a directory tree containing configuration information. 

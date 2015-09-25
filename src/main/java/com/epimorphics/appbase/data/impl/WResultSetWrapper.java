@@ -16,7 +16,7 @@ import com.epimorphics.appbase.data.WQuerySolution;
 import com.epimorphics.appbase.data.WResultSet;
 import com.epimorphics.appbase.data.WSource;
 import com.epimorphics.util.EpiException;
-import com.hp.hpl.jena.query.ResultSet;
+import org.apache.jena.query.ResultSet;
 
 
 /**

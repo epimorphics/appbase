@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.SparqlSource;
-import com.hp.hpl.jena.util.FileManager;
+import org.apache.jena.util.FileManager;
 
 /**
  * SparqlSource which serves a set of files from a single union
