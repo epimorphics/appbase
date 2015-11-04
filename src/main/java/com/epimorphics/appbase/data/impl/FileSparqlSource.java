@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.SparqlSource;
+
+import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.util.FileManager;
 
 /**
@@ -53,6 +55,8 @@ public class FileSparqlSource extends DatasetSparqlSource implements SparqlSourc
      * Reload the configured files and directories
      */
     public void reload() {
+        // Clear old data to prevent bNode duplication
+        dataset = DatasetFactory.createMem();
         for (String fname : fileSpec.split(",")) {
             File f = asFile(fname);
             if (f.isDirectory()) {
