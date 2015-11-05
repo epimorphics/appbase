@@ -83,6 +83,7 @@ import com.epimorphics.util.EpiException;
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
 public class VelocityRender extends ComponentBase {
+    private static final String CONTEXT = "context";
     public static final String CONFIG_FILENAME = "velocity.properties";
     public static final String MACRO_FILE      = "macros.vm";
     public static final String FILTER_NAME     = "VelocityRenderer";
@@ -221,15 +222,12 @@ public class VelocityRender extends ComponentBase {
        out.close();
     }
 
+
     /**
      * Variant of render suitable for use from jax-rs implementations.
      * The environment will include the library (lib), the request URI (uri),
      * the root context for the container (root), and
      * the set of configured services and the supplied list of bindings.
-     *
-     * @param templateName  the template to render
-     * @param args   an alternative sequence of names and java objects to inject into the environment
-     * @return
      */
     public StreamingOutput render(String templateName, String requestURI, ServletContext context, MultivaluedMap<String, String> parameters, Object...args) {
         final Template template = ve.getTemplate(templateName);     // Throws exception if not found
@@ -245,21 +243,19 @@ public class VelocityRender extends ComponentBase {
             }
         };
     }
-
   
     /**
      * Variant of render suitable for use from jax-rs implementations.
-     * The environment will include the library (lib), the request URI (uri),
+     * The environment will include the library (lib), 
      * the root context for the container (root), and
      * the set of configured services and the supplied list of bindings.
-     *
-     * @param templateName  the template to render
-     * @param args   an alternative sequence of names and java objects to inject into the environment
-     * @return
      */
-    public void renderTo(OutputStream output, String templateName, String requestURI, ServletContext context, MultivaluedMap<String, String> parameters, Object...args) throws IOException {
+    public void renderTo(OutputStream output, String templateName, ServletContext context, Map<String, Object> env) throws IOException {
         Template template = ve.getTemplate(templateName);     // Throws exception if not found
-        VelocityContext vc = buildContext(requestURI, context, parameters, args);
+        VelocityContext vc = buildContext(context.getContextPath(), env);
+        if (vc.get(CONTEXT) == null) {
+            vc.put(CONTEXT, context);
+        }
         OutputStreamWriter writer = new OutputStreamWriter(output, StandardCharsets.UTF_8);
         template.merge(vc, writer);
         writer.flush();
@@ -268,7 +264,7 @@ public class VelocityRender extends ComponentBase {
     protected VelocityContext buildContext( String requestURI, ServletContext context, MultivaluedMap<String, String> parameters, Object...args) {
         VelocityContext vc = buildContext(context.getContextPath(), null);
         vc.put("uri", requestURI);
-        vc.put("context", context);
+        vc.put(CONTEXT, context);
         for (String key : parameters.keySet()) {
             List<String> values = parameters.get(key);
             if (values.size() == 1) {
