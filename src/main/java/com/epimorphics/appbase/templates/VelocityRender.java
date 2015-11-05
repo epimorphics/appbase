@@ -233,7 +233,40 @@ public class VelocityRender extends ComponentBase {
      */
     public StreamingOutput render(String templateName, String requestURI, ServletContext context, MultivaluedMap<String, String> parameters, Object...args) {
         final Template template = ve.getTemplate(templateName);     // Throws exception if not found
-        final VelocityContext vc = buildContext(context.getContextPath(), null);
+        final VelocityContext vc = buildContext(requestURI, context, parameters, args);
+        return new StreamingOutput() {
+
+            @Override
+            public void write(OutputStream output) throws IOException,
+                    WebApplicationException {
+                OutputStreamWriter writer = new OutputStreamWriter(output, StandardCharsets.UTF_8);
+                template.merge(vc, writer);
+                writer.flush();
+            }
+        };
+    }
+
+  
+    /**
+     * Variant of render suitable for use from jax-rs implementations.
+     * The environment will include the library (lib), the request URI (uri),
+     * the root context for the container (root), and
+     * the set of configured services and the supplied list of bindings.
+     *
+     * @param templateName  the template to render
+     * @param args   an alternative sequence of names and java objects to inject into the environment
+     * @return
+     */
+    public void renderTo(OutputStream output, String templateName, String requestURI, ServletContext context, MultivaluedMap<String, String> parameters, Object...args) throws IOException {
+        Template template = ve.getTemplate(templateName);     // Throws exception if not found
+        VelocityContext vc = buildContext(requestURI, context, parameters, args);
+        OutputStreamWriter writer = new OutputStreamWriter(output, StandardCharsets.UTF_8);
+        template.merge(vc, writer);
+        writer.flush();
+    }
+
+    protected VelocityContext buildContext( String requestURI, ServletContext context, MultivaluedMap<String, String> parameters, Object...args) {
+        VelocityContext vc = buildContext(context.getContextPath(), null);
         vc.put("uri", requestURI);
         vc.put("context", context);
         for (String key : parameters.keySet()) {
@@ -253,19 +286,9 @@ public class VelocityRender extends ComponentBase {
             Object value = args[i++];
             vc.put(name, value);
         }
-        return new StreamingOutput() {
-
-            @Override
-            public void write(OutputStream output) throws IOException,
-                    WebApplicationException {
-                OutputStreamWriter writer = new OutputStreamWriter(output, StandardCharsets.UTF_8);
-                template.merge(vc, writer);
-                writer.flush();
-            }
-        };
+        return vc;
     }
-
-
+    
     protected VelocityContext buildContext(String root, Map<String, Object> env) {
         VelocityContext vc = new VelocityContext();
         if (root.equals("/")) {
