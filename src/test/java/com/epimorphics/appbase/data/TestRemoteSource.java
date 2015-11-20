@@ -52,7 +52,8 @@ public class TestRemoteSource {
     }
     
     // This test is normally excluded
-    @Ignore @Test
+//    @Ignore 
+    @Test
     public void testRemoveSource() {
         setup();
         
