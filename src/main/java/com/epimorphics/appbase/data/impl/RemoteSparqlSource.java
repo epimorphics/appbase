@@ -52,6 +52,8 @@ public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource
     protected String updateEndpoint;
     protected String graphEndpoint;
     protected DatasetAccessor accessor;
+    protected long  readTimeout = -1;
+    protected long  connectTimeout = -1;
     
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
@@ -65,6 +67,14 @@ public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource
         this.graphEndpoint = endpoint;
     }
     
+    public void setReadTimeout(long readTimeout) {
+        this.readTimeout = readTimeout;
+    }
+
+    public void setConnectTimeout(long connectTimeout) {
+        this.connectTimeout = connectTimeout;
+    }
+
     /**
      * Set the content type to request from the remote endpoint.
      * Legal values are "xml", "json", "tsv", "csv".
@@ -78,12 +88,12 @@ public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource
 
     @Override
     protected QueryExecution start(String queryString) {
-        QueryExecution s = QueryExecutionFactory.sparqlService(endpoint, queryString);
+        QueryEngineHTTP hs = (QueryEngineHTTP) QueryExecutionFactory.sparqlService(endpoint, queryString);
         if (contentType != null) {
-            QueryEngineHTTP hs = (QueryEngineHTTP) s;
             hs.setSelectContentType(contentType);
         }
-        return s;
+        hs.setTimeout(readTimeout, connectTimeout);
+        return hs;
     }
 
     @Override
