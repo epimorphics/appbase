@@ -52,9 +52,9 @@ public class TestRemoteSource {
     }
     
     // This test is normally excluded
-//    @Ignore 
+    @Ignore 
     @Test
-    public void testRemoveSource() {
+    public void testRemoteSource() {
         setup();
         
         assertTrue(source.isUpdateable());

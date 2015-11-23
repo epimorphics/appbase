@@ -54,6 +54,7 @@ public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource
     protected DatasetAccessor accessor;
     protected long  readTimeout = -1;
     protected long  connectTimeout = -1;
+    protected Long  remoteTimeout = null;
     
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
@@ -76,6 +77,15 @@ public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource
     }
 
     /**
+     * The remote timeout is passed to the client on the assumption it's a Fuseki endpoint
+     * configured to access a timeout query parameter.
+     * @param remoteTimeout timeout in seconds
+     */
+    public void setRemoteTimeout(long remoteTimeout) {
+        this.readTimeout = remoteTimeout;
+    }
+    
+    /**
      * Set the content type to request from the remote endpoint.
      * Legal values are "xml", "json", "tsv", "csv".
      */
@@ -93,6 +103,9 @@ public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource
             hs.setSelectContentType(contentType);
         }
         hs.setTimeout(readTimeout, connectTimeout);
+        if (remoteTimeout != null) {
+            hs.addParam("timeout", Long.toString(remoteTimeout));
+        }
         return hs;
     }
 
