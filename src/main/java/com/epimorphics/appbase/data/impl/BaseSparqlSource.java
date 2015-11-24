@@ -109,6 +109,16 @@ public abstract class BaseSparqlSource extends ComponentBase implements SparqlSo
             finish(qexec);
         }
     }
+    
+    @Override
+    public boolean ask(String queryString) {
+        QueryExecution qexec = start(queryString);
+        try {
+            return qexec.execAsk();
+        } finally {
+            finish(qexec);
+        }
+    }
 
     abstract protected QueryExecution start(String queryString);
     

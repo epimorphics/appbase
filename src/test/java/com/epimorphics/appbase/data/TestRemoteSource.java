@@ -11,6 +11,7 @@ package com.epimorphics.appbase.data;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -59,6 +60,9 @@ public class TestRemoteSource {
         
         assertTrue(source.isUpdateable());
         
+        String askQuery = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> ASK {GRAPH ?G {[] rdfs:label []}}";
+        assertFalse( source.ask(askQuery) );
+        
         DatasetAccessor accessor = source.getAccessor();
         for (int i = 0; i < 2; i++) {
             Model m = ModelFactory.createDefaultModel();
@@ -68,6 +72,7 @@ public class TestRemoteSource {
         }
         
         checkLabels(new String[]{"In graph 0", "In graph 1"});
+        assertTrue( source.ask(askQuery) );
 
         String update = "" +
                 "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \n" +

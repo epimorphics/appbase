@@ -68,6 +68,11 @@ public interface SparqlSource {
     public Graph construct(String query);
     
     /**
+     * Execute an ASK query
+     */
+    public boolean ask(String query);
+    
+    /**
      * A local name for the source (the component name in the configuration)
      */
     public String getName();
