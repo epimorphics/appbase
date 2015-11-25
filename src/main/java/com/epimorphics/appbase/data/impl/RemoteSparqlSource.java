@@ -82,7 +82,7 @@ public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource
      * @param remoteTimeout timeout in seconds
      */
     public void setRemoteTimeout(long remoteTimeout) {
-        this.readTimeout = remoteTimeout;
+        this.remoteTimeout = remoteTimeout;
     }
     
     /**
