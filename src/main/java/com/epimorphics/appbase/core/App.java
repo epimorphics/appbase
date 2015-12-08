@@ -285,7 +285,8 @@ public class App {
             }
             String prop = target.substring(split + 1);
             try {
-                PropertyUtils.setSimpleProperty(component, prop, value);
+//                PropertyUtils.setSimpleProperty(component, prop, value);
+                PropertyUtils.setProperty(component, prop, value);
             } catch (Exception e) {
                 error(lineNum, line, "Problem configuring property " + prop + " of component " + componentName, e);
             }
