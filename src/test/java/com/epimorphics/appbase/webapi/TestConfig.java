@@ -18,6 +18,7 @@ import org.junit.Test;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.core.AppConfig;
+import com.epimorphics.appbase.core.GenericConfig;
 import com.epimorphics.appbase.webapi.testing.TomcatTestBase;
 
 
@@ -50,5 +51,11 @@ public class TestConfig extends TomcatTestBase {
         assertEquals(2, xref.size());
         assertEquals(component1, xref.get(0));
         assertEquals(component2, xref.get(1));
+        
+        GenericConfig map = app.getComponentAs("map1", GenericConfig.class);
+        assertNotNull(map);
+        assertEquals("value 1", map.get("propString"));
+        assertEquals(true, map.get("propBoolean"));
+        assertEquals(42L, map.get("propNum"));
     }
 }
