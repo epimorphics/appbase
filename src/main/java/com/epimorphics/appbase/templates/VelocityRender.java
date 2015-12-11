@@ -95,6 +95,7 @@ public class VelocityRender extends ComponentBase {
     protected File templateDir;
     protected String rootURI;
     protected Lib theLib = new Lib();
+    protected String loggerName;
     FilterRegistration registration;
 
     public void setProduction(boolean isProduction) {
@@ -152,10 +153,11 @@ public class VelocityRender extends ComponentBase {
                 ve.setProperty( RuntimeConstants.VM_LIBRARY_AUTORELOAD, !isProduction );
                 log.info("Setting macros: " + templateDir + " - " + MACRO_FILE);
             }
-            ve.setProperty( RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
-                    "org.apache.velocity.runtime.log.Log4JLogChute" );
-            ve.setProperty("runtime.log.logsystem.log4j.logger", "modal-velocity");
-            
+            if (loggerName != null) {
+                ve.setProperty( RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
+                        "org.apache.velocity.runtime.log.Log4JLogChute" );
+                ve.setProperty("runtime.log.logsystem.log4j.logger", loggerName);
+            }            
             // Override with any user supplied config
             File configFile = new File(templateDir, CONFIG_FILENAME);
             if (configFile.canRead()) {
