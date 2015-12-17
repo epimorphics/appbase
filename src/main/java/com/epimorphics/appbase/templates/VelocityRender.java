@@ -83,6 +83,7 @@ import com.epimorphics.util.EpiException;
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
 public class VelocityRender extends ComponentBase {
+    private static final String CONTEXT = "context";
     public static final String CONFIG_FILENAME = "velocity.properties";
     public static final String MACRO_FILE      = "macros.vm";
     public static final String FILTER_NAME     = "VelocityRenderer";
@@ -95,7 +96,6 @@ public class VelocityRender extends ComponentBase {
     protected File templateDir;
     protected String rootURI;
     protected Lib theLib = new Lib();
-    protected String loggerName;
     FilterRegistration registration;
 
     public void setProduction(boolean isProduction) {
@@ -153,11 +153,10 @@ public class VelocityRender extends ComponentBase {
                 ve.setProperty( RuntimeConstants.VM_LIBRARY_AUTORELOAD, !isProduction );
                 log.info("Setting macros: " + templateDir + " - " + MACRO_FILE);
             }
-            if (loggerName != null) {
-                ve.setProperty( RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
-                        "org.apache.velocity.runtime.log.Log4JLogChute" );
-                ve.setProperty("runtime.log.logsystem.log4j.logger", loggerName);
-            }            
+            ve.setProperty( RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
+                    "org.apache.velocity.runtime.log.Log4JLogChute" );
+            ve.setProperty("runtime.log.logsystem.log4j.logger", "modal-velocity");
+            
             // Override with any user supplied config
             File configFile = new File(templateDir, CONFIG_FILENAME);
             if (configFile.canRead()) {
@@ -223,21 +222,49 @@ public class VelocityRender extends ComponentBase {
        out.close();
     }
 
+
     /**
      * Variant of render suitable for use from jax-rs implementations.
      * The environment will include the library (lib), the request URI (uri),
      * the root context for the container (root), and
      * the set of configured services and the supplied list of bindings.
-     *
-     * @param templateName  the template to render
-     * @param args   an alternative sequence of names and java objects to inject into the environment
-     * @return
      */
     public StreamingOutput render(String templateName, String requestURI, ServletContext context, MultivaluedMap<String, String> parameters, Object...args) {
         final Template template = ve.getTemplate(templateName);     // Throws exception if not found
-        final VelocityContext vc = buildContext(context.getContextPath(), null);
+        final VelocityContext vc = buildContext(requestURI, context, parameters, args);
+        return new StreamingOutput() {
+
+            @Override
+            public void write(OutputStream output) throws IOException,
+                    WebApplicationException {
+                OutputStreamWriter writer = new OutputStreamWriter(output, StandardCharsets.UTF_8);
+                template.merge(vc, writer);
+                writer.flush();
+            }
+        };
+    }
+  
+    /**
+     * Variant of render suitable for use from jax-rs implementations.
+     * The environment will include the library (lib), 
+     * the root context for the container (root), and
+     * the set of configured services and the supplied list of bindings.
+     */
+    public void renderTo(OutputStream output, String templateName, ServletContext context, Map<String, Object> env) throws IOException {
+        Template template = ve.getTemplate(templateName);     // Throws exception if not found
+        VelocityContext vc = buildContext(context.getContextPath(), env);
+        if (vc.get(CONTEXT) == null) {
+            vc.put(CONTEXT, context);
+        }
+        OutputStreamWriter writer = new OutputStreamWriter(output, StandardCharsets.UTF_8);
+        template.merge(vc, writer);
+        writer.flush();
+    }
+
+    protected VelocityContext buildContext( String requestURI, ServletContext context, MultivaluedMap<String, String> parameters, Object...args) {
+        VelocityContext vc = buildContext(context.getContextPath(), null);
         vc.put("uri", requestURI);
-        vc.put("context", context);
+        vc.put(CONTEXT, context);
         for (String key : parameters.keySet()) {
             List<String> values = parameters.get(key);
             if (values.size() == 1) {
@@ -255,19 +282,9 @@ public class VelocityRender extends ComponentBase {
             Object value = args[i++];
             vc.put(name, value);
         }
-        return new StreamingOutput() {
-
-            @Override
-            public void write(OutputStream output) throws IOException,
-                    WebApplicationException {
-                OutputStreamWriter writer = new OutputStreamWriter(output, StandardCharsets.UTF_8);
-                template.merge(vc, writer);
-                writer.flush();
-            }
-        };
+        return vc;
     }
-
-
+    
     protected VelocityContext buildContext(String root, Map<String, Object> env) {
         VelocityContext vc = new VelocityContext();
         if (root.equals("/")) {
