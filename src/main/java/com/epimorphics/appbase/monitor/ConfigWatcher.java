@@ -204,7 +204,7 @@ public class ConfigWatcher {
     
                    // all directories are inaccessible
                    if (keys.isEmpty()) {
-                       break;
+                       // All directories are inaccessible so could exit but would need to clean up to allow future restart 
                    }
                }
            }           

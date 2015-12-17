@@ -52,6 +52,7 @@ public class TestMonitor {
     @After
     public void cleanUp() {
         FileUtil.deleteDirectory(testDir);
+        ConfigWatcher.stop();
     }
     
     @Test

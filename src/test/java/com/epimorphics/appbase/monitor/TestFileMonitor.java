@@ -21,15 +21,12 @@ import java.nio.file.Files;
 import org.apache.jena.atlas.json.JsonObject;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.epimorphics.json.JsonUtil;
 import com.epimorphics.util.EpiException;
 import com.epimorphics.util.FileUtil;
 
-// Directory monitor is deprecated and this test is flakey, skip it
-@Ignore
 public class TestFileMonitor {
     
     protected File triggeredFile;

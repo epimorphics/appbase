@@ -28,7 +28,6 @@ import com.epimorphics.util.EpiException;
  * passed to the triggered action. Intended for situations where the file
  * will then be processed and removed, does not provide for tracking of
  * later modifications or removal.
- * @deprecated
  */
 public abstract class DirectoryMonitor implements FileRecord.Process {
     public static final String DIRECTORY_PARAM = "dir";
