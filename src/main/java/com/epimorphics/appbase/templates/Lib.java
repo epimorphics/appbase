@@ -132,14 +132,15 @@ public class Lib {
     /**
      * HTML escape text
      */
-    public String escapeHtml(String html) {
-        return StringEscapeUtils.escapeHtml(html);
+    public String escapeHtml(Object html) {
+        return StringEscapeUtils.escapeHtml(html.toString());
     }
 
     /**
      * HTML escape text and limit to N characters
      */
-    public String escapeHtml(String html, int limit) {
+    public String escapeHtml(Object htmlsrc, int limit) {
+        String html = htmlsrc.toString();
         if (html.length() > limit) {
             return escapeHtml(html.substring(0, limit-3)) + "...";
         } else {
