@@ -133,6 +133,7 @@ public class Lib {
      * HTML escape text
      */
     public String escapeHtml(Object html) {
+        if (html == null) return null;
         return StringEscapeUtils.escapeHtml(html.toString());
     }
 
@@ -140,6 +141,7 @@ public class Lib {
      * HTML escape text and limit to N characters
      */
     public String escapeHtml(Object htmlsrc, int limit) {
+        if (htmlsrc == null) return null;
         String html = htmlsrc.toString();
         if (html.length() > limit) {
             return escapeHtml(html.substring(0, limit-3)) + "...";
