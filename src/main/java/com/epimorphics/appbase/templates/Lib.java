@@ -223,6 +223,17 @@ public class Lib {
         return url;
     }
     static final String PAGE_PARAM = "page";
+    
+    /**
+     * URL helper. Inject a type suffix in a URL that might have query parameters
+     */
+    public String withFormat(String url, String suffix) {
+        if (url.contains("?")) {
+            return url.replaceFirst("\\?", "." + suffix + "?");
+        } else {
+            return url + "." + suffix;
+        }
+    }
 
     /**
      * Return the current time as a unix Long time stamp
