@@ -237,6 +237,41 @@ public class Lib {
             return url + "." + suffix;
         }
     }
+    
+    /**
+     * URL helper. Add a query parameter to the URL
+     */
+    public String addQueryParam(String url, String param, Object value) {
+        return url + (url.contains("?") ? "&" : "?") + param + "=" + pathEncode(value.toString());
+    }
+    
+    /**
+     * URL helper. Remove a query parameter from the URL
+     */
+    public String removeQueryParam(String url, String param) {
+        if (url.contains("?")) {
+            int split = url.indexOf("?");
+            String base = url.substring(0, split);
+            String query = url.substring(split + 1);
+            String[] qparts = query.split("&");
+            StringBuffer newURL = new StringBuffer();
+            newURL.append(base);
+            boolean started = false;
+            for (String qpart: qparts) {
+                if ( ! qpart.startsWith(param + "=")) {
+                    if (!started) {
+                        newURL.append("?");
+                        started = true;
+                    }
+                    newURL.append(qpart);
+                }
+            }
+            return newURL.toString();
+        } else {
+            // nothing to do
+            return url;
+        }
+    }
 
     /**
      * Return the current time as a unix Long time stamp
