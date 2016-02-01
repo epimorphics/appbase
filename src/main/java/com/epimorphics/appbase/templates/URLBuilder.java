@@ -129,6 +129,10 @@ public class URLBuilder {
         return new URLBuilder(base + segment, extension, queryParameters);
     }
     
+    public URLBuilder removeQueries() {
+        return new URLBuilder(base, extension, new HashMap<>());
+    }
+    
     /**
      * If the URL falls within given base (normally the root of an API/UI)
      * then return as a server-relative URL string (i.e. "/context/path?query"),
