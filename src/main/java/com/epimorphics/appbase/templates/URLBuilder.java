@@ -112,6 +112,10 @@ public class URLBuilder {
         return new URLBuilder(base, extension, queryParameters);
     }
     
+    public URLBuilder removeExtension() {
+        return new URLBuilder(base, null, queryParameters);
+    }
+    
     public URLBuilder setExtensionFrom(Object otherURL){
         URLBuilder other = null;
         if (otherURL instanceof URLBuilder) {
@@ -135,8 +139,8 @@ public class URLBuilder {
     
     /**
      * If the URL falls within given base (normally the root of an API/UI)
-     * then return as a server-relative URL string (i.e. "/context/path?query"),
-     * otherwise return as an absolute URL as given.
+     * then return as a server-relative URL string (i.e. "/context/path.ext?query")
+     * otherwise return as an absolute URL with no extension.
      */
     public String asLocal(String rootURL) {
         if (base.startsWith(rootURL)) {
@@ -146,7 +150,7 @@ public class URLBuilder {
                 return m.group(1);
             }
         }
-        return toString();
+        return removeExtension().toString();
     }
     
     @Override

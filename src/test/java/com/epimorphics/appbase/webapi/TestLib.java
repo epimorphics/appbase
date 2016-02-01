@@ -50,8 +50,8 @@ public class TestLib {
         assertEquals("http://example.com/foo/bar.xml?param=42", x.addSegment("/bar").toString());
         assertEquals("http://example.com/foo.ttl?param=42", x.setExtensionFrom("http://example.com/foo.ttl?p=q").toString());
         
-        assertEquals("http://example.com/foo?param=42", u.asLocal("http://localhost/").toString());
-        assertEquals("/foo?param=42", u.asLocal("http://example.com/foo").toString());
+        assertEquals("http://example.com/foo?param=42", x.asLocal("http://localhost/"));
+        assertEquals("/foo.xml?param=42", x.asLocal("http://example.com/foo"));
 
     }
 }
