@@ -49,6 +49,7 @@ import org.apache.jena.graph.Node;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.impl.LiteralImpl;
 import org.apache.jena.rdf.model.impl.ModelCom;
@@ -226,52 +227,6 @@ public class Lib {
         return url;
     }
     static final String PAGE_PARAM = "page";
-    
-    /**
-     * URL helper. Inject a type suffix in a URL that might have query parameters
-     */
-    public String withFormat(String url, String suffix) {
-        if (url.contains("?")) {
-            return url.replaceFirst("\\?", "." + suffix + "?");
-        } else {
-            return url + "." + suffix;
-        }
-    }
-    
-    /**
-     * URL helper. Add a query parameter to the URL
-     */
-    public String addQueryParam(String url, String param, Object value) {
-        return url + (url.contains("?") ? "&" : "?") + param + "=" + pathEncode(value.toString());
-    }
-    
-    /**
-     * URL helper. Remove a query parameter from the URL
-     */
-    public String removeQueryParam(String url, String param) {
-        if (url.contains("?")) {
-            int split = url.indexOf("?");
-            String base = url.substring(0, split);
-            String query = url.substring(split + 1);
-            String[] qparts = query.split("&");
-            StringBuffer newURL = new StringBuffer();
-            newURL.append(base);
-            boolean started = false;
-            for (String qpart: qparts) {
-                if ( ! qpart.startsWith(param + "=")) {
-                    if (!started) {
-                        newURL.append("?");
-                        started = true;
-                    }
-                    newURL.append(qpart);
-                }
-            }
-            return newURL.toString();
-        } else {
-            // nothing to do
-            return url;
-        }
-    }
 
     /**
      * Return the current time as a unix Long time stamp
@@ -357,8 +312,22 @@ public class Lib {
         return JsonUtil.asJson(o);
     }
 
+    public URLBuilder asURL(Object url) {
+        if (url instanceof URLBuilder) {
+            return (URLBuilder)url;
+        } else if (url == null) {
+            return null;
+        } else if (url instanceof Resource) {
+            return new URLBuilder(((Resource)url).getURI());
+        } else if (url instanceof RDFNodeWrapper) {
+            return new URLBuilder(((RDFNodeWrapper)url).getURI());
+        } else {
+            return new URLBuilder(url.toString());
+        }
+    }
     
     // Simple facet support - multi-valued query parameter holds encoded URIs that have been selected
+    // Hopefully redundant now we have URLBuilder
     
     public boolean facetContains(Object facet, String value) {
         return asFacet(facet).contains(value);
