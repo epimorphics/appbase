@@ -299,6 +299,13 @@ public class Lib {
     }
 
     /**
+     * Format a duration (in ms)
+     */
+    public String printDuration(long duration) {
+        return NameUtils.formatDuration(duration);
+    }
+    
+    /**
      * Convert a riot Json value to plain Map/List style objects
      */
     public Object fromJson(JsonValue jv) {
