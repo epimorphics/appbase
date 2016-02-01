@@ -125,6 +125,10 @@ public class URLBuilder {
         return this;
     }
     
+    public URLBuilder addSegment(String segment) {
+        return new URLBuilder(base + segment, extension, queryParameters);
+    }
+    
     /**
      * If the URL falls within given base (normally the root of an API/UI)
      * then return as a server-relative URL string (i.e. "/context/path?query"),

@@ -47,6 +47,7 @@ public class TestLib {
         URLBuilder x = lib.asURL( "http://example.com/foo.xml?param=42");
         assertEquals("xml", x.getExtension());
         assertEquals("http://example.com/foo.html?param=42", x.setExtension("html").toString());
+        assertEquals("http://example.com/foo/bar.xml?param=42", x.addSegment("/bar").toString());
         assertEquals("http://example.com/foo.ttl?param=42", x.setExtensionFrom("http://example.com/foo.ttl?p=q").toString());
         
         assertEquals("http://example.com/foo?param=42", u.asLocal("http://localhost/").toString());
