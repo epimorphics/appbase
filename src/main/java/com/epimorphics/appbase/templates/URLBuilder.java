@@ -139,18 +139,21 @@ public class URLBuilder {
     
     /**
      * If the URL falls within given base (normally the root of an API/UI)
-     * then return as a server-relative URL string (i.e. "/context/path.ext?query")
-     * otherwise return as an absolute URL with no extension.
+     * then return as a server-relative URL string (i.e. "/context/path.ext?query"),
+     * if already server relative then leave alone, otherwise return as an absolute URL with no extension.
      */
     public String asLocal(String rootURL) {
-        if (base.startsWith(rootURL)) {
-            // Make server-relative
-            Matcher m = BASEPATTERN.matcher( toString() );
-            if (m.matches()) {
+        Matcher m = BASEPATTERN.matcher( toString() );
+        if (m.matches()) {
+            // Looks like an absolute URL
+            if (base.startsWith(rootURL)) {
+                // Make server-relative
                 return m.group(1);
+            } else {
+                return removeExtension().toString();
             }
         }
-        return removeExtension().toString();
+        return toString();
     }
     
     @Override
