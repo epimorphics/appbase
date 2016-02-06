@@ -41,6 +41,7 @@ import org.apache.jena.atlas.json.JsonValue;
 import com.epimorphics.appbase.data.WNode;
 import com.epimorphics.json.JsonUtil;
 import com.epimorphics.rdfutil.RDFNodeWrapper;
+import com.epimorphics.rdfutil.TypeUtil;
 import com.epimorphics.util.NameUtils;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.xsd.XSDDateTime;
@@ -284,6 +285,8 @@ public class Lib {
             n = (RDFNode) node;
         } else if (node instanceof WNode && ((WNode)node).isLiteral()) {
             n = ((WNode) node).asLiteral();
+        } else if (node instanceof String) {
+            n = TypeUtil.asTypedValue((String)node);
         } else {
             return null;
         }
