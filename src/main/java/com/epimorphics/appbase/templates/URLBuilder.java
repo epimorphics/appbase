@@ -46,8 +46,8 @@ public class URLBuilder {
         }
         if (queryString != null) {
             for (String query : queryString.split("&")) {
-                if (query.contains("=")) {
-                    String[] parts = query.split("=");
+                String[] parts = query.split("=");
+                if (parts.length == 2) {
                     doAddQuery(parts[0], parts[1]);
                 } else {
                     doAddQuery(query, null);
