@@ -50,7 +50,7 @@ public class URLBuilder {
                 if (parts.length == 2) {
                     doAddQuery(parts[0], parts[1]);
                 } else {
-                    doAddQuery(query, null);
+                    doAddQuery(parts[0], null);
                 }
             }
         }
@@ -99,6 +99,16 @@ public class URLBuilder {
             qp.removeValue(value);
             if (qp.isEmpty()) {
                 u.queryParameters.remove(param);
+            }
+        }
+        return u;
+    }
+    
+    public URLBuilder removeEmptyQueries() {
+        URLBuilder u = clone();
+        for (String key : queryParameters.keySet()) {
+            if (u.queryParameters.get(key).isEmpty()) {
+                u.queryParameters.remove(key);
             }
         }
         return u;
@@ -230,7 +240,7 @@ public class URLBuilder {
         }
         
         public boolean isEmpty() {
-            return values.isEmpty();
+            return values.isEmpty() || (values.size() == 1 && values.get(0).isEmpty() );
         }
         
         @Override
