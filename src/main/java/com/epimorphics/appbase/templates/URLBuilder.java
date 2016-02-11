@@ -114,6 +114,18 @@ public class URLBuilder {
         return u;
     }
     
+    public boolean hasQuery(String param) {
+        return queryParameters.containsKey(param);
+    }
+    
+    public boolean hasQueryValue(String param) {
+        if (hasQuery(param)) {
+            return  ! queryParameters.get(param).isEmpty();
+        } else {
+            return false;
+        }
+    }
+    
     public boolean hasNoQueries() {
         return queryParameters.isEmpty();
     }
