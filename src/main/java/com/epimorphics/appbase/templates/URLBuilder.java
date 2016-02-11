@@ -122,6 +122,13 @@ public class URLBuilder {
         return u;
     }
     
+    public URLBuilder setQuery(String param, String value) {
+        URLBuilder u = removeQuery(param);
+        u.doAddQuery(param, value);
+        return u;
+    }
+    
+    
     public boolean hasQuery(String param) {
         return queryParameters.containsKey(param);
     }
