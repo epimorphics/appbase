@@ -52,6 +52,15 @@ public class TestLib {
         
         assertEquals("http://example.com/foo?param=42", x.asLocal("http://localhost/"));
         assertEquals("/foo.xml?param=42", x.asLocal("http://example.com/foo"));
+        
+        u = lib.asURL("http://localhost:8080/public-register/waste-carriers-brokers/id?easting=&northing=&name-search=jones&number-search=&address-search=&__postcode=&dist=1");
+        u = u.removeEmptyQueries();
+        assertEquals("http://localhost:8080/public-register/waste-carriers-brokers/id?dist=1&name-search=jones", u.toString() );
+        assertFalse( u.hasNoQueries() );
+        u = u.removeQuery("dist");
+        u = u.removeQuery("name-search");
+        assertEquals("http://localhost:8080/public-register/waste-carriers-brokers/id", u.toString() );
+        assertTrue( u.hasNoQueries() );
 
     }
 }

@@ -114,6 +114,10 @@ public class URLBuilder {
         return u;
     }
     
+    public boolean hasNoQueries() {
+        return queryParameters.isEmpty();
+    }
+    
     public String getExtension() {
         return extension;
     }
