@@ -92,6 +92,14 @@ public class URLBuilder {
         return u;
     }
     
+    public URLBuilder removeQuery(List<String> params) {
+        URLBuilder u = clone();
+        for (String p : params) {
+            u.queryParameters.remove(p);
+        }
+        return u;
+    }
+    
     public URLBuilder removeQuery(String param, String value) {
         URLBuilder u = clone();
         QueryParameter qp = u.queryParameters.get(param);
