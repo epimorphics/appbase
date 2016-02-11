@@ -54,6 +54,7 @@ public class TestLib {
         assertEquals("/foo.xml?param=42", x.asLocal("http://example.com/foo"));
         
         u = lib.asURL("http://localhost:8080/public-register/waste-carriers-brokers/id?easting=&northing=&name-search=jones&number-search=&address-search=&__postcode=&dist=1");
+        assertEquals("jones", u.getFirst("name-search") );
         assertTrue( u.hasQuery("easting") );
         assertFalse( u.hasQueryValue("easting") );
         u = u.removeEmptyQueries();

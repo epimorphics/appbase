@@ -138,6 +138,24 @@ public class URLBuilder {
         return queryParameters.isEmpty();
     }
     
+    public String getFirst(String param) {
+        QueryParameter q = queryParameters.get(param);
+        if (q != null && ! q.isEmpty()) {
+            return q.getValues().get(0);
+        } else {
+            return null;
+        }
+    }
+    
+    public List<String> getAll(String param) {
+        QueryParameter q = queryParameters.get(param);
+        if (q != null) {
+            return q.getValues();
+        } else {
+            return null;      // Better to return empty list?
+        }
+        
+    }
     public String getExtension() {
         return extension;
     }
