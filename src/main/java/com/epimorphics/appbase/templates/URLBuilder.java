@@ -301,7 +301,7 @@ public class URLBuilder {
                 for (String value : values) {
                     buffer.append(param);
                     buffer.append("=");
-                    buffer.append(value);
+                    buffer.append(value.replace(" ", "+"));
                 }
                 return buffer.toString();
             }
