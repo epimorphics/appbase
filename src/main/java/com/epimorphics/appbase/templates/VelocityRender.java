@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -276,9 +278,13 @@ public class VelocityRender extends ComponentBase {
         for (String key : parameters.keySet()) {
             List<String> values = parameters.get(key);
             if (values.size() == 1) {
-                vc.put(key, values.get(0));
+                vc.put(key, escapeQueryParameter( values.get(0) ));
             } else {
-                vc.put(key, values);
+                List<String> safeValues = new ArrayList<>( values.size() );
+                for (String value : values) {
+                    safeValues.add( escapeQueryParameter(value) );
+                }
+                vc.put(key, safeValues);
             }
             
         }
@@ -291,6 +297,14 @@ public class VelocityRender extends ComponentBase {
             vc.put(name, value);
         }
         return vc;
+    }
+
+    protected String escapeQueryParameter( String value ) {
+        if (value.contains("<")) {
+            return StringEscapeUtils.escapeHtml(value);
+        } else {
+            return value;
+        }
     }
     
     protected VelocityContext buildContext(String root, Map<String, Object> env) {
