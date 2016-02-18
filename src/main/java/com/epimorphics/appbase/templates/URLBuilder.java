@@ -9,6 +9,8 @@
 
 package com.epimorphics.appbase.templates;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,8 +19,13 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.epimorphics.util.EpiException;
+
 /**
  * Utility to help scripts construct URLs. 
+ * Assumes the source URL is as raw in the request (i.e. will be URLencoded).
+ * It retains the URL encoding internally and when converting to a query
+ * but decodes when request for a query parameter value.
  * 
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
@@ -148,7 +155,7 @@ public class URLBuilder {
     public String getFirst(String param) {
         QueryParameter q = queryParameters.get(param);
         if (q != null && ! q.isEmpty()) {
-            return q.getValues().get(0);
+            return decode( q.getValues().get(0) );
         } else {
             return null;
         }
@@ -157,12 +164,24 @@ public class URLBuilder {
     public List<String> getAll(String param) {
         QueryParameter q = queryParameters.get(param);
         if (q != null) {
-            return q.getValues();
+            List<String> result = new ArrayList<>( q.getValues().size() );
+            for (String v : q.getValues() ) {
+                result.add( decode(v) );
+            }
+            return result;
         } else {
             return null;      // Better to return empty list?
         }
-        
     }
+    
+    public String decode(String str) {
+        try {
+            return URLDecoder.decode(str, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new EpiException("Java problem - no UTF-8 support");
+        }
+    }
+    
     public String getExtension() {
         return extension;
     }
