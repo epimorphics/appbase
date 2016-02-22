@@ -34,13 +34,18 @@ public class ExtensionFilter implements Filter {
     public static final String FORMAT_PARAM = "_format";
  
     private final Map<String,String> extensions = new HashMap<String,String>();
+    private boolean allow_format = false;
  
     public void init(FilterConfig config) throws ServletException {
         Enumeration<String> exts = config.getInitParameterNames();
         while (exts.hasMoreElements()) {
             String ext = exts.nextElement();
             if (ext != null && !ext.isEmpty()) {
-                this.extensions.put("."+ext.toLowerCase(), config.getInitParameter(ext));
+                if (ext.equals(FORMAT_PARAM)) {
+                    allow_format = config.getInitParameter(FORMAT_PARAM).equalsIgnoreCase("true");
+                } else {
+                    this.extensions.put("."+ext.toLowerCase(), config.getInitParameter(ext));
+                }
             }
         }
     }
@@ -56,7 +61,7 @@ public class ExtensionFilter implements Filter {
         if (!ext.isEmpty()) {
             uri = uri.substring(0, uri.length() - ext.length());
             request = new RequestWrapper( httpRequest, uri, extensions.get(ext) );
-        } else if ( httpRequest.getParameter(FORMAT_PARAM) != null ) {
+        } else if ( allow_format && httpRequest.getParameter(FORMAT_PARAM) != null ) {
             ext = "." + httpRequest.getParameter( FORMAT_PARAM );
             request = new RequestWrapper( httpRequest, uri, extensions.get(ext) );
         }
