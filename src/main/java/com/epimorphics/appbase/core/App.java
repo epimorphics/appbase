@@ -264,11 +264,10 @@ public class App {
         if (line.startsWith("#")) return;  // Pure comment line
         if (line.isEmpty()) return;   // Skip empty lines
         
-        String[] parts = line.split("=");
-        if (parts.length != 2)  error(lineNum, line, "expected a '=' assignment");
-
-        String target = parts[0].trim();
-        Object value = asValue( parts[1].trim() );
+        int s = line.indexOf('=');
+        if (s == -1) error(lineNum, line, "expected a '=' assignment");
+        String target = line.substring(0,  s).trim();
+        Object value = asValue( line.substring(s+1).trim() );
         
         if (target.startsWith(APP_PARAM_PREFIX)) {
             // Global config setting
