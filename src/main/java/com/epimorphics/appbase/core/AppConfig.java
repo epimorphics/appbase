@@ -45,6 +45,7 @@ public class AppConfig implements ServletContextListener {
     static Logger log = LoggerFactory.getLogger(AppConfig.class);
     
     public static final String WEBAPP_MACRO = "{webapp}";
+    public static final String WEBCONTEXT_MACRO = "{context}";
     public static final String CONFIG_PREFIX = "AppConfig.";
 
     public static AppConfig theConfig;
@@ -170,6 +171,10 @@ public class AppConfig implements ServletContextListener {
     }
 
     public String expandFileLocation(String location) {
+        if (location.contains(WEBCONTEXT_MACRO)) {
+            String context_name = context.getContextPath().replace("/", "");
+            location = location.replace(WEBCONTEXT_MACRO, context_name);
+        }
         if (filebase == null) {
             return location;
         }
