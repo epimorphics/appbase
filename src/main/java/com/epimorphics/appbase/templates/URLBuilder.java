@@ -317,7 +317,13 @@ public class URLBuilder {
                 return param;
             } else {
                 StringBuffer buffer = new StringBuffer();
+                boolean started = false;
                 for (String value : values) {
+                    if (started) {
+                        buffer.append("&");
+                    } else {
+                        started = true;
+                    }
                     buffer.append(param);
                     buffer.append("=");
                     buffer.append(value.replace(" ", "+"));

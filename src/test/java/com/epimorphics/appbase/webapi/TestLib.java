@@ -66,6 +66,10 @@ public class TestLib {
         u = u.removeQuery("name-search");
         assertEquals("http://localhost:8080/public-register/waste-carriers-brokers/id", u.toString() );
         assertTrue( u.hasNoQueries() );
-
+        
+        u = lib.asURL("http://example.com/foo?param=foo&param=bar");
+        String asCSV = u.setExtension("csv").toString();
+        assertTrue( asCSV.equals( "http://example.com/foo.csv?param=foo&param=bar" ) 
+                || asCSV.equals( "http://example.com/foo.csv?param=bar&param=foo" ) );
     }
 }
