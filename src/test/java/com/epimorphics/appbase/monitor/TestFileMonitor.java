@@ -45,21 +45,28 @@ public class TestFileMonitor {
     
     @After
     public void tearDown() {
-        FileUtil.deleteDirectory(testDir);
         ConfigWatcher.stop();
+        FileUtil.deleteDirectory(testDir);
     }
     
     @Test
     public void testMonitor() throws IOException, InterruptedException {
         DirectoryMonitor monitor = new TestMonitor();
-        monitor.addWatch(testDir.getPath(), JsonUtil.makeJson(DirectoryMonitor.WAIT_TIME_PARAM, 1000, "test", "foobar"));
+        monitor.addWatch(testDir.getPath(), JsonUtil.makeJson(DirectoryMonitor.WAIT_TIME_PARAM, 100, "test", "foobar"));
         File testFile = new File(testDir, "test1"); 
         
-        Thread t = new Thread(new FileGenerator(testFile.getPath(), 5, 300));
+        Thread t = new Thread(new FileGenerator(testFile.getPath(), 5, 10));
         t.start();
         t.join();
         
-        Thread.sleep(2000);
+        int MAX_WAIT = 10;
+        for (int i = 0; i < MAX_WAIT; i++) {
+            Thread.sleep(1000);
+            synchronized (this) {
+                if ( triggeredFile != null) break;
+            }
+        }
+        
         assertNotNull( triggeredFile );
         assertEquals( testFile, triggeredFile );
         assertEquals( "foobar", JsonUtil.getStringValue(triggeredParameters, "test") );
@@ -68,7 +75,7 @@ public class TestFileMonitor {
     public class TestMonitor extends DirectoryMonitor {
 
         @Override
-        protected void action(File file, JsonObject parameters) {
+        protected synchronized void action(File file, JsonObject parameters) {
             triggeredFile = file;
             triggeredParameters = parameters;
         }

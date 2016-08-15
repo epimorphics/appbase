@@ -17,9 +17,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.shared.PrefixMapping;
-import com.hp.hpl.jena.util.FileManager;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.shared.PrefixMapping;
+import org.apache.jena.util.FileManager;
 
 /**
  * A service to hold an App-wide set of prefixes used for query expansion

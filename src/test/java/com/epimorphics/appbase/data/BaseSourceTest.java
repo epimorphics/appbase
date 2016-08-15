@@ -14,8 +14,8 @@ import org.junit.Before;
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.core.PrefixService;
 import com.epimorphics.appbase.data.impl.FileSparqlSource;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.NodeFactory;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
 
 /**
  * Base utilities for testing the data wrappers - WSource et al.

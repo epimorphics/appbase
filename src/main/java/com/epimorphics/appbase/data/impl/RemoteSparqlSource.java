@@ -17,13 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.epimorphics.appbase.data.SparqlSource;
-import com.hp.hpl.jena.query.DatasetAccessor;
-import com.hp.hpl.jena.query.DatasetAccessorFactory;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
-import com.hp.hpl.jena.update.UpdateExecutionFactory;
-import com.hp.hpl.jena.update.UpdateRequest;
+import org.apache.jena.query.DatasetAccessor;
+import org.apache.jena.query.DatasetAccessorFactory;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.sparql.engine.http.QueryEngineHTTP;
+import org.apache.jena.update.UpdateExecutionFactory;
+import org.apache.jena.update.UpdateRequest;
 
 /**
  * Sparql source for querying remote sparql endpoints. Configuration options:
@@ -52,6 +52,9 @@ public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource
     protected String updateEndpoint;
     protected String graphEndpoint;
     protected DatasetAccessor accessor;
+    protected long  readTimeout = -1;
+    protected long  connectTimeout = -1;
+    protected Long  remoteTimeout = null;
     
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
@@ -63,6 +66,23 @@ public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource
     
     public void setGraphEndpoint(String endpoint) {
         this.graphEndpoint = endpoint;
+    }
+    
+    public void setReadTimeout(long readTimeout) {
+        this.readTimeout = readTimeout;
+    }
+
+    public void setConnectTimeout(long connectTimeout) {
+        this.connectTimeout = connectTimeout;
+    }
+
+    /**
+     * The remote timeout is passed to the client on the assumption it's a Fuseki endpoint
+     * configured to access a timeout query parameter.
+     * @param remoteTimeout timeout in seconds
+     */
+    public void setRemoteTimeout(long remoteTimeout) {
+        this.remoteTimeout = remoteTimeout;
     }
     
     /**
@@ -78,12 +98,15 @@ public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource
 
     @Override
     protected QueryExecution start(String queryString) {
-        QueryExecution s = QueryExecutionFactory.sparqlService(endpoint, queryString);
+        QueryEngineHTTP hs = (QueryEngineHTTP) QueryExecutionFactory.sparqlService(endpoint, queryString);
         if (contentType != null) {
-            QueryEngineHTTP hs = (QueryEngineHTTP) s;
             hs.setSelectContentType(contentType);
         }
-        return s;
+        hs.setTimeout(readTimeout, connectTimeout);
+        if (remoteTimeout != null) {
+            hs.addParam("timeout", Long.toString(remoteTimeout));
+        }
+        return hs;
     }
 
     @Override

@@ -31,15 +31,21 @@ import javax.servlet.http.HttpServletResponse;
  * Adapted from: http://www.zienit.nl/blog/2010/01/rest/control-jax-rs-content-negotiation-with-filters
  */
 public class ExtensionFilter implements Filter {
+    public static final String FORMAT_PARAM = "_format";
  
     private final Map<String,String> extensions = new HashMap<String,String>();
+    private boolean allow_format = false;
  
     public void init(FilterConfig config) throws ServletException {
         Enumeration<String> exts = config.getInitParameterNames();
         while (exts.hasMoreElements()) {
             String ext = exts.nextElement();
             if (ext != null && !ext.isEmpty()) {
-                this.extensions.put("."+ext.toLowerCase(), config.getInitParameter(ext));
+                if (ext.equals(FORMAT_PARAM)) {
+                    allow_format = config.getInitParameter(FORMAT_PARAM).equalsIgnoreCase("true");
+                } else {
+                    this.extensions.put("."+ext.toLowerCase(), config.getInitParameter(ext));
+                }
             }
         }
     }
@@ -50,12 +56,14 @@ public class ExtensionFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest)request;
         String uri = httpRequest.getRequestURI();
         String ext = this.getExtension(uri);
-        String accept = this.extensions.get(ext);
- 
+
         // remove extension and remap the Accept header
         if (!ext.isEmpty()) {
             uri = uri.substring(0, uri.length() - ext.length());
-            request = new RequestWrapper(httpRequest, uri, accept);
+            request = new RequestWrapper( httpRequest, uri, extensions.get(ext) );
+        } else if ( allow_format && httpRequest.getParameter(FORMAT_PARAM) != null ) {
+            ext = "." + httpRequest.getParameter( FORMAT_PARAM );
+            request = new RequestWrapper( httpRequest, uri, extensions.get(ext) );
         }
  
         // add "Vary: accept" to the response headers

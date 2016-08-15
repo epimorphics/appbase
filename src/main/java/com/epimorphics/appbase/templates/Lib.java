@@ -41,19 +41,21 @@ import org.apache.jena.atlas.json.JsonValue;
 import com.epimorphics.appbase.data.WNode;
 import com.epimorphics.json.JsonUtil;
 import com.epimorphics.rdfutil.RDFNodeWrapper;
+import com.epimorphics.rdfutil.TypeUtil;
 import com.epimorphics.util.NameUtils;
-import com.hp.hpl.jena.datatypes.RDFDatatype;
-import com.hp.hpl.jena.datatypes.xsd.XSDDateTime;
-import com.hp.hpl.jena.datatypes.xsd.impl.XSDDateType;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.rdf.model.Literal;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.ResourceFactory;
-import com.hp.hpl.jena.rdf.model.impl.LiteralImpl;
-import com.hp.hpl.jena.rdf.model.impl.ModelCom;
-import com.hp.hpl.jena.sparql.util.FmtUtils;
-import com.hp.hpl.jena.sparql.util.NodeFactoryExtra;
+import org.apache.jena.datatypes.RDFDatatype;
+import org.apache.jena.datatypes.xsd.XSDDateTime;
+import org.apache.jena.datatypes.xsd.impl.XSDDateType;
+import org.apache.jena.graph.Node;
+import org.apache.jena.rdf.model.Literal;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdf.model.impl.LiteralImpl;
+import org.apache.jena.rdf.model.impl.ModelCom;
+import org.apache.jena.sparql.util.FmtUtils;
+import org.apache.jena.sparql.util.NodeFactoryExtra;
 
 /**
  * Collection of utility functions to be made available
@@ -132,20 +134,24 @@ public class Lib {
     /**
      * HTML escape text
      */
-    public String escapeHtml(String html) {
-        return StringEscapeUtils.escapeHtml(html);
+    public String escapeHtml(Object html) {
+        if (html == null) return null;
+        return StringEscapeUtils.escapeHtml(html.toString());
     }
 
     /**
      * HTML escape text and limit to N characters
      */
-    public String escapeHtml(String html, int limit) {
+    public String escapeHtml(Object htmlsrc, int limit) {
+        if (htmlsrc == null) return null;
+        String html = htmlsrc.toString();
         if (html.length() > limit) {
             return escapeHtml(html.substring(0, limit-3)) + "...";
         } else {
             return escapeHtml(html);
         }
     }
+    
     
     /**
      * Limit a string to at most N characters
@@ -280,6 +286,8 @@ public class Lib {
             n = (RDFNode) node;
         } else if (node instanceof WNode && ((WNode)node).isLiteral()) {
             n = ((WNode) node).asLiteral();
+        } else if (node instanceof String) {
+            n = TypeUtil.asTypedValue((String)node);
         } else {
             return null;
         }
@@ -295,6 +303,13 @@ public class Lib {
     }
 
     /**
+     * Format a duration (in ms)
+     */
+    public String printDuration(long duration) {
+        return NameUtils.formatDuration(duration);
+    }
+    
+    /**
      * Convert a riot Json value to plain Map/List style objects
      */
     public Object fromJson(JsonValue jv) {
@@ -308,8 +323,22 @@ public class Lib {
         return JsonUtil.asJson(o);
     }
 
+    public URLBuilder asURL(Object url) {
+        if (url instanceof URLBuilder) {
+            return (URLBuilder)url;
+        } else if (url == null) {
+            return null;
+        } else if (url instanceof Resource) {
+            return new URLBuilder(((Resource)url).getURI());
+        } else if (url instanceof RDFNodeWrapper) {
+            return new URLBuilder(((RDFNodeWrapper)url).getURI());
+        } else {
+            return new URLBuilder(url.toString());
+        }
+    }
     
     // Simple facet support - multi-valued query parameter holds encoded URIs that have been selected
+    // Hopefully redundant now we have URLBuilder
     
     public boolean facetContains(Object facet, String value) {
         return asFacet(facet).contains(value);

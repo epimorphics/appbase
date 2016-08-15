@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.epimorphics.util.EpiException;
-import com.hp.hpl.jena.shared.PrefixMapping;
+import org.apache.jena.shared.PrefixMapping;
 
 /**
  * An App is a set of configured components and global configuration parameters. 
@@ -264,11 +264,10 @@ public class App {
         if (line.startsWith("#")) return;  // Pure comment line
         if (line.isEmpty()) return;   // Skip empty lines
         
-        String[] parts = line.split("=");
-        if (parts.length != 2)  error(lineNum, line, "expected a '=' assignment");
-
-        String target = parts[0].trim();
-        Object value = asValue( parts[1].trim() );
+        int s = line.indexOf('=');
+        if (s == -1) error(lineNum, line, "expected a '=' assignment");
+        String target = line.substring(0,  s).trim();
+        Object value = asValue( line.substring(s+1).trim() );
         
         if (target.startsWith(APP_PARAM_PREFIX)) {
             // Global config setting

@@ -17,10 +17,26 @@ import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.jena.atlas.json.JsonObject;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetAccessor;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.ReadWrite;
 import org.apache.jena.query.text.EntityDefinition;
 import org.apache.jena.query.text.TextDatasetFactory;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.sparql.core.DatasetGraph;
+import org.apache.jena.sparql.core.DatasetGraphFactory;
+import org.apache.jena.tdb.TDB;
+import org.apache.jena.tdb.TDBFactory;
+import org.apache.jena.update.UpdateExecutionFactory;
+import org.apache.jena.update.UpdateRequest;
+import org.apache.jena.vocabulary.RDFS;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
@@ -36,22 +52,6 @@ import com.epimorphics.json.JsonUtil;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 import com.epimorphics.util.EpiException;
 import com.epimorphics.util.FileUtil;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.NodeFactory;
-import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.query.DatasetAccessor;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.ReadWrite;
-import com.hp.hpl.jena.tdb.TDB;
-import com.hp.hpl.jena.tdb.TDBFactory;
-import com.hp.hpl.jena.update.GraphStore;
-import com.hp.hpl.jena.update.GraphStoreFactory;
-import com.hp.hpl.jena.update.UpdateExecutionFactory;
-import com.hp.hpl.jena.update.UpdateRequest;
-import com.hp.hpl.jena.vocabulary.RDFS;
 
 /**
  * A Sparql source which provides access to a TDB-based persistent
@@ -68,7 +68,7 @@ public class TDBSparqlSource extends BaseSparqlSource implements SparqlSource {
     protected String indexSpec = null;
     protected Dataset dataset;  // TODO should this be a thread local?
     protected boolean isUnionDefault;
-    protected GraphStore graphStore;
+    protected DatasetGraph graphStore;
     protected DatasetAccessor accessor;
     
     public void setLocation(String loc) {
@@ -170,9 +170,9 @@ public class TDBSparqlSource extends BaseSparqlSource implements SparqlSource {
         return accessor;
     }
     
-    protected GraphStore getGraphStore() {
+    protected DatasetGraph getGraphStore() {
         if (graphStore == null) {
-            graphStore = GraphStoreFactory.create(dataset);
+            graphStore = DatasetGraphFactory.create(dataset.asDatasetGraph());
         }
         return graphStore;
     }

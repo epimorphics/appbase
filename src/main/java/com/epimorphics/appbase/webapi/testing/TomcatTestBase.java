@@ -27,28 +27,28 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.StringWriter;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 
 import org.apache.catalina.startup.Tomcat;
 import org.apache.jena.atlas.json.JSON;
 import org.apache.jena.atlas.json.JsonObject;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Property;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.util.FileManager;
+import org.glassfish.jersey.client.ClientConfig;
 import org.junit.After;
 import org.junit.Before;
 
 import com.epimorphics.util.NameUtils;
 import com.epimorphics.util.TestUtil;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.util.FileManager;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.client.urlconnection.URLConnectionClientHandler;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 public abstract class TomcatTestBase {
 
@@ -94,9 +94,10 @@ public abstract class TomcatTestBase {
         tomcat.start();
 
         // Allow arbitrary HTTP methods so we can use PATCH
-        DefaultClientConfig config = new DefaultClientConfig();
-        config.getProperties().put(URLConnectionClientHandler.PROPERTY_HTTP_URL_CONNECTION_SET_METHOD_WORKAROUND, true);
-        c = Client.create(config);
+        ClientConfig config = new ClientConfig();
+        // TODO Not sure this is correct or needed any more
+        // config.getProperties().put(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
+        c = ClientBuilder.newClient(config);
 
         checkLive(200);
     }
@@ -120,89 +121,90 @@ public abstract class TomcatTestBase {
         return postFile(file, uri, mime).getStatus();
     }
 
-    protected ClientResponse postFile(String file, String uri) {
+    protected Response postFile(String file, String uri) {
         return postFile(file, uri, "text/turtle");
     }
 
-    protected ClientResponse postFile(String file, String uri, String mime) {
-        WebResource r = c.resource(uri);
+    protected Response postFile(String file, String uri, String mime) {
+        WebTarget r = c.target(uri);
         File src = new File(file);
-        ClientResponse response = r.type(mime).post(ClientResponse.class, src);
+        Response response = r.request().post( Entity.entity(src, mime) );
         return response;
     }
 
-    protected ClientResponse postModel(Model m, String uri) {
-        WebResource r = c.resource(uri);
+    protected Response postModel(Model m, String uri) {
+        WebTarget r = c.target(uri);
         StringWriter sw = new StringWriter();
         m.write(sw, "Turtle");
-        ClientResponse response = r.type("text/turtle").post(ClientResponse.class, sw.getBuffer().toString());
+        Response response = r.request().post(Entity.entity(sw.getBuffer().toString(), "text/turtle"));
         return response;
     }
 
-    protected ClientResponse invoke(String method, String file, String uri, String mime) {
-        WebResource r = c.resource(uri);
-        ClientResponse response = null;
+    protected Response invoke(String method, String file, String uri, String mime) {
+        WebTarget r = c.target(uri);
+        Response response = null;
         if (file == null) {
-            response = r.type(mime).header("X-HTTP-Method-Override", method).post(ClientResponse.class);
+            response = r.request().header("X-HTTP-Method-Override", method).post(Entity.entity(null, mime));
         } else {
             File src = new File(file);
-            response = r.type(mime).header("X-HTTP-Method-Override", method).post(ClientResponse.class, src);
+            response = r.request().header("X-HTTP-Method-Override", method).post(Entity.entity(src, mime));
         }
         return response;
     }
 
-    protected ClientResponse post(String uri, String...paramvals) {
-        WebResource r = c.resource(uri);
+    protected Response post(String uri, String...paramvals) {
+        WebTarget r = c.target(uri);
         for (int i = 0; i < paramvals.length; ) {
             String param = paramvals[i++];
             String value = paramvals[i++];
             r = r.queryParam(param, value);
         }
-        ClientResponse response = r.post(ClientResponse.class);
+        Response response = r.request().post(null);
         return response;
     }
 
-    protected ClientResponse postForm(String uri, String...paramvals) {
-        WebResource r = c.resource(uri);
-        MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
+    protected Response postForm(String uri, String...paramvals) {
+        WebTarget r = c.target(uri);
+        Form form = new Form();
+
         for (int i = 0; i < paramvals.length; ) {
             String param = paramvals[i++];
             String value = paramvals[i++];
-            formData.add(param, value);
+            form.param(param, value);
         }
-        ClientResponse response = r.type(MediaType.APPLICATION_FORM_URLENCODED_TYPE).post(ClientResponse.class, formData);
+        Response response = r.request().post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
         return response;
     }
 
-    protected ClientResponse invoke(String method, String file, String uri) {
+    protected Response invoke(String method, String file, String uri) {
         return invoke(method, file, uri, "text/turtle");
     }
 
     protected Model getModelResponse(String uri, String...paramvals) {
-        WebResource r = c.resource( uri );
+        WebTarget r = c.target( uri );
         for (int i = 0; i < paramvals.length; ) {
             String param = paramvals[i++];
             String value = paramvals[i++];
             r = r.queryParam(param, value);
         }
-        InputStream response = r.accept("text/turtle").get(InputStream.class);
+        InputStream response = r.request("text/turtle").get(InputStream.class);
         Model result = ModelFactory.createDefaultModel();
         result.read(response, uri, "Turtle");
         return result;
     }
 
-    protected ClientResponse getResponse(String uri) {
+    protected Response getResponse(String uri) {
         return getResponse(uri, "text/turtle");
     }
 
-    protected ClientResponse getResponse(String uri, String mime) {
-        WebResource r = c.resource( uri );
-        return r.accept(mime).get(ClientResponse.class);
+    protected Response getResponse(String uri, String mime) {
+        WebTarget r = c.target( uri );
+        return r.request(mime).get();
     }
     
     protected JsonObject getJSONResponse(String uri) {
-        ClientResponse r = getResponse(uri, MediaType.APPLICATION_JSON);
-        return JSON.parse( r.getEntityInputStream() );
+        Response r = getResponse(uri, MediaType.APPLICATION_JSON);
+        return JSON.parse( r.readEntity(InputStream.class) );
     }
 
 
@@ -233,10 +235,10 @@ public abstract class TomcatTestBase {
         return m;
     }
 
-    protected void printStatus(ClientResponse response) {
+    protected void printStatus(Response response) {
         String msg = "Response: " + response.getStatus();
         if (response.hasEntity() && response.getStatus() != 204) {
-            msg += " (" + response.getEntity(String.class) + ")";
+            msg += " (" + response.readEntity(String.class) + ")";
         }
         System.out.println(msg);
     }

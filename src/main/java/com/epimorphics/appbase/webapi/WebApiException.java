@@ -37,6 +37,7 @@ public class WebApiException extends WebApplicationException {
     // TODO consider velocity rendering of HTML message
 
     public WebApiException(int status, String message) {
+//        super(message, status);
         super(Response.status(status).entity(message).type("text/plain").build());
     }
 

@@ -9,8 +9,27 @@
 
 package com.epimorphics.appbase.data.impl;
 
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetAccessor;
+import org.apache.jena.query.DatasetAccessorFactory;
+import org.apache.jena.query.DatasetFactory;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.text.EntityDefinition;
 import org.apache.jena.query.text.TextDatasetFactory;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.sparql.core.DatasetGraph;
+import org.apache.jena.sparql.core.DatasetGraphFactory;
+import org.apache.jena.sparql.util.Closure;
+import org.apache.jena.update.UpdateExecutionFactory;
+import org.apache.jena.update.UpdateRequest;
+import org.apache.jena.vocabulary.RDFS;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
@@ -20,25 +39,6 @@ import org.slf4j.LoggerFactory;
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.core.Startup;
 import com.epimorphics.appbase.data.SparqlSource;
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.NodeFactory;
-import com.hp.hpl.jena.query.Dataset;
-import com.hp.hpl.jena.query.DatasetAccessor;
-import com.hp.hpl.jena.query.DatasetAccessorFactory;
-import com.hp.hpl.jena.query.DatasetFactory;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.sparql.util.Closure;
-import com.hp.hpl.jena.update.GraphStore;
-import com.hp.hpl.jena.update.GraphStoreFactory;
-import com.hp.hpl.jena.update.UpdateExecutionFactory;
-import com.hp.hpl.jena.update.UpdateRequest;
-import com.hp.hpl.jena.vocabulary.RDFS;
 
 /**
  * An in-memory source which supports graph access.
@@ -49,7 +49,7 @@ public class DatasetSparqlSource extends BaseSparqlSource implements SparqlSourc
     static Logger log = LoggerFactory.getLogger( FileSparqlSource.class );
     
     protected Dataset dataset = DatasetFactory.createMem();
-    protected GraphStore graphStore;
+    protected DatasetGraph graphStore;
     protected DatasetAccessor accessor;
     protected String indexSpec = null;
     
@@ -151,9 +151,9 @@ public class DatasetSparqlSource extends BaseSparqlSource implements SparqlSourc
         return accessor;
     }
     
-    protected GraphStore getGraphStore() {
+    protected DatasetGraph getGraphStore() {
         if (graphStore == null) {
-            graphStore = GraphStoreFactory.create(dataset);
+            graphStore = DatasetGraphFactory.create(dataset.asDatasetGraph());
         }
         return graphStore;
     }

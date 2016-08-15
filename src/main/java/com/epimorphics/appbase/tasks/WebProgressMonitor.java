@@ -15,7 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.jena.atlas.json.JSON;
 import org.apache.jena.atlas.json.JsonArray;
@@ -28,9 +31,6 @@ import com.epimorphics.tasks.ProgressMessage;
 import com.epimorphics.tasks.ProgressMonitor;
 import com.epimorphics.tasks.TaskState;
 import com.epimorphics.util.EpiException;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 
 public class WebProgressMonitor implements ProgressMonitor {
     public static final String PROGRESS_FIELD = "progress";
@@ -40,10 +40,10 @@ public class WebProgressMonitor implements ProgressMonitor {
 
     protected JsonObject lastStatus;
     protected List<ProgressMessage> messages;
-    protected WebResource resource;
+    protected WebTarget resource;
     
     public WebProgressMonitor(String url) {
-        resource = new Client().resource(url);
+        resource = ClientBuilder.newClient().target(url);
     }
     
     /**
@@ -51,11 +51,11 @@ public class WebProgressMonitor implements ProgressMonitor {
      * Throws runtime exception if the web resource responds with an error
      */
     public void update() {
-        ClientResponse response = resource.accept(MediaType.APPLICATION_JSON_TYPE).get(ClientResponse.class);
+        Response response = resource.request(MediaType.APPLICATION_JSON_TYPE).get(Response.class);
         if (response.getStatus() >= 400) {
-            throw new EpiException("Status resource fetch failed: " + response.getStatus() + " " + response.getEntity(String.class));
+            throw new EpiException("Status resource fetch failed: " + response.getStatus() + " " + response.readEntity(String.class));
         }
-        InputStream in = response.getEntityInputStream();
+        InputStream in = response.readEntity(InputStream.class);
         lastStatus = JSON.parse( in );
         try {
             in.close();

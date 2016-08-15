@@ -11,11 +11,11 @@ package com.epimorphics.appbase.data;
 
 import java.util.List;
 
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.query.DatasetAccessor;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.shared.PrefixMapping;
-import com.hp.hpl.jena.update.UpdateRequest;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.query.DatasetAccessor;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.shared.PrefixMapping;
+import org.apache.jena.update.UpdateRequest;
 
 /**
  * Signature for a SPARQL data source. Provides an abstraction for both local datasets
@@ -66,6 +66,11 @@ public interface SparqlSource {
      * Excecute a construct query
      */
     public Graph construct(String query);
+    
+    /**
+     * Execute an ASK query
+     */
+    public boolean ask(String query);
     
     /**
      * A local name for the source (the component name in the configuration)

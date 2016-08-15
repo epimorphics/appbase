@@ -14,12 +14,12 @@ import java.util.List;
 
 import com.epimorphics.util.EpiException;
 import com.epimorphics.util.PrefixUtils;
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
 
 /**
  * Utilities for extracting views of resources from a SPARQL source

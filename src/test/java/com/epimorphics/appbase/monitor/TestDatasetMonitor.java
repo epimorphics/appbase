@@ -29,8 +29,8 @@ import com.epimorphics.appbase.data.impl.UnionDatasetSparqlSource;
 import com.epimorphics.appbase.monitor.DatasetMonitor.MonitoredGraph;
 import com.epimorphics.util.FileUtil;
 import com.epimorphics.util.TestUtil;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.util.FileUtils;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.util.FileUtils;
 
 public class TestDatasetMonitor {
     protected App app;

@@ -13,12 +13,12 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.regex.Pattern;
 
+import org.apache.jena.util.FileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.SparqlSource;
-import com.hp.hpl.jena.util.FileManager;
 
 /**
  * SparqlSource which serves a set of files from a single union
@@ -53,6 +53,8 @@ public class FileSparqlSource extends DatasetSparqlSource implements SparqlSourc
      * Reload the configured files and directories
      */
     public void reload() {
+        // Clear old data to prevent bNode duplication
+        dataset.getDefaultModel().removeAll();
         for (String fname : fileSpec.split(",")) {
             File f = asFile(fname);
             if (f.isDirectory()) {

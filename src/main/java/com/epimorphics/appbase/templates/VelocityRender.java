@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -83,6 +85,7 @@ import com.epimorphics.util.EpiException;
  * @author <a href="mailto:dave@epimorphics.com">Dave Reynolds</a>
  */
 public class VelocityRender extends ComponentBase {
+    private static final String CONTEXT = "context";
     public static final String CONFIG_FILENAME = "velocity.properties";
     public static final String MACRO_FILE      = "macros.vm";
     public static final String FILTER_NAME     = "VelocityRenderer";
@@ -95,9 +98,9 @@ public class VelocityRender extends ComponentBase {
     protected File templateDir;
     protected String rootURI;
     protected Lib theLib = new Lib();
-    protected String loggerName;
     FilterRegistration registration;
-
+    protected String loggerName;
+    
     public void setProduction(boolean isProduction) {
         this.isProduction = isProduction;
     }
@@ -132,6 +135,10 @@ public class VelocityRender extends ComponentBase {
         theLib.addPlugin(plugin.getName(), plugin);
     }
     
+    public void setLoggerName(String loggerName) {
+        this.loggerName = loggerName;
+    }
+    
     @Override
     public void startup(App app) {
         super.startup(app);
@@ -155,9 +162,10 @@ public class VelocityRender extends ComponentBase {
             }
             if (loggerName != null) {
                 ve.setProperty( RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
-                        "org.apache.velocity.runtime.log.Log4JLogChute" );
-                ve.setProperty("runtime.log.logsystem.log4j.logger", loggerName);
-            }            
+                                        "org.apache.velocity.runtime.log.Log4JLogChute" );
+                ve.setProperty("runtime.log.logsystem.log4j.logger", loggerName);                            
+            }
+
             // Override with any user supplied config
             File configFile = new File(templateDir, CONFIG_FILENAME);
             if (configFile.canRead()) {
@@ -223,38 +231,16 @@ public class VelocityRender extends ComponentBase {
        out.close();
     }
 
+
     /**
      * Variant of render suitable for use from jax-rs implementations.
      * The environment will include the library (lib), the request URI (uri),
      * the root context for the container (root), and
      * the set of configured services and the supplied list of bindings.
-     *
-     * @param templateName  the template to render
-     * @param args   an alternative sequence of names and java objects to inject into the environment
-     * @return
      */
     public StreamingOutput render(String templateName, String requestURI, ServletContext context, MultivaluedMap<String, String> parameters, Object...args) {
         final Template template = ve.getTemplate(templateName);     // Throws exception if not found
-        final VelocityContext vc = buildContext(context.getContextPath(), null);
-        vc.put("uri", requestURI);
-        vc.put("context", context);
-        for (String key : parameters.keySet()) {
-            List<String> values = parameters.get(key);
-            if (values.size() == 1) {
-                vc.put(key, values.get(0));
-            } else {
-                vc.put(key, values);
-            }
-            
-        }
-        for (int i = 0; i < args.length;) {
-            String name = args[i++].toString();
-            if (i >= args.length) {
-                throw new EpiException("Odd number of arguments");
-            }
-            Object value = args[i++];
-            vc.put(name, value);
-        }
+        final VelocityContext vc = buildContext(requestURI, context, parameters, args);
         return new StreamingOutput() {
 
             @Override
@@ -266,8 +252,60 @@ public class VelocityRender extends ComponentBase {
             }
         };
     }
+  
+    /**
+     * Variant of render suitable for use from jax-rs implementations.
+     * The environment will include the library (lib), 
+     * the root context for the container (root), and
+     * the set of configured services and the supplied list of bindings.
+     */
+    public void renderTo(OutputStream output, String templateName, ServletContext context, Map<String, Object> env) throws IOException {
+        Template template = ve.getTemplate(templateName);     // Throws exception if not found
+        VelocityContext vc = buildContext(context.getContextPath(), env);
+        if (vc.get(CONTEXT) == null) {
+            vc.put(CONTEXT, context);
+        }
+        OutputStreamWriter writer = new OutputStreamWriter(output, StandardCharsets.UTF_8);
+        template.merge(vc, writer);
+        writer.flush();
+    }
 
+    protected VelocityContext buildContext( String requestURI, ServletContext context, MultivaluedMap<String, String> parameters, Object...args) {
+        VelocityContext vc = buildContext(context.getContextPath(), null);
+        vc.put("uri", requestURI);
+        vc.put(CONTEXT, context);
+        for (String key : parameters.keySet()) {
+            List<String> values = parameters.get(key);
+            if (values.size() == 1) {
+                vc.put(key, escapeQueryParameter( values.get(0) ));
+            } else {
+                List<String> safeValues = new ArrayList<>( values.size() );
+                for (String value : values) {
+                    safeValues.add( escapeQueryParameter(value) );
+                }
+                vc.put(key, safeValues);
+            }
+            
+        }
+        for (int i = 0; i < args.length;) {
+            String name = args[i++].toString();
+            if (i >= args.length) {
+                throw new EpiException("Odd number of arguments");
+            }
+            Object value = args[i++];
+            vc.put(name, value);
+        }
+        return vc;
+    }
 
+    protected String escapeQueryParameter( String value ) {
+        if (value.contains("<")) {
+            return StringEscapeUtils.escapeHtml(value);
+        } else {
+            return value;
+        }
+    }
+    
     protected VelocityContext buildContext(String root, Map<String, Object> env) {
         VelocityContext vc = new VelocityContext();
         if (root.equals("/")) {

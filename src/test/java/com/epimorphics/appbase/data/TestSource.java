@@ -14,22 +14,24 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 
 import com.epimorphics.appbase.util.SQueryUtil;
 import com.epimorphics.util.PrefixUtils;
 import com.epimorphics.util.TestUtil;
-import com.hp.hpl.jena.graph.Graph;
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.NodeFactory;
-import com.hp.hpl.jena.rdf.model.Literal;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.ResourceFactory;
-import com.hp.hpl.jena.sparql.core.DatasetGraph;
-import com.hp.hpl.jena.update.UpdateFactory;
-import com.hp.hpl.jena.vocabulary.RDFS;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.rdf.model.Literal;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.sparql.core.DatasetGraph;
+import org.apache.jena.update.UpdateFactory;
+import org.apache.jena.vocabulary.RDFS;
 
 public class TestSource extends BaseSourceTest {
 
@@ -111,7 +113,8 @@ public class TestSource extends BaseSourceTest {
         checkConnections(matches, new String[]{"test:a"});
 
         matches = source.search("label");
-        assertEquals(4, matches.size());
+        Set<WNode> matchset = new HashSet<>(matches);
+        assertEquals(4, matchset.size());
         checkConnections(matches, new String[]{"test:i1", "test:i2", "test:i3", "test:i5"});
         
         matches = source.search("label", 2);

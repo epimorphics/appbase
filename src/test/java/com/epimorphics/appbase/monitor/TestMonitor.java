@@ -28,7 +28,7 @@ import org.junit.Test;
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.util.FileUtil;
 import com.epimorphics.util.TestUtil;
-import com.hp.hpl.jena.util.FileManager;
+import org.apache.jena.util.FileManager;
 
 public class TestMonitor {
     protected App app;
@@ -52,6 +52,7 @@ public class TestMonitor {
     @After
     public void cleanUp() {
         FileUtil.deleteDirectory(testDir);
+        ConfigWatcher.stop();
     }
     
     @Test
