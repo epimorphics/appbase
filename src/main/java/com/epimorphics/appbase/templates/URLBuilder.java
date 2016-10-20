@@ -32,13 +32,13 @@ import com.epimorphics.util.EpiException;
 public class URLBuilder {
     protected String base;
     protected String extension;
+    protected String queryString = null;
     protected Map<String, QueryParameter> queryParameters = new HashMap<>();
     
     protected static Pattern EXTPATTERN = Pattern.compile("([^\\?]*)\\.([\\w]*)");
     protected static Pattern BASEPATTERN = Pattern.compile("https?://[^/]*(/.*)");
     
     public URLBuilder(String url) {
-        String queryString = null;
         int split = url.indexOf('?');
         if (split > 0) {
             base = url.substring(0, split);
@@ -85,6 +85,10 @@ public class URLBuilder {
         if (value != null) {
             qp.addValue(value);
         }
+    }
+    
+    public String getQueryString() {
+        return queryString;
     }
     
     public URLBuilder addQuery(String param, String value) {
