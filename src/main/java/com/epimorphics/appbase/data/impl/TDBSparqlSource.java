@@ -172,7 +172,7 @@ public class TDBSparqlSource extends BaseSparqlSource implements SparqlSource {
     
     protected DatasetGraph getGraphStore() {
         if (graphStore == null) {
-            graphStore = DatasetGraphFactory.create(dataset.asDatasetGraph());
+            graphStore = DatasetGraphFactory.cloneStructure(dataset.asDatasetGraph());
         }
         return graphStore;
     }

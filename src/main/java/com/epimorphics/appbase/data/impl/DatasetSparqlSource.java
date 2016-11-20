@@ -48,7 +48,7 @@ import com.epimorphics.appbase.data.SparqlSource;
 public class DatasetSparqlSource extends BaseSparqlSource implements SparqlSource, Startup {
     static Logger log = LoggerFactory.getLogger( FileSparqlSource.class );
     
-    protected Dataset dataset = DatasetFactory.createMem();
+    protected Dataset dataset = DatasetFactory.createGeneral();
     protected DatasetGraph graphStore;
     protected DatasetAccessor accessor;
     protected String indexSpec = null;
@@ -153,7 +153,7 @@ public class DatasetSparqlSource extends BaseSparqlSource implements SparqlSourc
     
     protected DatasetGraph getGraphStore() {
         if (graphStore == null) {
-            graphStore = DatasetGraphFactory.create(dataset.asDatasetGraph());
+            graphStore = DatasetGraphFactory.cloneStructure(dataset.asDatasetGraph());
         }
         return graphStore;
     }

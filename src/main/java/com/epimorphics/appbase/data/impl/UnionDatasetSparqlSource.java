@@ -9,17 +9,11 @@
 
 package com.epimorphics.appbase.data.impl;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.jena.graph.Graph;
-import org.apache.jena.graph.Node;
 import org.apache.jena.query.DatasetAccessor;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.DatasetGraphMap;
-import org.apache.jena.sparql.graph.GraphFactory;
 import org.apache.jena.sparql.graph.GraphUnionRead;
 
 /**
@@ -32,44 +26,14 @@ import org.apache.jena.sparql.graph.GraphUnionRead;
 public class UnionDatasetSparqlSource extends DatasetSparqlSource {
     
     public UnionDatasetSparqlSource() {
-        dataset = DatasetFactory.create( new UnionDatasetGraphMem() );
+        dataset = DatasetFactory.wrap( new UnionDatasetGraphMem() );
     }
 
     public static class UnionDatasetGraphMem extends DatasetGraphMap implements DatasetGraph {
-        
-        public UnionDatasetGraphMem() {
-            super( GraphFactory.createDefaultGraph() );
-        }
-        
         @Override
-        protected Graph getGraphCreate() {
-            return GraphFactory.createDefaultGraph();
+        public Graph getDefaultGraph() {
+            return new GraphUnionRead(this);
         }
-        
-
-        @Override
-        public void addGraph(Node graphName, Graph graph)
-        {
-            super.addGraph(graphName, graph);
-            rebuildUnion();
-        }
-
-        @Override
-        public void removeGraph(Node graphName)
-        {
-            super.removeGraph(graphName);
-            rebuildUnion();
-        }
-        
-        // The "synchronized" is hopefully redundant, all calls ought to be from within dataset level criticalSections
-        protected synchronized void rebuildUnion() {
-            List<Node> graphs = new ArrayList<>();
-            for (Iterator<Node> i = listGraphNodes(); i.hasNext(); ) {
-                graphs.add( i.next() );
-            }
-            setDefaultGraph( new GraphUnionRead(this, graphs) );
-        }
-
     }
 
     @Override

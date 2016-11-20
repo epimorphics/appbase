@@ -41,8 +41,8 @@ public class TestUnionSource {
     @Test
     public void testUnionSource() {
         DatasetAccessor accessor = source.getAccessor();
-        accessor.add(TEST + "g1", createGraph("graph1"));
-        accessor.add(TEST + "g2", createGraph("graph2"));
+        accessor.putModel(TEST + "g1", createGraph("graph1"));
+        accessor.putModel(TEST + "g2", createGraph("graph2"));
         TestUtil.testArray(checkGraphs(source), new String[]{"graph1", "graph2"});
         
         accessor.putModel(TEST + "g1", createGraph("graph1-b"));

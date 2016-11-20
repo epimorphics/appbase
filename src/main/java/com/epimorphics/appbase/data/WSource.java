@@ -347,7 +347,7 @@ public class WSource extends ComponentBase {
      */
     public DatasetGraph constructViews(String queryBody, String... uris) {
         ResultSet rs = source.select( expandQuery( makeViewQuery(queryBody, uris) ) );
-        DatasetGraph views = DatasetGraphFactory.createMem();
+        DatasetGraph views = DatasetGraphFactory.createGeneral();
         Var var = Var.alloc("uri");
         while (rs.hasNext()) {
             Binding binding = rs.nextBinding();
