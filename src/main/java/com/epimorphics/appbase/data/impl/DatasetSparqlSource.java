@@ -158,5 +158,8 @@ public class DatasetSparqlSource extends BaseSparqlSource implements SparqlSourc
         return graphStore;
     }
     
-    
+    // Largely for test purposes
+    public Dataset getDataset() {
+        return dataset;
+    }
 }
