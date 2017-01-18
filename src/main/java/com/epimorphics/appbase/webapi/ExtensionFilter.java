@@ -58,12 +58,14 @@ public class ExtensionFilter implements Filter {
         String ext = this.getExtension(uri);
 
         // remove extension and remap the Accept header
-        if (!ext.isEmpty()) {
+        if (!ext.isEmpty() && extensions.containsKey(ext)) {
             uri = uri.substring(0, uri.length() - ext.length());
             request = new RequestWrapper( httpRequest, uri, extensions.get(ext) );
         } else if ( allow_format && httpRequest.getParameter(FORMAT_PARAM) != null ) {
             ext = "." + httpRequest.getParameter( FORMAT_PARAM );
-            request = new RequestWrapper( httpRequest, uri, extensions.get(ext) );
+            if (extensions.containsKey(ext)) {
+                request = new RequestWrapper( httpRequest, uri, extensions.get(ext) );
+            }
         }
  
         // add "Vary: accept" to the response headers
