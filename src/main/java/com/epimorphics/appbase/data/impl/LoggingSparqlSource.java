@@ -117,27 +117,27 @@ public class LoggingSparqlSource extends ComponentBase implements SparqlSource {
 
     @Override
     public Graph describe(String query) {
-        return describe(query);
+        return source.describe(query);
     }
 
     @Override
     public Graph describeAll(String... uris) {
-        return describeAll(uris);
+        return source.describeAll(uris);
     }
 
     @Override
     public Graph[] describeEach(String... uris) {
-        return describeEach(uris);
+        return source.describeEach(uris);
     }
 
     @Override
     public Graph construct(String query) {
-        return construct(query);
+        return source.construct(query);
     }
 
     @Override
     public boolean ask(String query) {
-        return ask(query);
+        return source.ask(query);
 
     }
 
