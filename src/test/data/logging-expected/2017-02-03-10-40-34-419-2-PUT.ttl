@@ -1,0 +1,4 @@
+# PUT http://localhost/test/def#g1
+<http://localhost/test/def#i>
+        <http://www.w3.org/2000/01/rdf-schema#label>
+                "g1b" .

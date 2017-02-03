@@ -49,6 +49,8 @@ public class LoggingSparqlSource extends ComponentBase implements SparqlSource {
     protected SparqlSource source;
     protected File logDir;
     
+    protected long counter = 0;
+    
     public void setSource(SparqlSource source) {
         this.source = source;
     }
@@ -60,8 +62,8 @@ public class LoggingSparqlSource extends ComponentBase implements SparqlSource {
     
     // The logging operations
     protected OutputStream startLogEntry(String op, String model, String format) throws IOException {
-        String logname = String.format( "%s-%s.%s",
-                new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-S").format(new Date()), op , format);
+        String logname = String.format( "%s-%d-%s.%s",
+                new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-S").format(new Date()), counter++, op , format);
         File logfile = new File(logDir, logname);
         BufferedOutputStream out = new BufferedOutputStream( new FileOutputStream(logfile) );
         String header = String.format("# %s %s\n", op, model);
