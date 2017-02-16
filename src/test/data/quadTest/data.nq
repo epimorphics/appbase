@@ -1,0 +1,2 @@
+<http://localhost/test/def#i> <http://www.w3.org/2000/01/rdf-schema#label> "graph1" <http://localhost/test/def#graph1> .
+<http://localhost/test/def#i> <http://www.w3.org/2000/01/rdf-schema#label> "graph2" <http://localhost/test/def#graph2> .
