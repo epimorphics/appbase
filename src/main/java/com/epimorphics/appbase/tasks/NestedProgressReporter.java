@@ -11,9 +11,11 @@ package com.epimorphics.appbase.tasks;
 
 import java.util.List;
 
+import com.epimorphics.json.JSFullWriter;
 import com.epimorphics.json.JSONWritable;
 import com.epimorphics.tasks.ProgressMessage;
 import com.epimorphics.tasks.ProgressMonitorReporter;
+import com.epimorphics.tasks.SimpleProgressMonitor;
 import com.epimorphics.tasks.TaskState;
 
 /**
@@ -23,7 +25,7 @@ import com.epimorphics.tasks.TaskState;
  * reported is marked as failed.
  *  Has the same ID as the wrapped reporter.
  */
-public class NestedProgressReporter implements ProgressMonitorReporter {
+public class NestedProgressReporter implements ProgressMonitorReporter, JSONWritable {
     protected ProgressMonitorReporter wrapped;
     protected TaskState state = TaskState.Waiting;
     protected int progress = 0;
@@ -144,6 +146,27 @@ public class NestedProgressReporter implements ProgressMonitorReporter {
     public void reportError(String message, int lineNumber) {
         wrapped.report(message, lineNumber);
         setFailed();
+    }
+
+    @Override
+    public void writeTo(JSFullWriter out) {
+        out.startObject();
+        out.pair(SimpleProgressMonitor.ID_FIELD, wrapped.getId());
+        out.pair(SimpleProgressMonitor.STATE_FIELD, state.name());
+        out.pair(SimpleProgressMonitor.PROGRESS_FIELD, progress);
+        out.pair(SimpleProgressMonitor.SUCEEDED_FIELD, succeeded);
+        out.key(SimpleProgressMonitor.MESSAGES_FIELD);
+        out.startArray();
+        List<ProgressMessage> messages = wrapped.getMessages();
+        int len = messages.size();
+        for (int i = 0; i < len; i++) {
+            messages.get(i).writeTo(out);
+            if (i < len-1) {
+                out.arraySep();
+            }
+        }
+        out.finishArray();
+        out.finishObject();
     }
     
 }
