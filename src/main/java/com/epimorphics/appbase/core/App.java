@@ -13,6 +13,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,11 +22,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.jena.shared.PrefixMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.epimorphics.util.EpiException;
-import org.apache.jena.shared.PrefixMapping;
 
 /**
  * An App is a set of configured components and global configuration parameters. 
@@ -80,6 +82,8 @@ public class App {
     protected List<Object> orderedComponents = new ArrayList<>();
     
     protected PrefixService prefixService;
+    
+    URLClassLoader classLoader;
 
     /**
      * Construct an App instance configured by a file.
@@ -233,6 +237,12 @@ public class App {
                 log.info("Shut down " + name + "." + cname);
             }
         }
+        if (classLoader != null) {
+            try {
+                classLoader.close();
+            } catch (IOException e) {
+            }
+        }
     }
 
     /**
@@ -249,6 +259,7 @@ public class App {
     // ---- Configuration file processor --------------
     
     static final String APP_PARAM_PREFIX = "app.";
+    static final String LOAD_PARAM = "load";
     
     protected void loadConfig(File configF) throws IOException {
         BufferedReader in = new BufferedReader( new FileReader(configF) );
@@ -260,9 +271,25 @@ public class App {
         in.close();
     }
     
+    protected ClassLoader getLoader() {
+        return (classLoader == null) ? this.getClass().getClassLoader() : classLoader;
+    }
+
     protected void processConfigLine(int lineNum, String line) {
         if (line.startsWith("#")) return;  // Pure comment line
         if (line.isEmpty()) return;   // Skip empty lines
+        
+        if (line.startsWith(LOAD_PARAM)) {
+            String filename = line.substring(LOAD_PARAM.length()).trim();
+            try {
+                URL[] urls = new URL[]{ new File(filename).toURI().toURL() };
+                classLoader = new URLClassLoader(urls, getLoader()); 
+                log.info("Adding class loader for " + filename);
+            } catch (Exception e) {
+                throw new EpiException(e);
+            }
+            return;
+        }
         
         int s = line.indexOf('=');
         if (s == -1) error(lineNum, line, "expected a '=' assignment");
@@ -294,7 +321,12 @@ public class App {
             // Create a new component
             try {
                 String name = value.toString();
-                Object component = Class.forName( name ).newInstance();
+                Object component = null;
+                if (classLoader == null) {
+                    component = Class.forName(name).newInstance();
+                } else {
+                    component = Class.forName(name, true, getLoader()).newInstance();
+                }
                 if (component instanceof Named) {
                     ((Named)component).setName(target);
                 }
