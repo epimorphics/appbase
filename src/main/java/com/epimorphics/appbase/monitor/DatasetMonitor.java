@@ -72,6 +72,11 @@ public class DatasetMonitor extends ConfigMonitor<DatasetMonitor.MonitoredGraph>
             return name;
         }
         
+        @Override
+        public void setName(String name) {
+            this.name = name;
+        }
+        
         public String getFilepath() {
             return path;
         }
