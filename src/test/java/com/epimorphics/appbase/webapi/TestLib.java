@@ -52,6 +52,7 @@ public class TestLib {
         assertEquals("http://example.com/foo.ttl?param=42", x.setExtensionFrom("http://example.com/foo.ttl?p=q").toString());
         
         assertEquals("http://example.com/foo?param=42", x.asLocal("http://localhost/"));
+        assertEquals("http://example.com/foo.xml?param=42", x.asSafeLocal("http://localhost/"));
         assertEquals("/foo.xml?param=42", x.asLocal("http://example.com/foo"));
         
         u = lib.asURL("http://localhost:8080/public-register/waste-carriers-brokers/id?easting=&northing=&name-search=jones&number-search=&address-search=&__postcode=&dist=1");
