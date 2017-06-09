@@ -277,11 +277,11 @@ public class VelocityRender extends ComponentBase {
         for (String key : parameters.keySet()) {
             List<String> values = parameters.get(key);
             if (values.size() == 1) {
-                vc.put(key, escapeQueryParameter( values.get(0) ));
+                vc.put(key, values.get(0) );
             } else {
                 List<String> safeValues = new ArrayList<>( values.size() );
                 for (String value : values) {
-                    safeValues.add( escapeQueryParameter(value) );
+                    safeValues.add( value );
                 }
                 vc.put(key, safeValues);
             }
@@ -298,14 +298,6 @@ public class VelocityRender extends ComponentBase {
         return vc;
     }
 
-    protected String escapeQueryParameter( String value ) {
-        if (value.contains("<")) {
-            return StringEscapeUtils.escapeHtml(value);
-        } else {
-            return value;
-        }
-    }
-    
     protected VelocityContext buildContext(String root, Map<String, Object> env) {
         VelocityContext vc = new VelocityContext();
         if (root.equals("/")) {
