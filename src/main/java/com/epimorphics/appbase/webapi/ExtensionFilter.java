@@ -85,7 +85,8 @@ public class ExtensionFilter implements Filter {
     }
  
     private static class RequestWrapper extends HttpServletRequestWrapper {
- 
+        private static final String ACCEPT = "accept";
+        
         private final String uri;
         private final String accept;
  
@@ -103,13 +104,30 @@ public class ExtensionFilter implements Filter {
  
         @Override
         public Enumeration<String> getHeaders(String name) {
-            if (!"accept".equalsIgnoreCase(name)) {
+            if (!ACCEPT.equalsIgnoreCase(name)) {
                 return super.getHeaders(name);
             }
  
             Vector<String> values = new Vector<String>(1);
             values.add(this.accept);
             return values.elements();
+        }
+        
+        @Override
+        public Enumeration<String> getHeaderNames() {
+            Vector<String> names = new Vector<>(10);
+            boolean hasAccept = false;
+            for (Enumeration<String> en = super.getHeaderNames(); en.hasMoreElements();) {
+                String name = en.nextElement();
+                names.addElement( name );
+                if (name.equalsIgnoreCase(ACCEPT)) {
+                    hasAccept = true;
+                }
+            }
+            if ( ! hasAccept ) {
+                names.addElement( ACCEPT );
+            }
+            return names.elements();
         }
     }
 }
