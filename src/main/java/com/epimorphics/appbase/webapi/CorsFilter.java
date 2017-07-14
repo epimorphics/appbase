@@ -640,6 +640,9 @@ public final class CorsFilter implements Filter {
                             } else {
                                 requestType = CORSRequestType.ACTUAL;
                             }
+                        } else {
+                            // Submitting empty payload is a valid CORS action in some of our applications
+                            requestType = CORSRequestType.SIMPLE;
                         }
                     } else if (COMPLEX_HTTP_METHODS.contains(method)) {
                         requestType = CORSRequestType.ACTUAL;
