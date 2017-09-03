@@ -1029,13 +1029,13 @@ public final class CorsFilter implements Filter {
      */
     public static final Collection<String> HTTP_METHODS =
             new HashSet<String>(Arrays.asList("OPTIONS", "GET", "HEAD", "POST",
-                    "PUT", "DELETE", "TRACE", "CONNECT"));
+                    "PUT", "DELETE", "TRACE", "CONNECT", "PATCH"));
     /**
      * {@link Collection} of non-simple HTTP methods. Case sensitive.
      */
     public static final Collection<String> COMPLEX_HTTP_METHODS =
             new HashSet<String>(Arrays.asList("PUT", "DELETE", "TRACE",
-                    "CONNECT"));
+                    "CONNECT", "PATCH"));
     /**
      * {@link Collection} of Simple HTTP methods. Case sensitive.
      *
