@@ -60,6 +60,10 @@ public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource
         this.endpoint = endpoint;
     }
     
+    public String getEndpoint() {
+    	return endpoint;
+    }
+    
     public void setUpdateEndpoint(String endpoint) {
         this.updateEndpoint = endpoint;
     }

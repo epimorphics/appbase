@@ -9,12 +9,9 @@
 
 package com.epimorphics.appbase.data;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-
 import org.junit.Ignore;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.impl.RemoteSparqlSource;
@@ -101,4 +98,13 @@ public class TestRemoteSource {
             assertEquals( labels[i], row.getLiteral("label").getLexicalForm() );
         }
     }
+    
+    @Test public void testAllowsAccessToEndpoint() {
+    	RemoteSparqlSource s = new RemoteSparqlSource();
+    	assertNull(s.getEndpoint());
+    	s.setEndpoint("eh:/endpoint");
+    	assertEquals("eh:/endpoint", s.getEndpoint());
+    }
+    
+    
 }
