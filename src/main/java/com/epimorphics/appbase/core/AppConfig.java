@@ -52,6 +52,7 @@ public class AppConfig implements ServletContextListener {
     
     protected static List<Startup> startupHooks = new ArrayList<>();
     protected static List<Shutdown> shutdownHooks = new ArrayList<>();
+    protected static Map<String, String> failures = new HashMap<String, String>();
 
     protected Map<String, App> apps = new HashMap<String, App>();
     protected App defaultApp;
@@ -79,6 +80,10 @@ public class AppConfig implements ServletContextListener {
         }
     }
     
+    public static Map<String, String> getFailures() {
+    	return new HashMap<String, String>(failures);
+    }
+    
     public ServletContext getContext() {
         return context;
     }
@@ -103,6 +108,7 @@ public class AppConfig implements ServletContextListener {
             if (configFile.exists() && configFile.canRead()) {
                 try {
                     App app = new App(appName, configFile);
+                    failures.remove(appName);
                     for (Startup s : startupHooks) {
                         s.startup(app);
                     }
@@ -116,6 +122,7 @@ public class AppConfig implements ServletContextListener {
                     // exit after the first successful configuration of this app
                     break;
                 } catch (Exception e) {
+                	failures.put(appName,  e.toString());
                     log.error("Failed to load configuration file: " + configFile, e);
                 }
             }
