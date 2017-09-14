@@ -52,6 +52,10 @@ public class AppConfig implements ServletContextListener {
     
     protected static List<Startup> startupHooks = new ArrayList<>();
     protected static List<Shutdown> shutdownHooks = new ArrayList<>();
+    
+    /**
+		Mapping from config file names to message reporting failure.
+    */
     protected static Map<String, String> failures = new HashMap<String, String>();
 
     protected Map<String, App> apps = new HashMap<String, App>();
@@ -80,6 +84,10 @@ public class AppConfig implements ServletContextListener {
         }
     }
     
+    /**
+    	Return a copy of the map from the names of config files to
+    	the error message reported when they did not compile.
+    */
     public static Map<String, String> getFailures() {
     	return new HashMap<String, String>(failures);
     }
@@ -102,13 +110,18 @@ public class AppConfig implements ServletContextListener {
         
     }
     
+    /**
+    	Load the config file. If it fails, make an entry in the failures
+    	map, mapping the config file name to
+     * @param appName
+     * @param configFiles
+     */
     private void loadConfig(String appName, String configFiles) {
         for (String configF : configFiles.split(",") ) {
             File configFile = new File( expandFileLocation(configF.trim()) );
             if (configFile.exists() && configFile.canRead()) {
                 try {
                     App app = new App(appName, configFile);
-                    failures.remove(appName);
                     for (Startup s : startupHooks) {
                         s.startup(app);
                     }
@@ -120,9 +133,11 @@ public class AppConfig implements ServletContextListener {
                         log.info("Loaded App " + appName);
                     }
                     // exit after the first successful configuration of this app
+                    // if a previous entry failed, delete the failure entry.
+                    failures.remove(appName);
                     break;
                 } catch (Exception e) {
-                	failures.put(appName,  e.toString());
+                	failures.put(configFile.toString(), e.toString());
                     log.error("Failed to load configuration file: " + configFile, e);
                 }
             }
