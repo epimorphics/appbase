@@ -89,7 +89,7 @@ public class DatasetSparqlSource extends BaseSparqlSource implements SparqlSourc
 //                }
 //            }
             
-            dataset = TextDatasetFactory.createLucene(dataset, dir, entDef, new StandardAnalyzer(org.apache.jena.query.text.TextIndexLucene.VER)) ;
+            dataset = TextDatasetFactory.createLucene(dataset, dir, entDef, new StandardAnalyzer()) ;
         }
         
     }

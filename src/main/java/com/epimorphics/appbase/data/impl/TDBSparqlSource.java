@@ -112,7 +112,7 @@ public class TDBSparqlSource extends BaseSparqlSource implements SparqlSource {
         dataset = TDBFactory.createDataset( tdbDir.getPath() );
         if (textIndex != null) {
             try {
-                Directory dir = FSDirectory.open(textIndex);
+                Directory dir = FSDirectory.open(textIndex.toPath());
                 EntityDefinition entDef = new EntityDefinition("uri", "text", RDFS.label.asNode()) ;
                 if (indexSpec != null) {
                     for (String spec : indexSpec.split(",")) {
@@ -125,7 +125,7 @@ public class TDBSparqlSource extends BaseSparqlSource implements SparqlSource {
                         }
                     }
                 }
-                dataset = TextDatasetFactory.createLucene(dataset, dir, entDef, new StandardAnalyzer(org.apache.jena.query.text.TextIndexLucene.VER)) ;            
+                dataset = TextDatasetFactory.createLucene(dataset, dir, entDef, new StandardAnalyzer()) ;            
             } catch (IOException e) {
                 throw new EpiException("Failed to create jena-text lucence index area", e);
             }
