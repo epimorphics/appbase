@@ -10,3 +10,9 @@ generated
 /velocity.log
 /bin/
 .iml
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
