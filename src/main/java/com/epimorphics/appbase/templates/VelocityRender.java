@@ -27,10 +27,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import javax.servlet.FilterRegistration;
@@ -92,6 +89,15 @@ public class VelocityRender extends ComponentBase {
 
     static Logger log = LoggerFactory.getLogger(VelocityRender.class);
 
+    static protected Set<String> BLOCKED_PARAMETERS;
+    static {
+        BLOCKED_PARAMETERS = new HashSet<String>();
+        BLOCKED_PARAMETERS.add("root");
+        BLOCKED_PARAMETERS.add("uri");
+        BLOCKED_PARAMETERS.add("lib");
+        BLOCKED_PARAMETERS.add(CONTEXT);
+    }
+
     protected VelocityEngine ve;
     protected boolean isProduction;
     protected File templateDir;
@@ -99,7 +105,7 @@ public class VelocityRender extends ComponentBase {
     protected Lib theLib = new Lib();
     FilterRegistration registration;
     protected String loggerName;
-    
+
     public void setProduction(boolean isProduction) {
         this.isProduction = isProduction;
     }
@@ -274,6 +280,7 @@ public class VelocityRender extends ComponentBase {
         vc.put("uri", requestURI);
         vc.put(CONTEXT, context);
         for (String key : parameters.keySet()) {
+            if (BLOCKED_PARAMETERS.contains(key)) continue;
             List<String> values = parameters.get(key);
             if (values.size() == 1) {
                 vc.put(key, values.get(0) );
