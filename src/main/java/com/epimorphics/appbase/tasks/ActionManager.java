@@ -49,6 +49,7 @@ import com.epimorphics.tasks.ProgressMonitorReporter;
 import com.epimorphics.tasks.SimpleProgressMonitor;
 import com.epimorphics.util.EpiException;
 import com.epimorphics.util.FileUtil;
+import org.slf4j.MDC;
 
 /**
  * Controller which tracks available actions, executes actions
@@ -447,8 +448,15 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown, St
      * Log an event
      */
     protected void logEvent(String event, JsonObject parameters) {
-        String msg = event + " " + parameters;
-        log.info(msg);
+        if (parameters.hasKey(ACTION_EXECUTION_PARAM) && parameters.get(ACTION_EXECUTION_PARAM).isString()) {
+            MDC.put(ACTION_EXECUTION_PARAM, parameters.get(ACTION_EXECUTION_PARAM).getAsString().value());
+        }
+        StringBuffer msg = new StringBuffer();
+        msg.append(event);
+        for (String key : parameters.keys()) {
+            msg.append(" " + key + "=" + parameters.get(key));
+        }
+        log.info(msg.toString());
         if (actionLog != null) {
             String dateStr = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format( new Date() );
             try {
@@ -468,5 +476,5 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown, St
             }
         }
     }
-    
+
 }
