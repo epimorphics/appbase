@@ -454,7 +454,9 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown, St
         StringBuffer msg = new StringBuffer();
         msg.append(event);
         for (String key : parameters.keys()) {
-            msg.append(" " + key + "=" + parameters.get(key));
+            if (key != ACTION_EXECUTION_PARAM) {
+                msg.append(" " + key + "=" + parameters.get(key));
+            }
         }
         log.info(msg.toString());
         if (actionLog != null) {
