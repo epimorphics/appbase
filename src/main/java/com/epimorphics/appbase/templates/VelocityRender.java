@@ -42,6 +42,7 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.ResourceNotFoundException;
+import org.apache.velocity.exception.VelocityException;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -251,9 +252,21 @@ public class VelocityRender extends ComponentBase {
             @Override
             public void write(OutputStream output) throws IOException,
                     WebApplicationException {
-                OutputStreamWriter writer = new OutputStreamWriter(output, StandardCharsets.UTF_8);
-                template.merge(vc, writer);
-                writer.flush();
+                try {
+                    OutputStreamWriter writer = new OutputStreamWriter(output, StandardCharsets.UTF_8);
+                    template.merge(vc, writer);
+                    writer.flush();
+                } catch (IOException ie) {
+                    // If the client stops reading we get an io or socket exception which has little use
+                    log.warn("Problem writing velocity response: " + ie.getMessage());
+                } catch (VelocityException ve) {
+                    // If the client stops reading we get an io or socket exception  but often caught in the depths of velocity
+                    String message = ve.getMessage();
+                    if (ve.getWrappedThrowable() != null) {
+                        message = message + ": " + ve.getWrappedThrowable().getMessage();
+                    }
+                    log.warn("Problem rendering velocity response: " + message);
+                }
             }
         };
     }
