@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.jena.atlas.json.JsonValue;
 
 import com.epimorphics.appbase.data.WNode;
@@ -136,7 +136,7 @@ public class Lib {
      */
     public String escapeHtml(Object html) {
         if (html == null) return null;
-        return StringEscapeUtils.escapeHtml(html.toString());
+        return StringEscapeUtils.escapeHtml4(html.toString());
     }
 
     /**
