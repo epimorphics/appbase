@@ -158,8 +158,6 @@ public class VelocityRender extends ComponentBase {
             // Default settings
             ve.setProperty( RuntimeConstants.FILE_RESOURCE_LOADER_PATH, templateDir.getAbsolutePath() );
             ve.setProperty( RuntimeConstants.FILE_RESOURCE_LOADER_CACHE, isProduction );
-            ve.setProperty( RuntimeConstants.INPUT_ENCODING, "UTF-8" );
-            ve.setProperty( RuntimeConstants.OUTPUT_ENCODING, "UTF-8" );
             ve.setProperty( RuntimeConstants.ENCODING_DEFAULT, "UTF-8" );
             if ( new File(templateDir, MACRO_FILE).canRead()) {
                 ve.setProperty( RuntimeConstants.VM_LIBRARY, MACRO_FILE);
@@ -167,9 +165,7 @@ public class VelocityRender extends ComponentBase {
                 log.info("Setting macros: " + templateDir + " - " + MACRO_FILE);
             }
             if (loggerName != null) {
-                ve.setProperty( RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
-                                        "org.apache.velocity.runtime.log.Log4JLogChute" );
-                ve.setProperty("runtime.log.logsystem.log4j.logger", loggerName);                            
+                ve.setProperty( RuntimeConstants.RUNTIME_LOG_NAME, loggerName);
             }
 
             // Override with any user supplied config

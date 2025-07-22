@@ -10,3 +10,10 @@ Reusable foundation for java RDF applications that provide a web UI or web API o
    * **Template UI.**   Easy velocity based rendering. 
    * **Actions.**       Configurable asynchronous tasks
 
+## Changelog
+
+**3.1.5 2025-07-22**
+   * Updated commons-lang to commons-text
+   * Updated Apache Tomcat from 7.x to 8.5
+   * Updated Apache Velocity from 1.17.0 to 2.4.1. Downstream users may need to set the backward compatibility flags described in the [Velocity upgrade notes](https://velocity.apache.org/engine/2.4.1/upgrading.html#upgrading-from-velocity-17-to-velocity-20).
+   * 
