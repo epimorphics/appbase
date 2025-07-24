@@ -76,6 +76,7 @@ public abstract class TomcatTestBase {
         String root = getWebappRoot();
         tomcat = new Tomcat();
         tomcat.setPort(8070);
+        tomcat.getConnector();
 
         tomcat.setBaseDir(".");
 
