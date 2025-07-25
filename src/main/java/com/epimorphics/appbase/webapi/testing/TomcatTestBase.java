@@ -35,6 +35,7 @@ import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.jena.atlas.json.JSON;
 import org.apache.jena.atlas.json.JsonObject;
@@ -70,6 +71,9 @@ public abstract class TomcatTestBase {
         return NameUtils.ensureLastSlash( BASE_URL.substring(0, BASE_URL.length()-1) + getWebappContext() );
     }
 
+    protected void configureContext(Context context) {
+        // do nothing by default
+    }
 
     @Before
     public void containerStart() throws Exception {
@@ -91,7 +95,8 @@ public abstract class TomcatTestBase {
             System.exit(1);
         }
 
-        tomcat.addWebapp(contextPath,  rootF.getAbsolutePath());
+        Context context = tomcat.addWebapp(contextPath,  rootF.getAbsolutePath());
+        configureContext(context);
         tomcat.start();
 
         // Allow arbitrary HTTP methods so we can use PATCH

@@ -12,6 +12,9 @@ Reusable foundation for java RDF applications that provide a web UI or web API o
 
 ## Changelog
 
+**3.1.7**
+   * Add support for customizing the tomcat context in tomcat tests, useful to disable noisy jar scanning
+
 **3.1.6**
    * Update lib to 3.1.7 (updates jackson version to mitigate CV£)
    * Updated Apache Tomcat to 9.0.107 - supported version
