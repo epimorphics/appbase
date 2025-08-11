@@ -21,6 +21,7 @@ package com.epimorphics.appbase.tasks;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
@@ -29,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.epimorphics.appbase.core.TimerManager;
+import org.slf4j.MDC;
 
 /**
  * Utility to run a shell script pass simple command line arguments.
@@ -60,7 +62,8 @@ public class RunShell {
         
         try {
             Process scriptProcess = scriptPB.start();
-            Future<Boolean> scriptStatus = TimerManager.get().submit( new TrackShell(scriptProcess) );
+            Map<String, String> mdc = MDC.getCopyOfContextMap();
+            Future<Boolean> scriptStatus = TimerManager.get().submit( new TrackShell(scriptProcess, mdc) );
             return scriptStatus;
         } catch (IOException e) {
             log.error("Error invoking script: " + scriptFile, e);
@@ -72,7 +75,8 @@ public class RunShell {
         Process process;
         BufferedReader in;
         
-        public TrackShell( Process process ) {
+        public TrackShell( Process process, Map<String, String> mdc) {
+            MDC.setContextMap(mdc);
             in = new BufferedReader( new InputStreamReader(process.getInputStream()) );
         }
         
