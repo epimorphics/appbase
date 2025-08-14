@@ -71,11 +71,12 @@ public class RunShell {
         }
     }
     
-    public class TrackShell implements Callable<Boolean> {
+    static public class TrackShell implements Callable<Boolean> {
         Process process;
         BufferedReader in;
         
         public TrackShell( Process process, Map<String, String> mdc) {
+            this.process = process;
             MDC.setContextMap(mdc);
             in = new BufferedReader( new InputStreamReader(process.getInputStream()) );
         }
@@ -90,9 +91,14 @@ public class RunShell {
             } catch (IOException e) {
                 log.error("Error in reading script output: " + e);
             }
-            
-            int status = process.waitFor();
-            return status == 0;
+
+            if (process == null) {
+                log.warn("Process in RunShell now null, assuming success");
+                return true;
+            } else {
+                int status = process.waitFor();
+                return status == 0;
+            }
         }
         
     }
