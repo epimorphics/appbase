@@ -77,16 +77,30 @@ public class RunShell {
         
         public TrackShell( Process process, Map<String, String> mdc) {
             this.process = process;
-            MDC.setContextMap(mdc);
+            if (mdc != null) {
+                MDC.setContextMap(mdc);
+            }
             in = new BufferedReader( new InputStreamReader(process.getInputStream()) );
+        }
+
+        protected boolean hasFailed() {
+            try {
+                return process.exitValue() != 0;
+            } catch (IllegalThreadStateException e) {
+                return false;
+            }
         }
         
         @Override
         public Boolean call() throws Exception {
+            String prior = null; // Buffer one line to allow checking of exit status
             try {
                 String line = null;
                 while( (line = in.readLine()) != null ) {
-                    log.info(line);
+                    if (prior != null) {
+                        if (hasFailed()) log.error(prior); else log.info(prior);
+                    }
+                    prior = line;
                 }
             } catch (IOException e) {
                 log.error("Error in reading script output: " + e);
@@ -94,9 +108,13 @@ public class RunShell {
 
             if (process == null) {
                 log.warn("Process in RunShell now null, assuming success");
+                if (prior != null) log.info(prior);
                 return true;
             } else {
                 int status = process.waitFor();
+                if (prior != null) {
+                    if (status == 0) log.info(prior); else log.error(prior);
+                }
                 return status == 0;
             }
         }

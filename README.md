@@ -12,6 +12,9 @@ Reusable foundation for java RDF applications that provide a web UI or web API o
 
 ## Changelog
 
+**3.1.8**
+   * Fix log level in output of RunShell to be ERROR level if process returns failed status
+
 **3.1.7**
    * Add support for customizing the tomcat context in tomcat tests, useful to disable noisy jar scanning
 
