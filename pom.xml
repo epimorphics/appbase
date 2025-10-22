@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.epimorphics</groupId>
   <artifactId>appbase</artifactId>
-  <version>4.0.0-SNAPSHOT</version>
+  <version>3.1.14-SNAPSHOT</version>
   <name>appbase - server utilities</name>
 
   <scm>
@@ -14,7 +14,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <tomcat.version>9.0.108</tomcat.version>
     <jena.version>3.9.0</jena.version>
-    <lib.version>3.1.8-SNAPSHOT</lib.version>
+    <lib.version>3.1.8</lib.version>
     <jersey.version>2.25.1</jersey.version>
   </properties>
 
@@ -53,7 +53,7 @@
       <repository>
           <id>epi-public-s3-release</id>
           <name>Epimorphics S3 release repository</name>
-          <url>s3://epi-repository/release</url>
+          <url>https://epi-repository.s3-eu-west-1.amazonaws.com/release</url>
           <releases><enabled>true</enabled></releases>
           <snapshots><enabled>false</enabled></snapshots>
       </repository>
@@ -61,7 +61,7 @@
       <repository>
           <id>epi-public-s3-snapshot</id>
           <name>Epimorphics S3 snapshot repository</name>
-          <url>s3://epi-repository/snapshot</url>
+          <url>https://epi-repository.s3-eu-west-1.amazonaws.com/snapshot</url>
           <releases><enabled>false</enabled></releases>
           <snapshots><enabled>true</enabled></snapshots>
       </repository>
@@ -78,7 +78,7 @@
     <dependency>
       <groupId>com.epimorphics</groupId>
       <artifactId>lib</artifactId>
-      <version>4.0.0-SNAPSHOT</version>
+      <version>${lib.version}</version>
     </dependency>
 
     <dependency>
