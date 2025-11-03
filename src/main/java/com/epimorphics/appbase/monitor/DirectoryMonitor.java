@@ -30,6 +30,7 @@ import com.epimorphics.util.EpiException;
  * later modifications or removal.
  * @deprecated Issues with java8 and unused in production code
  */
+@Deprecated
 public abstract class DirectoryMonitor implements FileRecord.Process {
     public static final String DIRECTORY_PARAM = "dir";
     public static final String WAIT_TIME_PARAM = "waitTime";

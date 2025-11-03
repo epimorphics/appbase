@@ -16,11 +16,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
 
+import com.epimorphics.appbase.data.DatasetAccessor;
 import org.apache.jena.atlas.json.JsonObject;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetAccessor;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
@@ -32,9 +32,7 @@ import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.DatasetGraphFactory;
-import org.apache.jena.tdb.TDB;
-import org.apache.jena.tdb.TDBFactory;
-import org.apache.jena.update.UpdateExecutionFactory;
+import org.apache.jena.sparql.exec.UpdateExec;
 import org.apache.jena.update.UpdateRequest;
 import org.apache.jena.vocabulary.RDFS;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -106,10 +104,10 @@ public class TDBSparqlSource extends BaseSparqlSource implements SparqlSource {
         isUnionDefault = flag;
     }
     
-    @Override
+    @Override @SuppressWarnings({"removal"})
     public void startup(App app) {
         super.startup(app);
-        dataset = TDBFactory.createDataset( tdbDir.getPath() );
+        dataset = org.apache.jena.tdb1.TDB1Factory.createDataset( tdbDir.getPath() );
         if (textIndex != null) {
             try {
                 Directory dir = FSDirectory.open(textIndex.toPath());
@@ -132,12 +130,12 @@ public class TDBSparqlSource extends BaseSparqlSource implements SparqlSource {
         }
     }
     
-    @Override
+    @Override @SuppressWarnings({"removal"})
     protected QueryExecution start(String queryString) {
         Query query = QueryFactory.create(queryString) ;
         QueryExecution qexec = QueryExecutionFactory.create(query, dataset) ;
         if (isUnionDefault) {
-            qexec.getContext().set(TDB.symUnionDefaultGraph, true) ;
+            qexec.getContext().set(org.apache.jena.tdb1.TDB1.symUnionDefaultGraph, true) ;
         }
         dataset.begin(ReadWrite.READ);
         return qexec;
@@ -152,7 +150,7 @@ public class TDBSparqlSource extends BaseSparqlSource implements SparqlSource {
     @Override
     public void update(UpdateRequest update) {
         dataset.begin(ReadWrite.WRITE);
-        UpdateExecutionFactory.create(update, getGraphStore()).execute();        
+        UpdateExec.dataset(getGraphStore()).update(update).execute();
         dataset.commit();
     }
 

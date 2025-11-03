@@ -15,7 +15,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.jena.query.DatasetAccessor;
 import org.apache.jena.query.ResultSet;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,9 +45,9 @@ public class TestQuadSource {
         TestUtil.testArray(checkGraphs(source), new String[]{"graph1", "graph2"});
         // Check graphs
         DatasetAccessor accessor = source.getAccessor();
-        assertTrue( accessor.containsModel(TEST + "graph1") );
-        assertTrue( accessor.containsModel(TEST + "graph2") );
-        assertFalse( accessor.containsModel(TEST + "graph3") );
+        assertFalse(accessor.getModel(TEST + "graph1").isEmpty());
+        assertFalse(accessor.getModel(TEST + "graph2").isEmpty());
+        assertTrue(accessor.getModel(TEST + "graph3").isEmpty());
     }
     
     public static List<String> checkGraphs(SparqlSource source) {

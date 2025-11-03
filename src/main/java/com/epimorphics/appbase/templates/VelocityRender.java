@@ -30,14 +30,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
 
-import javax.servlet.FilterRegistration;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.StreamingOutput;
+import jakarta.servlet.FilterRegistration;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.StreamingOutput;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -258,8 +258,8 @@ public class VelocityRender extends ComponentBase {
                 } catch (VelocityException ve) {
                     // If the client stops reading we get an io or socket exception  but often caught in the depths of velocity
                     String message = ve.getMessage();
-                    if (ve.getWrappedThrowable() != null) {
-                        message = message + ": " + ve.getWrappedThrowable().getMessage();
+                    if (ve.getCause() != null) {
+                        message = message + ": " + ve.getCause().getMessage();
                     }
                     log.warn("Problem rendering velocity response: " + message);
                 }

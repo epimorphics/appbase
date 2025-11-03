@@ -106,25 +106,23 @@ public class Scanner {
      * be reported as modified. 
      *
      * @param reportImmediately report all files immediately without waiting for the checksum to be stable
-     * @return a list of changes on the files included in the directory
+     * @return a set of changes on the files included in the directory
      */
     public Set<FileRecord> scan(boolean reportImmediately)  {
         log.debug("Scanning " + directory);
         Set<File> removed = new HashSet<File>(storedChecksums.keySet());
         
         Set<FileRecord> results = scanDir(directory, removed, reportImmediately);
-        for (Iterator<File> it = removed.iterator(); it.hasNext();)
-        {
-            File file = (File) it.next();
+        for (File file : removed) {
             // Make sure we'll handle a file that has been deleted
-            results.add( new FileRecord(file, FileState.DELETED) );
+            results.add(new FileRecord(file, FileState.DELETED));
             // Remove no longer used checksums
             lastChecksums.remove(file);
             storedChecksums.remove(file);
         }
 
         if (! results.isEmpty())
-            log.debug(" ... found " + results.size() + " changes");
+            log.debug(" ... found {} changes", results.size());
         return results;
     }
     
@@ -136,22 +134,20 @@ public class Scanner {
             return results;
         }
 
-        
-        for (int i = 0; i < list.length; i++) {
-            File file  = list[i];
+
+        for (File file : list) {
             if (file.isDirectory()) {
-                results.addAll( scanDir(file, removed, reportImmediately) );
+                results.addAll(scanDir(file, removed, reportImmediately));
             } else {
-                long lastChecksum = lastChecksums.get(file) != null ? ((Long) lastChecksums.get(file)).longValue() : 0;
-                long storedChecksum = storedChecksums.get(file) != null ? ((Long) storedChecksums.get(file)).longValue() : 0;
+                long lastChecksum = lastChecksums.get(file) != null ? (Long) lastChecksums.get(file) : 0;
+                long storedChecksum = storedChecksums.get(file) != null ? (Long) storedChecksums.get(file) : 0;
                 long newChecksum = checksum(file);
-                lastChecksums.put(file, new Long(newChecksum));
+                lastChecksums.put(file, newChecksum);
                 // Only handle file when it does not change anymore and it has changed since last reported
-                log.debug( String.format("Checksums: new(%d), last(%d), stored(%d)", newChecksum, lastChecksum, storedChecksum) );
-                if ((newChecksum == lastChecksum || reportImmediately) && newChecksum != storedChecksum)
-                {
-                    storedChecksums.put(file, new Long(newChecksum));
-                    results.add( new FileRecord(file, (storedChecksum == 0) ? FileState.NEW : FileState.MODIFIED) );
+                log.debug("Checksums: new({}), last({}), stored({})", newChecksum, lastChecksum, storedChecksum);
+                if ((newChecksum == lastChecksum || reportImmediately) && newChecksum != storedChecksum) {
+                    storedChecksums.put(file, newChecksum);
+                    results.add(new FileRecord(file, (storedChecksum == 0) ? FileState.NEW : FileState.MODIFIED));
                 }
                 removed.remove(file);
             }
@@ -181,7 +177,7 @@ public class Scanner {
     public long getChecksum(File file)
     {
         Long c = storedChecksums.get(file);
-        return c != null ? c.longValue() : 0;
+        return c != null ? c : 0;
     }
 
     /**

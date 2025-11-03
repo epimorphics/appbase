@@ -22,10 +22,7 @@ import com.epimorphics.appbase.data.impl.WResultSetWrapper;
 import com.epimorphics.rdfutil.QueryUtil;
 import com.epimorphics.util.EpiException;
 import com.epimorphics.util.PrefixUtils;
-import org.apache.jena.graph.Graph;
-import org.apache.jena.graph.Node;
-import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.graph.Triple;
+import org.apache.jena.graph.*;
 import org.apache.jena.mem.GraphMem;
 import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.QuerySolutionMap;
@@ -194,6 +191,7 @@ public class WSource extends ComponentBase {
     /**
      * @deprecated
      */
+    @Deprecated
     protected void ensureLabeled(WNode... nodes) {
         final String labelQuery = "    OPTIONAL {?uri skos:prefLabel ?skos_prefLabel}\n"
                 + "    OPTIONAL {?uri skos:altLabel ?skos_altLabel}\n"
@@ -354,7 +352,7 @@ public class WSource extends ComponentBase {
             Node n = binding.get(var);
             Graph view = views.getGraph(n);
             if (view == null) {
-                view = new GraphMem();
+                view = GraphMemFactory.createGraphMemForModel();
                 views.addGraph(n, view);
             }
             for (Iterator<Var> i = binding.vars(); i.hasNext();) {
@@ -364,7 +362,7 @@ public class WSource extends ComponentBase {
                     if (vname.contains("_")) {
                         String puri = getApp().getPrefixes().expandPrefix( vname.replace("_", ":") );
                         Node prop = NodeFactory.createURI(puri);
-                        view.add( new Triple(n, prop, binding.get(v)) );
+                        view.add(Triple.create(n, prop, binding.get(v)) );
                     }
                 }
             }
@@ -373,10 +371,10 @@ public class WSource extends ComponentBase {
     }
 
     protected String makeViewQuery(String queryBody, String... uris) {
-        StringBuffer query = new StringBuffer();
+        StringBuilder query = new StringBuilder();
         query.append("SELECT * WHERE {    VALUES ?uri {\n");
         for (String uri : uris) {
-            query.append("<" + uri + "> ");
+            query.append("<").append(uri).append("> ");
         }
         query.append("    }\n");
         query.append(queryBody);
@@ -412,11 +410,7 @@ public class WSource extends ComponentBase {
         while (rs.hasNext()) {
             Binding binding = rs.nextBinding();
             WNode node = get( binding.get(var) );
-            OneToManyMap<String, WNode> propValues = results.get( node );
-            if (propValues == null) {
-                propValues = new OneToManyMap<>();
-                results.put(node, propValues);
-            }
+            OneToManyMap<String, WNode> propValues = results.computeIfAbsent(node, k -> new OneToManyMap<>());
             for (Iterator<Var> i = binding.vars(); i.hasNext();) {
                 Var v = i.next();
                 if (! var.equals(v)) {

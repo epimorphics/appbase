@@ -12,7 +12,6 @@ package com.epimorphics.appbase.data;
 import java.util.List;
 
 import org.apache.jena.graph.Graph;
-import org.apache.jena.query.DatasetAccessor;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.shared.PrefixMapping;
 import org.apache.jena.update.UpdateRequest;

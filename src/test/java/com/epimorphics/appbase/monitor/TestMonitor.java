@@ -190,7 +190,12 @@ public class TestMonitor {
     public static class TMonitor extends ConfigMonitor<TestInstance> {
         @Override
         protected Collection<TestInstance> configure(File file) {
-            String content = FileManager.get().readWholeFileAsUTF8(file.getPath());
+            String content;
+            try {
+                content = Files.readString(file.toPath());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             TestInstance i = new TestInstance( content );
             i.setName( file.getName() );
             List<TestInstance> results = new ArrayList<>();

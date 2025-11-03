@@ -50,7 +50,7 @@ public class TestFileMonitor {
     }
     
     @Test
-    public void testMonitor() throws IOException, InterruptedException {
+    public void testMonitor() throws InterruptedException {
         DirectoryMonitor monitor = new TestMonitor();
         monitor.addWatch(testDir.getPath(), JsonUtil.makeJson(DirectoryMonitor.WAIT_TIME_PARAM, 100, "test", "foobar"));
         File testFile = new File(testDir, "test1"); 

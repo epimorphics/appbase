@@ -15,7 +15,6 @@ import static org.junit.Assert.*;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.impl.RemoteSparqlSource;
-import org.apache.jena.query.DatasetAccessor;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Model;

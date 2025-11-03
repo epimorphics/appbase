@@ -192,7 +192,7 @@ public class TestSource extends BaseSourceTest {
         Node i1 = NodeFactory.createURI(TEST_NS + iN);
         Graph g1 = dsg.getGraph(i1);
         assertNotNull(g1);
-        assertTrue(g1.contains(i1, RDFS.label.asNode(), NodeFactory.createLiteral(label)));
+        assertTrue(g1.contains(i1, RDFS.label.asNode(), NodeFactory.createLiteralString(label)));
     }
     
     private void checkConnections(List<WNode> ans, String[] expected) {
