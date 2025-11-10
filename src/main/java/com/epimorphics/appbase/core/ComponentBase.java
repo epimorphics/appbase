@@ -43,7 +43,7 @@ public class ComponentBase implements Startup, Named {
     
     public void require(Object value, String valuename) {
         if (value == null) {
-            log.error(String.format("Missing parameter %s on component %s.%s", valuename, app.getName(), componentName));
+            log.error("Missing parameter {} on component {}.{}", valuename, app.getName(), componentName);
         }
     }
 

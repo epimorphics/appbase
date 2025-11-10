@@ -9,7 +9,7 @@
 
 package com.epimorphics.appbase.monitor;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,9 +18,9 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.SparqlSource;
@@ -42,7 +42,7 @@ public class TestDatasetMonitor {
     private static final int MONITOR_CHECK_DELAY = 15;
     private static final int NTRIES = 100;
     
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
         testDir = Files.createTempDirectory("testmonitor").toFile();
         app = new App("TestMonitor");
@@ -64,7 +64,7 @@ public class TestDatasetMonitor {
         app.startup();
     }
     
-    @After
+    @AfterEach
     public void cleanUp() {
         FileUtil.deleteDirectory(testDir);
     }
@@ -104,7 +104,7 @@ public class TestDatasetMonitor {
                 return;
             }
         }
-        assertTrue("Failed to detected " + (present ? "addition" : "removal") + " of " + graphname, false);
+        fail("Failed to detected " + (present ? "addition" : "removal") + " of " + graphname);
     }
     
     protected void addFile(String marker, String filename) throws IOException {

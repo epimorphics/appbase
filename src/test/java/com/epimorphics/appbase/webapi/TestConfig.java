@@ -11,14 +11,14 @@ package com.epimorphics.appbase.webapi;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.core.AppConfig;
 import com.epimorphics.appbase.core.GenericConfig;
 import com.epimorphics.appbase.webapi.testing.TomcatTestBase;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class TestConfig extends TomcatTestBase {

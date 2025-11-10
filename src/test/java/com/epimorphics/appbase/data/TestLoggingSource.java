@@ -19,9 +19,9 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.vocabulary.RDFS;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.impl.DatasetSparqlSource;
@@ -39,7 +39,7 @@ public class TestLoggingSource {
     LoggingSparqlSource lsource;
     File logDir;
     
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
         Path path = Files.createTempDirectory("loggingSourceTest");
         logDir = path.toFile();

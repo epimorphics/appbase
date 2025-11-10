@@ -21,8 +21,8 @@
 
 package com.epimorphics.appbase.webapi.testing;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.InputStream;
@@ -45,11 +45,11 @@ import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.RDFDataMgr;
 import org.glassfish.jersey.client.ClientConfig;
-import org.junit.After;
-import org.junit.Before;
 
 import com.epimorphics.util.NameUtils;
 import com.epimorphics.util.TestUtil;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class TomcatTestBase {
 
@@ -75,7 +75,7 @@ public abstract class TomcatTestBase {
         // do nothing by default
     }
 
-    @Before
+    @BeforeEach
     public void containerStart() throws Exception {
         String root = getWebappRoot();
         tomcat = new Tomcat();
@@ -108,7 +108,7 @@ public abstract class TomcatTestBase {
         checkLive(200);
     }
 
-    @After
+    @AfterEach
     public void containerStop() throws Exception {
         tomcat.stop();
         tomcat.destroy();

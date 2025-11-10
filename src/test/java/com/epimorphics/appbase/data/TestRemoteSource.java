@@ -9,9 +9,9 @@
 
 package com.epimorphics.appbase.data;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.impl.RemoteSparqlSource;
@@ -49,7 +49,7 @@ public class TestRemoteSource {
     }
     
     // This test is normally excluded
-    @Ignore 
+    @Disabled
     @Test
     public void testRemoteSource() {
         setup();
