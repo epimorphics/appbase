@@ -174,7 +174,20 @@
           </exclusion>
         </exclusions>
     </dependency>
-            
+
+      <dependency>
+          <groupId>org.apache.jena</groupId>
+          <artifactId>jena-fuseki-main</artifactId>
+          <version>${jena.version}</version>
+          <exclusions>
+              <exclusion>
+                  <groupId>org.eclipse.jetty.orbit</groupId>
+                  <artifactId>javax.servlet</artifactId>
+              </exclusion>
+          </exclusions>
+          <scope>test</scope>
+      </dependency>
+
   </dependencies>
 
   <build>

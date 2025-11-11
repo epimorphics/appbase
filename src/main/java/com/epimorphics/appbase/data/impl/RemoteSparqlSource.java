@@ -75,7 +75,8 @@ public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource
     public void setGraphEndpoint(String endpoint) {
         this.graphEndpoint = endpoint;
     }
-    
+
+    // Note that this is now ignored and only connect timeout is settable.
     public void setReadTimeout(long readTimeout) {
         this.readTimeout = readTimeout;
     }
@@ -87,7 +88,7 @@ public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource
     /**
      * The remote timeout is passed to the client on the assumption it's a Fuseki endpoint
      * configured to access a timeout query parameter.
-     * @param remoteTimeout timeout in seconds
+     * @param remoteTimeout timeout in seconds, -1 for no timeout
      */
     public void setRemoteTimeout(long remoteTimeout) {
         this.remoteTimeout = remoteTimeout;
@@ -111,7 +112,9 @@ public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource
             hs.acceptHeader(contentType);
         }
         HttpClient.Builder clientBldr = HttpClient.newBuilder();
-        clientBldr.connectTimeout(Duration.ofMillis(connectTimeout));
+        if (connectTimeout != -1) {
+            clientBldr.connectTimeout(Duration.ofMillis(connectTimeout));
+        }
         HttpClient client = clientBldr.build();
         hs.httpClient(client);
 
