@@ -14,13 +14,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.regex.Pattern;
 
+import com.epimorphics.appbase.data.DatasetAccessor;
 import org.apache.jena.riot.RDFDataMgr;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.SparqlSource;
 import com.epimorphics.appbase.data.WSource;
 import com.epimorphics.util.EpiException;
-import org.apache.jena.query.DatasetAccessor;
 import org.apache.jena.rdf.model.Model;
 
 /**
@@ -103,7 +103,7 @@ public class DatasetMonitor extends ConfigMonitor<DatasetMonitor.MonitoredGraph>
             if (wsource != null) wsource.resetCache();
             addModelHook(entry.getName(), model);
         } catch (Throwable t) {
-            log.error("Failed add monitored graph: " + entry.getName(), t);
+            log.error("Failed add monitored graph: {}", entry.getName(), t);
         }
     }
     

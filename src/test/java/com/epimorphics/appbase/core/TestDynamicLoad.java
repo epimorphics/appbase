@@ -9,14 +9,14 @@
 
 package com.epimorphics.appbase.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.epimorphics.appbase.test.LoaderTest;
 
@@ -28,14 +28,14 @@ import com.epimorphics.appbase.test.LoaderTest;
 public class TestDynamicLoad {
     App testapp;
     
-    @Before
+    @BeforeEach
     public void startup() throws IOException {
         AppConfig.startApp("test", "src/test/loaderTestApp/app.conf");
         testapp = AppConfig.getApp();
         testapp.startup();
     }
     
-    @After
+    @AfterEach
     public void shutdown() {
         if (testapp != null) {
             testapp.shutdown();

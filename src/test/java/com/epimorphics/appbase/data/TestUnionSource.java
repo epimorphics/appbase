@@ -12,13 +12,12 @@ package com.epimorphics.appbase.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.impl.UnionDatasetSparqlSource;
 import com.epimorphics.util.TestUtil;
-import org.apache.jena.query.DatasetAccessor;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -30,7 +29,7 @@ public class TestUnionSource {
     App app;
     SparqlSource source;
     
-    @Before
+    @BeforeEach
     public void setup() {
         app = new App("test");
         source = new UnionDatasetSparqlSource();

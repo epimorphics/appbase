@@ -9,12 +9,12 @@
 
 package com.epimorphics.appbase.data.impl;
 
+import com.epimorphics.appbase.data.DatasetAccessor;
+import com.epimorphics.appbase.data.RDFConnectionDatasetAccessor;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetAccessor;
-import org.apache.jena.query.DatasetAccessorFactory;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
@@ -24,15 +24,16 @@ import org.apache.jena.query.text.EntityDefinition;
 import org.apache.jena.query.text.TextDatasetFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdfconnection.RDFConnection;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.DatasetGraphFactory;
+import org.apache.jena.sparql.exec.UpdateExec;
 import org.apache.jena.sparql.util.Closure;
-import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateRequest;
 import org.apache.jena.vocabulary.RDFS;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.store.ByteBuffersDirectory;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.RAMDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,8 +47,6 @@ import com.epimorphics.appbase.data.SparqlSource;
  * @see FileSparqlSource
  */
 public class DatasetSparqlSource extends BaseSparqlSource implements SparqlSource, Startup {
-    static Logger log = LoggerFactory.getLogger( FileSparqlSource.class );
-    
     protected Dataset dataset = DatasetFactory.createGeneral();
     protected DatasetGraph graphStore;
     protected DatasetAccessor accessor;
@@ -67,7 +66,7 @@ public class DatasetSparqlSource extends BaseSparqlSource implements SparqlSourc
     public void startup(App app) {
         super.startup(app);
         if (indexSpec != null) {
-            Directory dir = new RAMDirectory();
+            Directory dir = new ByteBuffersDirectory();
             // We have a choice of a single index of all predicates or separate indexes, could make this configurable
             // Currently default to a single joint index
             EntityDefinition entDef = new EntityDefinition("uri", "text", RDFS.label.asNode()) ;
@@ -80,14 +79,6 @@ public class DatasetSparqlSource extends BaseSparqlSource implements SparqlSourc
                     }
                 }
             }
-            // Alterantive would be
-//            for (String spec : indexSpec.split(",")) {
-//                String uri = getApp().getPrefixes().expandPrefix(spec.trim());
-//                if ( ! uri.equals("default") ) {
-//                    Node predicate = NodeFactory.createURI(uri);
-//                    entDef.set(NameUtils.safeName(predicate.getURI()), predicate);
-//                }
-//            }
             
             dataset = TextDatasetFactory.createLucene(dataset, dir, entDef, new StandardAnalyzer()) ;
         }
@@ -134,7 +125,7 @@ public class DatasetSparqlSource extends BaseSparqlSource implements SparqlSourc
     @Override
     public void update(UpdateRequest update) {
         dataset.getLock().enterCriticalSection(true);
-        UpdateExecutionFactory.create(update, getGraphStore()).execute();
+        UpdateExec.dataset(getGraphStore()).update(update).execute();
         dataset.getLock().leaveCriticalSection();
     }
 
@@ -146,7 +137,7 @@ public class DatasetSparqlSource extends BaseSparqlSource implements SparqlSourc
     @Override
     public DatasetAccessor getAccessor() {
         if (accessor == null) {
-            accessor = DatasetAccessorFactory.create(dataset);
+            accessor = RDFConnectionDatasetAccessor.create(() -> RDFConnection.connect(dataset));
         }
         return accessor;
     }

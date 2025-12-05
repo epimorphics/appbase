@@ -11,8 +11,10 @@ package com.epimorphics.appbase.data.impl;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.util.FileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +47,8 @@ public class FileSparqlSource extends DatasetSparqlSource implements SparqlSourc
     }
     
     private void load(File f) {
-        FileManager.get().readModel(dataset.getDefaultModel(), f.getPath());
-        log.info("Loaded file: " + f);
+        RDFDataMgr.read(dataset.getDefaultModel(), f.getPath());
+        log.info("Loaded file: {}", f);
     }
     
     /**
@@ -58,7 +60,7 @@ public class FileSparqlSource extends DatasetSparqlSource implements SparqlSourc
         for (String fname : fileSpec.split(",")) {
             File f = asFile(fname);
             if (f.isDirectory()) {
-                for (String file : f.list(new RDFFileNames())) {
+                for (String file : Objects.requireNonNull(f.list(new RDFFileNames()))) {
                     load( new File(f, file) );
                 }
             } else {

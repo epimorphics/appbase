@@ -19,9 +19,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import com.epimorphics.appbase.data.DatasetAccessor;
 import org.apache.jena.atlas.io.IndentedWriter;
 import org.apache.jena.graph.Graph;
-import org.apache.jena.query.DatasetAccessor;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.shared.PrefixMapping;
@@ -172,11 +172,6 @@ public class LoggingSparqlSource extends ComponentBase implements SparqlSource {
         @Override
         public Model getModel(String graphUri) {
             return source.getAccessor().getModel(graphUri);
-        }
-
-        @Override
-        public boolean containsModel(String graphURI) {
-            return source.getAccessor().containsModel(graphURI);
         }
 
         @Override

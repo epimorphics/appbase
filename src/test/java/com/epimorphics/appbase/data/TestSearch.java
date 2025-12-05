@@ -9,13 +9,13 @@
 
 package com.epimorphics.appbase.data;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.util.PrefixUtils;
@@ -30,7 +30,7 @@ public class TestSearch {
     App testapp;
     SparqlSource src;
     
-    @Before
+    @BeforeEach
     public void startup() throws IOException {
         testapp = new App("testapp", new File("src/test/textSearch/app.conf"));
         src = testapp.getComponentAs("ssource", SparqlSource.class);

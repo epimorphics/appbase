@@ -9,16 +9,16 @@
 
 package com.epimorphics.appbase.data;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.epimorphics.appbase.util.SQueryUtil;
 import com.epimorphics.util.PrefixUtils;
@@ -192,7 +192,7 @@ public class TestSource extends BaseSourceTest {
         Node i1 = NodeFactory.createURI(TEST_NS + iN);
         Graph g1 = dsg.getGraph(i1);
         assertNotNull(g1);
-        assertTrue(g1.contains(i1, RDFS.label.asNode(), NodeFactory.createLiteral(label)));
+        assertTrue(g1.contains(i1, RDFS.label.asNode(), NodeFactory.createLiteralString(label)));
     }
     
     private void checkConnections(List<WNode> ans, String[] expected) {

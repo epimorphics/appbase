@@ -9,8 +9,8 @@
 
 package com.epimorphics.appbase.data.impl;
 
+import com.epimorphics.appbase.data.DatasetAccessor;
 import org.apache.jena.graph.Graph;
-import org.apache.jena.query.DatasetAccessor;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.DatasetGraphMap;

@@ -323,9 +323,9 @@ public class App {
                 String name = value.toString();
                 Object component = null;
                 if (classLoader == null) {
-                    component = Class.forName(name).newInstance();
+                    component = Class.forName(name).getDeclaredConstructor().newInstance();
                 } else {
-                    component = Class.forName(name, true, getLoader()).newInstance();
+                    component = Class.forName(name, true, getLoader()).getDeclaredConstructor().newInstance();
                 }
                 if (component instanceof Named) {
                     ((Named)component).setName(target);

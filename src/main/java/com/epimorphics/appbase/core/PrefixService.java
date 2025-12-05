@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.jena.riot.RDFDataMgr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,7 @@ public class PrefixService extends ComponentBase {
     protected static final String DEFAULT_PREFIXES = "defaultPrefixes.ttl";
     
     static {
-        globalDefault = FileManager.get().loadModel(DEFAULT_PREFIXES);
+        globalDefault = RDFDataMgr.loadModel(DEFAULT_PREFIXES);
     }
     
     protected PrefixMapping prefixes;
@@ -57,7 +58,7 @@ public class PrefixService extends ComponentBase {
         File pf = asFile(file);
         if (pf.canRead()) {
             try {
-                prefixes = FileManager.get().loadModel(pf.getCanonicalPath());
+                prefixes = RDFDataMgr.loadModel(pf.getCanonicalPath());
                 log.info("Loaded prefixes: " + pf);
                 prefixes.setNsPrefixes(globalDefault);
             } catch (IOException e) {

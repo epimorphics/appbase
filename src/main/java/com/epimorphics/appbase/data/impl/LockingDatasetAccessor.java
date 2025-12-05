@@ -9,11 +9,12 @@
 
 package com.epimorphics.appbase.data.impl;
 
+import com.epimorphics.appbase.data.DatasetAccessor;
+import com.epimorphics.appbase.data.RDFConnectionDatasetAccessor;
 import org.apache.jena.query.Dataset;
-import org.apache.jena.query.DatasetAccessor;
-import org.apache.jena.query.DatasetAccessorFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdfconnection.RDFConnection;
 
 /**
  * Provides transaction-safe version of DatasetAccessor for the given dataset.
@@ -25,7 +26,7 @@ public class LockingDatasetAccessor implements DatasetAccessor {
     
     public LockingDatasetAccessor(Dataset dataset) {
         this.dataset = dataset;
-        this.wrapped = DatasetAccessorFactory.create(dataset);
+        this.wrapped = RDFConnectionDatasetAccessor.create(() -> RDFConnection.connect(dataset));
     }
 
     @Override
@@ -47,16 +48,6 @@ public class LockingDatasetAccessor implements DatasetAccessor {
             Model model = ModelFactory.createDefaultModel();
             model.add( wrapped.getModel(graphUri) );
             return model;
-        } finally {
-            dataset.getLock().leaveCriticalSection();
-        }
-    }
-
-    @Override
-    public boolean containsModel(String graphURI) {
-        dataset.getLock().enterCriticalSection(true);
-        try {
-            return wrapped.containsModel(graphURI);
         } finally {
             dataset.getLock().leaveCriticalSection();
         }

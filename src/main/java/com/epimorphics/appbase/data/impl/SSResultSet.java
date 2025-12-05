@@ -10,11 +10,13 @@
 package com.epimorphics.appbase.data.impl;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.epimorphics.appbase.data.ClosableResultSet;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetRewindable;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.sparql.engine.binding.Binding;
 
@@ -56,6 +58,13 @@ public class SSResultSet implements ClosableResultSet {
     }
 
     @Override
+    public void forEachRemaining(Consumer<? super QuerySolution> consumer) {
+        while(hasNext()) {
+            consumer.accept(results.next());
+        }
+    }
+
+    @Override
     public QuerySolution nextSolution() {
         return results.nextSolution();
     }
@@ -78,6 +87,16 @@ public class SSResultSet implements ClosableResultSet {
     @Override
     public Model getResourceModel() {
         return results.getResourceModel();
+    }
+
+    @Override
+    public ResultSetRewindable rewindable() {
+        return ClosableResultSet.super.rewindable();
+    }
+
+    @Override
+    public ResultSet materialise() {
+        return ClosableResultSet.super.materialise();
     }
 
     @Override

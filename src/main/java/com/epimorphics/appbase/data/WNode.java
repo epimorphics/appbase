@@ -15,6 +15,7 @@ import java.util.List;
 import com.epimorphics.rdfutil.RDFUtil;
 import com.epimorphics.util.EpiException;
 import com.epimorphics.vocabs.SKOS;
+import org.apache.jena.graph.GraphMemFactory;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
@@ -209,7 +210,7 @@ public class WNode implements Comparable<WNode> {
                 source.ensureDescribed(this);
             }
             if (description == null) {
-                description = new NodeDescription(node, new CollectionGraph());
+                description = new NodeDescription(node, GraphMemFactory.createGraphMemForModel());
             }
         }
         return description;

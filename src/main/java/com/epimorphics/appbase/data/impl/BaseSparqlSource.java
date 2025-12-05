@@ -17,6 +17,7 @@ import com.epimorphics.appbase.data.ClosableResultSet;
 import com.epimorphics.appbase.data.SparqlSource;
 import com.epimorphics.appbase.util.SQueryUtil;
 import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.GraphMemFactory;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.mem.GraphMem;
 import org.apache.jena.query.QueryExecution;
@@ -75,7 +76,7 @@ public abstract class BaseSparqlSource extends ComponentBase implements SparqlSo
     public Graph describe(String query) {
         QueryExecution qexec = start(query);
         try {
-            Graph graph = new GraphMem();
+            Graph graph = GraphMemFactory.createGraphMemForModel();
             for (Iterator<Triple> i = qexec.execDescribeTriples(); i.hasNext();) {
                 graph.add(i.next());
             }
@@ -100,7 +101,7 @@ public abstract class BaseSparqlSource extends ComponentBase implements SparqlSo
     public Graph construct(String queryString) {
         QueryExecution qexec = start(queryString);
         try {
-            Graph graph = new GraphMem();
+            Graph graph = GraphMemFactory.createGraphMemForModel();
             for (Iterator<Triple> i = qexec.execConstructTriples(); i.hasNext();) {
                 graph.add(i.next());
             }

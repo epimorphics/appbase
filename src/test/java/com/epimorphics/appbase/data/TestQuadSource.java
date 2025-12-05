@@ -9,16 +9,15 @@
 
 package com.epimorphics.appbase.data;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.jena.query.DatasetAccessor;
 import org.apache.jena.query.ResultSet;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.impl.QuadFileSparqlSource;
@@ -30,7 +29,7 @@ public class TestQuadSource {
     App app;
     QuadFileSparqlSource source;
     
-    @Before
+    @BeforeEach
     public void setup() {
         app = new App("test");
         source = new QuadFileSparqlSource();
@@ -46,9 +45,9 @@ public class TestQuadSource {
         TestUtil.testArray(checkGraphs(source), new String[]{"graph1", "graph2"});
         // Check graphs
         DatasetAccessor accessor = source.getAccessor();
-        assertTrue( accessor.containsModel(TEST + "graph1") );
-        assertTrue( accessor.containsModel(TEST + "graph2") );
-        assertFalse( accessor.containsModel(TEST + "graph3") );
+        assertFalse(accessor.getModel(TEST + "graph1").isEmpty());
+        assertFalse(accessor.getModel(TEST + "graph2").isEmpty());
+        assertTrue(accessor.getModel(TEST + "graph3").isEmpty());
     }
     
     public static List<String> checkGraphs(SparqlSource source) {

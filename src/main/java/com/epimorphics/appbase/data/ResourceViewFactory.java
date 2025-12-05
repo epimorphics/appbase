@@ -40,7 +40,7 @@ public class ResourceViewFactory {
      */
     public static <T extends ResourceViewBase>  T getView(SparqlSource source, String uri, Class<T> cls) {
         try {
-            T view = cls.newInstance();
+            T view = cls.getDeclaredConstructor().newInstance();
             view.init(source, uri);
             return view;
         } catch (Exception e) {
@@ -67,7 +67,7 @@ public class ResourceViewFactory {
             ResultSet rs = exec.execSelect();
             String var = rs.getResultVars().get(0);
             while (rs.hasNext()) {
-                T result = cls.newInstance();
+                T result = cls.getDeclaredConstructor().newInstance();
                 result.setRoot( rs.next().getResource(var) );
                 result.setSource(source);
                 results.add( result );

@@ -21,8 +21,8 @@
 
 package com.epimorphics.appbase.webapi;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 
 /**
  * Signal an application error response with a specifiable HTTP status code

@@ -14,6 +14,8 @@ import org.apache.jena.atlas.json.JsonObject;
 import com.epimorphics.appbase.tasks.Action;
 import com.epimorphics.tasks.ProgressMonitorReporter;
 
+import java.lang.reflect.InvocationTargetException;
+
 /**
  * Action that calls a java class with some additional configuration 
  * parameters bound in.
@@ -21,8 +23,8 @@ import com.epimorphics.tasks.ProgressMonitorReporter;
 public class JavaAction extends BaseAction implements Action {
     protected Action baseAction;
 
-    public void setAction(String classname) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        baseAction = (Action)Class.forName(classname).newInstance();
+    public void setAction(String classname) throws InstantiationException, IllegalAccessException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException {
+        baseAction = (Action)Class.forName(classname).getDeclaredConstructor().newInstance();
         mergeBaseConfiguration(baseAction);
     }
     

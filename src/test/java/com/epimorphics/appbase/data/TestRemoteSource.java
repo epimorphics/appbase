@@ -9,13 +9,12 @@
 
 package com.epimorphics.appbase.data;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.impl.RemoteSparqlSource;
-import org.apache.jena.query.DatasetAccessor;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Model;
@@ -28,29 +27,23 @@ public class TestRemoteSource {
     
     App app;
     SparqlSource source;
+    EmbeddedFuseki fuseki;
     
-    /**
-     * Override to change the source to be tested.
-     * Assumes there is a test fuseki on 4040
-     * <pre>
-     *   fuseki-server --update --mem --port=4040 /test
-     * </pre>
-     */
     // Not an @Before because we don't want it to run if the test is suppressed
     protected void setup() {
         app = new App("remote source test");
         RemoteSparqlSource source = new RemoteSparqlSource();
-        source.setEndpoint("http://localhost:4040/test/query");
-        source.setUpdateEndpoint("http://localhost:4040/test/update");
-        source.setGraphEndpoint("http://localhost:4040/test/data");
+        source.setEndpoint("http://localhost:4040/ds/query");
+        source.setUpdateEndpoint("http://localhost:4040/ds/update");
+        source.setGraphEndpoint("http://localhost:4040/ds/data");
         app.addComponent("source", source);
         app.startup();
-        
+
+        fuseki = new EmbeddedFuseki(4040);
+        fuseki.start();
         this.source = source;
     }
     
-    // This test is normally excluded
-    @Ignore 
     @Test
     public void testRemoteSource() {
         setup();
@@ -86,6 +79,7 @@ public class TestRemoteSource {
             accessor.deleteModel(TEST + "g" + i);
         }
         app.shutdown();
+        fuseki.stop();
     }
     
     private void checkLabels(String[] labels) {
@@ -105,6 +99,5 @@ public class TestRemoteSource {
     	s.setEndpoint("eh:/endpoint");
     	assertEquals("eh:/endpoint", s.getEndpoint());
     }
-    
-    
+
 }

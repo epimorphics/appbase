@@ -9,19 +9,23 @@
 
 package com.epimorphics.appbase.data.impl;
 
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.epimorphics.appbase.data.DatasetAccessor;
+import com.epimorphics.appbase.data.RDFConnectionDatasetAccessor;
+import org.apache.jena.rdfconnection.RDFConnectionRemote;
 import org.apache.jena.riot.WebContent;
+import org.apache.jena.sparql.exec.http.QueryExecutionHTTP;
+import org.apache.jena.sparql.exec.http.QueryExecutionHTTPBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.epimorphics.appbase.data.SparqlSource;
-import org.apache.jena.query.DatasetAccessor;
-import org.apache.jena.query.DatasetAccessorFactory;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.sparql.engine.http.QueryEngineHTTP;
 import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateRequest;
 
@@ -71,7 +75,8 @@ public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource
     public void setGraphEndpoint(String endpoint) {
         this.graphEndpoint = endpoint;
     }
-    
+
+    // Note that this is now ignored and only connect timeout is settable.
     public void setReadTimeout(long readTimeout) {
         this.readTimeout = readTimeout;
     }
@@ -83,7 +88,7 @@ public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource
     /**
      * The remote timeout is passed to the client on the assumption it's a Fuseki endpoint
      * configured to access a timeout query parameter.
-     * @param remoteTimeout timeout in seconds
+     * @param remoteTimeout timeout in seconds, -1 for no timeout
      */
     public void setRemoteTimeout(long remoteTimeout) {
         this.remoteTimeout = remoteTimeout;
@@ -96,21 +101,27 @@ public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource
     public void setContentType(String type) {
         contentType = typeMap.get(type);
         if (contentType == null){
-            log.error("Illegal contentType for remote source (" + type + ")");
+            log.error("Illegal contentType for remote source ({})", type);
         }
     }
 
     @Override
     protected QueryExecution start(String queryString) {
-        QueryEngineHTTP hs = (QueryEngineHTTP) QueryExecutionFactory.sparqlService(endpoint, queryString);
+        QueryExecutionHTTPBuilder hs = QueryExecutionHTTP.service(endpoint).query(queryString);
         if (contentType != null) {
-            hs.setSelectContentType(contentType);
+            hs.acceptHeader(contentType);
         }
-        hs.setTimeout(readTimeout, connectTimeout);
+        HttpClient.Builder clientBldr = HttpClient.newBuilder();
+        if (connectTimeout != -1) {
+            clientBldr.connectTimeout(Duration.ofMillis(connectTimeout));
+        }
+        HttpClient client = clientBldr.build();
+        hs.httpClient(client);
+
         if (remoteTimeout != null) {
-            hs.addParam("timeout", Long.toString(remoteTimeout));
+            hs.timeout(remoteTimeout);
         }
-        return hs;
+        return hs.build();
     }
 
     @Override
@@ -131,7 +142,7 @@ public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource
     @Override
     public DatasetAccessor getAccessor() {
         if (accessor == null) {
-            accessor = DatasetAccessorFactory.createHTTP(graphEndpoint);
+            accessor = RDFConnectionDatasetAccessor.create(() -> RDFConnectionRemote.newBuilder().gspEndpoint(graphEndpoint).build());
         }
         return accessor;
     }

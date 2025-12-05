@@ -15,15 +15,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 
-import org.apache.jena.query.DatasetAccessor;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.update.UpdateFactory;
-import org.apache.jena.util.FileManager;
 import org.apache.jena.vocabulary.RDFS;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.data.impl.DatasetSparqlSource;
@@ -41,7 +39,7 @@ public class TestLoggingSource {
     LoggingSparqlSource lsource;
     File logDir;
     
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
         Path path = Files.createTempDirectory("loggingSourceTest");
         logDir = path.toFile();
@@ -77,8 +75,14 @@ public class TestLoggingSource {
         Arrays.sort(actualFiles);
         assertEquals(expectedFiles.length, actualFiles.length);
         for (int i = 0; i < expectedFiles.length; i++) {
-            String expected = FileManager.get().readWholeFileAsUTF8( new File(expectedDir, expectedFiles[i]).getPath() );
-            String actual = FileManager.get().readWholeFileAsUTF8( new File(actualDir, actualFiles[i]).getPath() );
+            String expected;
+            String actual;
+            try {
+                expected = Files.readString(new File(expectedDir, expectedFiles[i]).toPath());
+                actual = Files.readString(new File(actualDir, actualFiles[i]).toPath());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             assertEquals(expected, actual);
         }
     }

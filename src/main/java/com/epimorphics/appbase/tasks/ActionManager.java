@@ -225,7 +225,7 @@ public class ActionManager extends ConfigMonitor<Action> implements Shutdown, St
     public void setFactories(String factories) {
         for (String factoryName : factories.split(",")) {
             try {
-                ActionFactory.Factorylet factory = (ActionFactory.Factorylet) Class.forName(factoryName).newInstance();
+                ActionFactory.Factorylet factory = (ActionFactory.Factorylet) Class.forName(factoryName).getDeclaredConstructor().newInstance();
                 ActionFactory.register(factory);
             } catch (Exception e) {
                 throw new EpiException("Problem instantiating action factory", e);

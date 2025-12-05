@@ -9,7 +9,7 @@
 
 package com.epimorphics.appbase.data;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.appbase.core.PrefixService;
@@ -33,7 +33,7 @@ public abstract class BaseSourceTest {
     
     protected abstract String getTestFileDir();
     
-    @Before
+    @BeforeEach
     public void setup() {
         app = new App("testing");
         

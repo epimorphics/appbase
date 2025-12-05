@@ -14,14 +14,13 @@ import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.ext.MessageBodyReader;
-import javax.ws.rs.ext.Provider;
-
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.MessageBodyReader;
+import jakarta.ws.rs.ext.Provider;
 import org.apache.jena.atlas.json.JSON;
 import org.apache.jena.atlas.json.JsonObject;
 
@@ -29,7 +28,7 @@ import com.epimorphics.appbase.webapi.WebApiException;
 
 @Provider
 @Consumes("application/json")
-public class GenericJSONReader implements MessageBodyReader<JsonObject>{
+public class GenericJSONReader implements MessageBodyReader<JsonObject> {
 
     @Override
     public boolean isReadable(Class<?> type, Type genericType,
@@ -39,14 +38,14 @@ public class GenericJSONReader implements MessageBodyReader<JsonObject>{
 
     @Override
     public JsonObject readFrom(Class<JsonObject> type, Type genericType,
-            Annotation[] annotations, MediaType mediaType,
-            MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
+                               Annotation[] annotations, MediaType mediaType,
+                               MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
             throws IOException, WebApplicationException {
         
         try {
             return JSON.parse(entityStream);
         } catch (Exception e) {
-            throw new WebApiException(Status.BAD_REQUEST, e.getMessage());
+            throw new WebApiException(Response.Status.BAD_REQUEST, e.getMessage());
         }
     }
 

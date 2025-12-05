@@ -21,20 +21,20 @@
 
 package com.epimorphics.appbase.webapi.testing;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.InputStream;
 import java.io.StringWriter;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Form;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Form;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.jena.atlas.json.JSON;
@@ -43,13 +43,13 @@ import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.util.FileManager;
+import org.apache.jena.riot.RDFDataMgr;
 import org.glassfish.jersey.client.ClientConfig;
-import org.junit.After;
-import org.junit.Before;
 
 import com.epimorphics.util.NameUtils;
 import com.epimorphics.util.TestUtil;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class TomcatTestBase {
 
@@ -75,7 +75,7 @@ public abstract class TomcatTestBase {
         // do nothing by default
     }
 
-    @Before
+    @BeforeEach
     public void containerStart() throws Exception {
         String root = getWebappRoot();
         tomcat = new Tomcat();
@@ -108,7 +108,7 @@ public abstract class TomcatTestBase {
         checkLive(200);
     }
 
-    @After
+    @AfterEach
     public void containerStop() throws Exception {
         tomcat.stop();
         tomcat.destroy();
@@ -217,7 +217,7 @@ public abstract class TomcatTestBase {
     protected Model checkModelResponse(String fetch, String rooturi, String file, Property...omit) {
         Model m = getModelResponse(fetch);
         Resource actual = m.getResource(rooturi);
-        Resource expected = FileManager.get().loadModel(file).getResource(rooturi);
+        Resource expected = RDFDataMgr.loadModel(file).getResource(rooturi);
         assertTrue(expected.listProperties().hasNext());  // guard against wrong rooturi in config
         TestUtil.testResourcesMatch(expected, actual, omit);
         return m;
@@ -225,14 +225,14 @@ public abstract class TomcatTestBase {
 
     protected Model checkModelResponse(Model m, String rooturi, String file, Property...omit) {
         Resource actual = m.getResource(rooturi);
-        Resource expected = FileManager.get().loadModel(file).getResource(rooturi);
+        Resource expected = RDFDataMgr.loadModel(file).getResource(rooturi);
         assertTrue(expected.listProperties().hasNext());  // guard against wrong rooturi in config
         TestUtil.testResourcesMatch(expected, actual, omit);
         return m;
     }
 
     protected Model checkModelResponse(Model m, String file, Property...omit) {
-        Model expected = FileManager.get().loadModel(file);
+        Model expected = RDFDataMgr.loadModel(file);
         for (Resource root : expected.listSubjects().toList()) {
             if (root.isURIResource()) {
                 TestUtil.testResourcesMatch(root, m.getResource(root.getURI()), omit);
@@ -259,10 +259,10 @@ public abstract class TomcatTestBase {
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
-                    assertTrue("Interrupted", false);
+                    fail("Interrupted");
                 }
                 if (count++ > 120 ) {
-                    assertTrue("Too many tries", false);
+                    fail("Too many tries");
                 }
             } else {
                 tomcatLive = true;

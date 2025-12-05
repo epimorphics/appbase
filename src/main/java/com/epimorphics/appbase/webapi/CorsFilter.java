@@ -31,15 +31,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,7 +135,7 @@ public final class CorsFilter implements Filter {
 
     @Override
     public void doFilter(final ServletRequest servletRequest,
-            final ServletResponse servletResponse, final FilterChain filterChain)
+                         final ServletResponse servletResponse, final FilterChain filterChain)
             throws IOException, ServletException {
         if (!(servletRequest instanceof HttpServletRequest) ||
                 !(servletResponse instanceof HttpServletResponse)) {
@@ -231,7 +225,7 @@ public final class CorsFilter implements Filter {
      *      Cross-Origin Request, Actual Request, and Redirects</a>
      */
     protected void handleSimpleCORS(final HttpServletRequest request,
-            final HttpServletResponse response, final FilterChain filterChain)
+                                    final HttpServletResponse response, final FilterChain filterChain)
             throws IOException, ServletException {
 
         CorsFilter.CORSRequestType requestType = checkRequestType(request);

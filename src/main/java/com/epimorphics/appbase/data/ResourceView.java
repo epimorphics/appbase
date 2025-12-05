@@ -334,7 +334,7 @@ public class ResourceView implements Comparable<ResourceView> {
         List<T> result = new ArrayList<>( resources.size() );
         for (Resource r : resources) {
             try {
-                T view = cls.newInstance();
+                T view = cls.getDeclaredConstructor().newInstance();
                 view.setRoot( r );
                 result.add( view );
             } catch (Exception e) {

@@ -9,13 +9,13 @@
 
 package com.epimorphics.appbase.data.impl;
 
-import org.apache.jena.query.DatasetAccessor;
+import com.epimorphics.appbase.data.DatasetAccessor;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.core.DatasetGraphFactory;
-import org.apache.jena.update.UpdateExecutionFactory;
+import org.apache.jena.sparql.exec.UpdateExec;
 import org.apache.jena.update.UpdateRequest;
 
 import com.epimorphics.appbase.data.SparqlSource;
@@ -69,7 +69,7 @@ public class ModelSparqlSource extends BaseSparqlSource implements SparqlSource 
     @Override
     public void update(UpdateRequest update) {
         model.enterCriticalSection(true);
-        UpdateExecutionFactory.create(update, getGraphStore()).execute();
+        UpdateExec.dataset(getGraphStore()).update(update).execute();
         model.leaveCriticalSection();
     }
     

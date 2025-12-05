@@ -9,10 +9,6 @@
 
 package com.epimorphics.appbase.monitor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -21,14 +17,16 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.epimorphics.appbase.core.App;
 import com.epimorphics.util.FileUtil;
 import com.epimorphics.util.TestUtil;
 import org.apache.jena.util.FileManager;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestMonitor {
     protected App app;
@@ -41,7 +39,7 @@ public class TestMonitor {
     private static final int MONITOR_CHECK_DELAY = 15;
     private static final int NTRIES = 20;
     
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
         testDir = Files.createTempDirectory("testmonitor").toFile();
         fubarFile = touchFile("fubar", "fubar1");
@@ -49,7 +47,7 @@ public class TestMonitor {
         app = new App("TestMonitor");
     }
     
-    @After
+    @AfterEach
     public void cleanUp() {
         FileUtil.deleteDirectory(testDir);
         ConfigWatcher.stop();
@@ -184,13 +182,18 @@ public class TestMonitor {
                 return;
             }
         }
-        assertTrue("Failed to detected " + (present ? "addition" : "removal") + " of " + file, false);
+        fail("Failed to detected " + (present ? "addition" : "removal") + " of " + file);
     }
     
     public static class TMonitor extends ConfigMonitor<TestInstance> {
         @Override
         protected Collection<TestInstance> configure(File file) {
-            String content = FileManager.get().readWholeFileAsUTF8(file.getPath());
+            String content;
+            try {
+                content = Files.readString(file.toPath());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             TestInstance i = new TestInstance( content );
             i.setName( file.getName() );
             List<TestInstance> results = new ArrayList<>();
