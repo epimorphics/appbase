@@ -24,7 +24,7 @@ Reusable foundation for java RDF applications that provide a web UI or web API o
    * Maven artifacts for Appbase version 4.0.0 and onwards are published to the Epimorphics public S3 Maven repository.
    * The `DatasetAccessor` interface from Jena 3 is replaced by `com.epimorphics.appbase.data.DatasetAccessor`:
      * It is directly implemented by `RDFConnectionDatasetAccessor` and indirectly by various wrapper classes which are unchanged from the previous version.
-     * It has removed the `containsModel` method since no Jena 5 equivalent exists. Instead, use `getModel` to obtain the model, then `isEmpty` on the model.
+     * It has removed the `containsModel` method since no Jena 5 equivalent exists.
 
 **3.1.12**
    * Fix log level in output of RunShell to be ERROR level if process returns failed status
