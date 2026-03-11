@@ -27,8 +27,8 @@
       <releases>
         <enabled>true</enabled>
       </releases>
-
     </repository>
+
     <repository>
       <id>apache-repo-snapshots</id>
       <url>https://repository.apache.org/content/repositories/snapshots/</url>
@@ -175,10 +175,33 @@
           <groupId>org.eclipse.jetty.orbit</groupId>
           <artifactId>javax.servlet</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.apache.shiro</groupId>
+          <artifactId>shiro-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.shiro</groupId>
+          <artifactId>shiro-web</artifactId>
+        </exclusion>
       </exclusions>
       <scope>test</scope>
     </dependency>
 
+    <!-- Override shiro-core in jena-fuseki-main -->
+    <dependency>
+      <groupId>org.apache.shiro</groupId>
+      <artifactId>shiro-core</artifactId>
+      <version>2.1.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Override shiro-web in jena-fuseki-main -->
+    <dependency>
+      <groupId>org.apache.shiro</groupId>
+      <artifactId>shiro-web</artifactId>
+      <version>2.1.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

@@ -10,3 +10,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 * Bump Tomcat 11.0.14 to 11.0.18
+* Update transitive dependencies org.apache.shiro:shiro-core and org.apache.shiro:shiro-web 2.0.5 to 2.1.0
