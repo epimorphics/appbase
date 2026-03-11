@@ -14,7 +14,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
-    <tomcat.version>11.0.15</tomcat.version>
+    <tomcat.version>11.0.18</tomcat.version>
     <jena.version>5.6.0</jena.version>
     <lib.version>4.0.1</lib.version>
     <jersey.version>3.1.11</jersey.version>
@@ -27,8 +27,8 @@
       <releases>
         <enabled>true</enabled>
       </releases>
-
     </repository>
+
     <repository>
       <id>apache-repo-snapshots</id>
       <url>https://repository.apache.org/content/repositories/snapshots/</url>
@@ -175,11 +175,55 @@
           <groupId>org.eclipse.jetty.orbit</groupId>
           <artifactId>javax.servlet</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.apache.shiro</groupId>
+          <artifactId>shiro-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.shiro</groupId>
+          <artifactId>shiro-web</artifactId>
+        </exclusion>
       </exclusions>
       <scope>test</scope>
     </dependency>
 
+    <!-- Override shiro-core in jena-fuseki-main -->
+    <dependency>
+      <groupId>org.apache.shiro</groupId>
+      <artifactId>shiro-core</artifactId>
+      <version>2.1.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Override shiro-web in jena-fuseki-main -->
+    <dependency>
+      <groupId>org.apache.shiro</groupId>
+      <artifactId>shiro-web</artifactId>
+      <version>2.1.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Override jetty dependencies in jena-fuseki-main -->
+    <dependency>
+      <groupId>org.eclipse.jetty.ee10</groupId>
+      <artifactId>jetty-ee10-servlet</artifactId>
+      <version>12.1.7</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty.ee10</groupId>
+      <artifactId>jetty-ee10-servlets</artifactId>
+      <version>12.1.7</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-security</artifactId>
+      <version>12.1.7</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
+
 
   <build>
     <plugins>
