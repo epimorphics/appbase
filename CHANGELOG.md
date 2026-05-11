@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 * Update transitive dependency on apache.org.thrift:libthrift to 0.23.0 to address CVE.
+* Update commons-lang3 to 3.20.0
 
 ## [4.0.2] - 2026-04-28
 
