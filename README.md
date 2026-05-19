@@ -12,6 +12,8 @@ Reusable foundation for java RDF applications that provide a web UI or web API o
 
 ## Changelog
 
+Changes since 4.0.0 see [./CHANGELOG.md](./CHANGELOG.md)
+
 **4.0.0**
    * Appbase is compiled by JDK 21 and is compatible only with Java versions 21 and above.
    * This version upgrades the following dependencies with major impact.
