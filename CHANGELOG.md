@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+* pass incoming x-request-id header to remote sparql source, obtained via MDC `request_id` parameter
+
 ## [4.0.4] - 2026-05-19
 
 ### Security

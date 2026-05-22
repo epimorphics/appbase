@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
 
 import com.epimorphics.appbase.data.SparqlSource;
 import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.update.UpdateExecutionFactory;
 import org.apache.jena.update.UpdateRequest;
+import org.slf4j.MDC;
 
 /**
  * Sparql source for querying remote sparql endpoints. Configuration options:
@@ -105,11 +105,16 @@ public class RemoteSparqlSource extends BaseSparqlSource implements SparqlSource
         }
     }
 
+    private static final String MDC_REQUEST_HEADER = "request_id";
+
     @Override
     protected QueryExecution start(String queryString) {
         QueryExecutionHTTPBuilder hs = QueryExecutionHTTP.service(endpoint).query(queryString);
         if (contentType != null) {
             hs.acceptHeader(contentType);
+        }
+        if (MDC.get(MDC_REQUEST_HEADER) != null) {
+            hs.httpHeader("x-request-id", MDC.get(MDC_REQUEST_HEADER));
         }
         HttpClient.Builder clientBldr = HttpClient.newBuilder();
         if (connectTimeout != -1) {
