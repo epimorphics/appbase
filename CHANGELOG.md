@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+* Update shiro-core to 2.2.1
+
 ## [4.0.5] - 2026-05-27
 
 * pass incoming x-request-id header to remote sparql source, obtained via MDC `request_id` parameter
