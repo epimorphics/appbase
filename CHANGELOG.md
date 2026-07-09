@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-* Update shiro-core to 2.2.1
+## [4.0.6] - 2026-07-09
+
+* Update shiro-core and shiro-web to 2.2.1
+* Update transitive dependency on jackson-database
 
 ## [4.0.5] - 2026-05-27
 
