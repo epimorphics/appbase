@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+* Update jetty to 12.1.10
+
 ## [4.0.6] - 2026-07-09
 
 * Update shiro-core and shiro-web to 2.2.1
