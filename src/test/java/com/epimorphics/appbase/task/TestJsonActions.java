@@ -108,30 +108,29 @@ public class TestJsonActions {
     
     @Test
     public void testErrorHandler() throws InterruptedException {
-//        ActionExecution ae = runAction("testErrorHandler", "");
-//        ProgressMonitorReporter pm = ae.getMonitor();
-//        assertFalse(pm.succeeded());
-//        assertEquals(2, pm.getMessages().size());
-//        assertTrue( pm.getMessages().get(0).getMessage().contains("Forcing error from CreateErrorAction") );
-//        assertEquals( "Error detected", pm.getMessages().get(1).getMessage() );
+        ActionExecution ae = runAction("testErrorHandler", "");
+        ProgressMonitorReporter pm = ae.getMonitor();
+        assertFalse(pm.succeeded());
+        assertEquals(2, pm.getMessages().size());
+        assertTrue( pm.getMessages().get(0).getMessage().contains("Forcing error from CreateErrorAction") );
+        assertEquals( "Error detected", pm.getMessages().get(1).getMessage() );
 //        
-        ProgressMonitorReporter pm = runAction("compoundError", "").getMonitor();
+        pm = runAction("compoundError", "").getMonitor();
         assertFalse(pm.succeeded());
         assertEquals(3, pm.getMessages().size());
         assertEquals( "compound error", pm.getMessages().get(0).getMessage() );
         assertEquals( "exception caught", pm.getMessages().get(2).getMessage() );
 
-        // TODO debug why this test is unreliable outside of eclipse on fast machine
-        /*
         ae = runAction("testErrorTimeout", "");
         pm = ae.getMonitor();
         assertFalse(pm.succeeded());
         List<ProgressMessage> messages = pm.getMessages();
         int n = messages.size();
-//        System.out.println("Messages = " + messages);
-        assertTrue( "Timeout detected".equals( messages.get(n-1).getMessage() ) 
+        System.out.println("Messages = " + messages);
+        Thread.sleep(100);
+        assertTrue( "Timeout detected".equals( messages.get(n-1).getMessage() )
                  || "Timeout detected".equals( messages.get(n-2).getMessage() ) );
-        */
+
     }
     
     @Test
