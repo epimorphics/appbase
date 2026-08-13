@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 * Update jetty to 12.1.10
+* Update transitive dependency on httpcore5 5.2.1 to 5.4.3
 
 ## [4.0.6] - 2026-07-09
 
