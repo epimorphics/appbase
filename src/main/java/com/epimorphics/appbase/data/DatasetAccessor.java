@@ -1,3 +1,12 @@
+/******************************************************************
+ * File:        DatasetAccessor.java
+ * Created by:  Simon Oakes
+ * Created on:  3 Nov 2025
+ *
+ * (c) Copyright 2026, Epimorphics Limited
+ *
+ *****************************************************************/
+
 package com.epimorphics.appbase.data;
 
 import org.apache.jena.rdf.model.Model;
