@@ -5,11 +5,11 @@ All notable changes to this project from 2026-03-11 onward will be documented in
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [4.0.7] - 2026-08-19
 
+* Update micrometer-core to 1.15.12
+* Update lib to 4.0.3 to pull in httpclient5, httpcore5-h2 updates
 * Update jetty to 12.1.10
-* Update transitive dependency on httpcore5 5.2.1 to 5.4.3
-* Update transitive dependency on micrometer-core 1.15.4 to 1.15.12
 
 ## [4.0.6] - 2026-07-09
 
