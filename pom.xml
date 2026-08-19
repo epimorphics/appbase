@@ -269,12 +269,12 @@
       <scope>test</scope>
     </dependency>
 
-      <!-- Override micrometer in jena-fuseki-main -->
-      <dependency>
-          <groupId>io.micrometer</groupId>
-          <artifactId>micrometer-core</artifactId>
-          <version>1.15.12</version>
-      </dependency>
+    <!-- override micrometer dependency in jena-fuseki-main -->
+    <dependency>
+        <groupId>io.micrometer</groupId>
+        <artifactId>micrometer-core</artifactId>
+        <version>1.15.12</version>
+    </dependency>
   </dependencies>
 
 
