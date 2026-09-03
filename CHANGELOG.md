@@ -5,6 +5,12 @@ All notable changes to this project from 2026-03-11 onward will be documented in
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.8] - 2026-09-03
+
+* Update appbase 4.0.3 to 4.0.4 to address CVEs
+* Update tomcat 11.0.22 to 11.0.25 to address CVEs
+* Update org.apache.thrift:libthrift 0.23.0 to 0.24.0 to address CVEs
+
 ## [4.0.7] - 2026-08-19
 
 * Update micrometer-core to 1.15.12

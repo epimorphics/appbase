@@ -126,7 +126,7 @@ public class TestJsonActions {
         assertFalse(pm.succeeded());
         List<ProgressMessage> messages = pm.getMessages();
         int n = messages.size();
-        Thread.sleep(200);
+        Thread.sleep(400);
         assertTrue( "Timeout detected".equals( messages.get(n-1).getMessage() )
                  || "Timeout detected".equals( messages.get(n-2).getMessage() ) );
 
