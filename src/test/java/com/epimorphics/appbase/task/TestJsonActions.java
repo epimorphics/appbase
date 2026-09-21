@@ -124,9 +124,9 @@ public class TestJsonActions {
         ae = runAction("testErrorTimeout", "");
         pm = ae.getMonitor();
         assertFalse(pm.succeeded());
+        Thread.sleep(100);
         List<ProgressMessage> messages = pm.getMessages();
         int n = messages.size();
-        Thread.sleep(400);
         assertTrue( "Timeout detected".equals( messages.get(n-1).getMessage() )
                  || "Timeout detected".equals( messages.get(n-2).getMessage() ) );
 
