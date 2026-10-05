@@ -14,11 +14,11 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
-    <tomcat.version>11.0.25</tomcat.version>
+    <tomcat.version>11.0.26</tomcat.version>
     <jena.version>5.6.0</jena.version>
-    <lib.version>4.0.4</lib.version>
+    <lib.version>4.0.5</lib.version>
     <jersey.version>3.1.11</jersey.version>
-    <jetty.version>12.1.10</jetty.version>
+    <jetty.version>12.1.12</jetty.version>
   </properties>
 
   <repositories>
@@ -91,6 +91,20 @@
       <groupId>com.epimorphics</groupId>
       <artifactId>lib</artifactId>
       <version>${lib.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>commons-lang3</artifactId>
+          <groupId>org.apache.commons</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-text</artifactId>
+          <groupId>org.apache.commons</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>httpcore5</artifactId>
+          <groupId>org.apache.httpcomponents.core5</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -102,23 +116,62 @@
           <groupId>org.apache.thrift</groupId>
           <artifactId>libthrift</artifactId>
         </exclusion>
+        <exclusion>
+          <artifactId>commons-lang3</artifactId>
+          <groupId>org.apache.commons</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jspecify</artifactId>
+          <groupId>org.jspecify</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.thrift</groupId>
       <artifactId>libthrift</artifactId>
-      <version>0.24.0</version>
+      <version>0.25.0</version>
       <exclusions>
+        <exclusion>
+          <groupId>org.apache.httpcomponents.client5</groupId>
+          <artifactId>httpclient5</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>org.apache.httpcomponents.core5</groupId>
           <artifactId>httpcore5</artifactId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jakarta.servlet-api</artifactId>
+          <groupId>jakarta.servlet</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>commons-lang3</artifactId>
+          <groupId>org.apache.commons</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>slf4j-api</artifactId>
+          <groupId>org.slf4j</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents.client5</groupId>
+      <artifactId>httpclient5</artifactId>
+      <version>5.6.4</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>slf4j-api</artifactId>
+          <groupId>org.slf4j</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>httpcore5</artifactId>
+          <groupId>org.apache.httpcomponents.core5</groupId>
         </exclusion>
       </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents.core5</groupId>
       <artifactId>httpcore5</artifactId>
-      <version>5.4.3</version>
+      <version>5.4.4</version>
     </dependency>
 
     <dependency>
@@ -135,6 +188,10 @@
         <exclusion>
           <groupId>org.apache.commons</groupId>
           <artifactId>commons-lang3</artifactId>
+        </exclusion>
+        <exclusion>
+          <artifactId>slf4j-api</artifactId>
+          <groupId>org.slf4j</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -192,6 +249,10 @@
           <groupId>org.apache.httpcomponents</groupId>
           <artifactId>httpclient</artifactId>
         </exclusion>
+        <exclusion>
+          <artifactId>commons-codec</artifactId>
+          <groupId>commons-codec</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
 
@@ -216,6 +277,26 @@
               <artifactId>micrometer-core</artifactId>
               <groupId>io.micrometer</groupId>
           </exclusion>
+        <exclusion>
+          <artifactId>commons-io</artifactId>
+          <groupId>commons-io</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jetty-security</artifactId>
+          <groupId>org.eclipse.jetty</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jetty-util</artifactId>
+          <groupId>org.eclipse.jetty</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jetty-ee10-servlets</artifactId>
+          <groupId>org.eclipse.jetty.ee10</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jetty-ee10-servlet</artifactId>
+          <groupId>org.eclipse.jetty.ee10</groupId>
+        </exclusion>
       </exclusions>
       <scope>test</scope>
     </dependency>
@@ -231,6 +312,10 @@
           <groupId>org.bouncycastle</groupId>
           <artifactId>bcprov-jdk18on</artifactId>
         </exclusion>
+        <exclusion>
+          <artifactId>slf4j-api</artifactId>
+          <groupId>org.slf4j</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
 
@@ -238,7 +323,7 @@
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-jdk18on</artifactId>
-      <version>1.85</version>
+      <version>1.86</version>
     </dependency>
 
     <!-- Override shiro-web in jena-fuseki-main -->
@@ -255,6 +340,12 @@
       <artifactId>jetty-ee10-servlet</artifactId>
       <version>${jetty.version}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>jakarta.servlet-api</artifactId>
+          <groupId>jakarta.servlet</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty.ee10</groupId>
@@ -273,7 +364,7 @@
     <dependency>
         <groupId>io.micrometer</groupId>
         <artifactId>micrometer-core</artifactId>
-        <version>1.15.12</version>
+        <version>1.17.1</version>
     </dependency>
   </dependencies>
 
