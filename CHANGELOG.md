@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 * Upgrade vulnerable dependencies.
+  * com.epimorphics:lib 4.0.4 -> 4.0.5
+  * Tomcat 11.0.25 -> 11.0.26
+  * Jetty 12.1.10 -> 12.1.12
+  * org.apache.thrift:libthrift 0.24.0 -> 0.25.0
+  * org.apache.httpcomponents.client5:httpclient5 5.4.3 ->5.6.4
+  * org.apache.httpcomponents.core5:httpcore5 5.4.3 ->5.4.4
+  * org.bouncycastle:bcprov-jdk18on 1.85 -> 1.86
+  * io.micrometer:micrometer-core 1.15.12 -> 1.17.1
 
 ## [4.0.9] - 2026-09-21
 
