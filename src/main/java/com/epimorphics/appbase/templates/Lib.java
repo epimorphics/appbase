@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.jena.atlas.json.JsonValue;
 
 import com.epimorphics.appbase.data.WNode;
