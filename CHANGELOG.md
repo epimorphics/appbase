@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 * Upgrade vulnerable dependencies.
+  * com.epimorphics:lib 4.0.5 -> 4.0.6
+  * Tomcat 11.0.26 -> 11.0.27
+
+## [4.0.10] - 2026-10-06
+
+* Upgrade vulnerable dependencies.
   * com.epimorphics:lib 4.0.4 -> 4.0.5
   * Tomcat 11.0.25 -> 11.0.26
   * Jetty 12.1.10 -> 12.1.12

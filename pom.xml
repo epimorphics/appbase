@@ -14,9 +14,9 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
-    <tomcat.version>11.0.26</tomcat.version>
+    <tomcat.version>11.0.27</tomcat.version>
     <jena.version>5.6.0</jena.version>
-    <lib.version>4.0.5</lib.version>
+    <lib.version>4.0.6</lib.version>
     <jersey.version>3.1.11</jersey.version>
     <jetty.version>12.1.12</jetty.version>
   </properties>
