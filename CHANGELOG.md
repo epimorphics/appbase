@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [4.0.11] - 2026-11-04
+
 * Upgrade vulnerable dependencies.
   * com.epimorphics:lib 4.0.5 -> 4.0.6
   * Tomcat 11.0.26 -> 11.0.27
