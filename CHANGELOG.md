@@ -14,6 +14,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Update httpcore5 and httpclient5 to address vulnerabilities
 * Update bcprov-jdk18on to address vulnerabilities
 
+## [4.0.11] - 2026-11-04
+
+* Upgrade vulnerable dependencies.
+  * com.epimorphics:lib 4.0.5 -> 4.0.6
+  * Tomcat 11.0.26 -> 11.0.27
+
+## [4.0.10] - 2026-10-06
+
+* Upgrade vulnerable dependencies.
+  * com.epimorphics:lib 4.0.4 -> 4.0.5
+  * Tomcat 11.0.25 -> 11.0.26
+  * Jetty 12.1.10 -> 12.1.12
+  * org.apache.thrift:libthrift 0.24.0 -> 0.25.0
+  * org.apache.httpcomponents.client5:httpclient5 5.4.3 ->5.6.4
+  * org.apache.httpcomponents.core5:httpcore5 5.4.3 ->5.4.4
+  * org.bouncycastle:bcprov-jdk18on 1.85 -> 1.86
+  * io.micrometer:micrometer-core 1.15.12 -> 1.17.1
+
 ## [4.0.9] - 2026-09-21
 
 * Update org.bouncycastle:bcprov-jdk18on library 1.84 to 1.85 to address critical CVE
