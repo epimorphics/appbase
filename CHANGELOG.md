@@ -5,6 +5,15 @@ All notable changes to this project from 2026-03-11 onward will be documented in
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+* Update tomcat to 11.0.29
+* Update epimorphics:lib to 4.0.7 to address transitive dependency vulnerabilities
+* Update jetty to 12.1.13 to address vulnerabilities
+* Update libthrift to 0.25.0 to address vulnerabilities
+* Update httpcore5 and httpclient5 to address vulnerabilities
+* Update bcprov-jdk18on to address vulnerabilities
+
 ## [4.0.9] - 2026-09-21
 
 * Update org.bouncycastle:bcprov-jdk18on library 1.84 to 1.85 to address critical CVE
