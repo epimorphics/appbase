@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+* Update tomcat to 11.0.29 to address vulnerabilities
+* Update epimorphics:lib to 4.0.7 to address transitive dependency vulnerabilities
+* Update jetty to 12.1.13 to address vulnerabilities
+* Update bcprov-jdk18on to address vulnerabilities
+
 ## [4.0.11] - 2026-11-04
 
 * Upgrade vulnerable dependencies.
